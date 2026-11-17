@@ -1,85 +1,116 @@
-# Cómo compartir Campus Circular con tus amigos del grupo
+# Cómo compartir Circular Campus
 
-Ya **no hay cuentas demo**. Cada persona se registra con su propio email
-(idealmente `@alumnos.uvigo.es` / `@uvigo.gal` para la insignia de
-verificado) y publica sus objetos reales. Los objetos de ejemplo pertenecen
-al «Equipo CTC-07» y nadie puede iniciar sesión con ellos.
+Circular Campus es un prototipo independiente presentado en CTC Congress.
+**No subas la base de datos**: `campus_circular.db` ya está en `.gitignore` y
+el despliegue de Render usa una base efímera en `/tmp`.
 
-Tienes 3 formas de compartirla, de más rápida a más permanente:
+No hay credenciales compartidas. Cada persona se registra con su propio correo
+válido y publica sus objetos. Los objetos de ejemplo pertenecen a
+`Equipo Circular Campus`, una cuenta de sistema con contraseña aleatoria y no
+utilizable para iniciar sesión.
+
+Antes de compartir un enlace con datos reales, configura un correo de contacto
+real y revisa el apartado legal de [README.md](README.md).
 
 ---
 
-## Opción A — Enlace de vista previa (ahora mismo)
+## Opción A de pagos, sin PSP
 
-La web está corriendo en la vista previa en vivo de esta conversación
-(boton **Campus Circular** / LIVE PREVIEW). Copia ese enlace y pégalo en
-el grupo de WhatsApp/Drive. Tus amigos abren el enlace, pulsan
-**Crear cuenta**, se registran y ya pueden publicar y solicitar.
+No hay pasarela de pago, comisión, monedero, depósito en garantía ni reembolso
+gestionado por la plataforma. El precio de «Vender» es orientativo y cualquier
+pago se acuerda directamente entre particulares, fuera de Circular Campus.
+La web lo indica en la portada, al publicar, en la ficha de objeto, en las
+normas y en las condiciones de uso.
 
-⚠️ Este enlace vive mientras dure el entorno de esta conversación.
-Para el trabajo del grupo, usa la Opción B.
+---
 
-## Opción B — Enlace permanente gratis con Render (recomendado, 5 min)
+## Opción 1 — Vista previa en vivo
 
-Render ofrece un plan gratuito con URL pública tipo
+La web puede abrirse desde el botón **LIVE PREVIEW** de esta conversación.
+Copia ese enlace y compártelo para probarla. Sirve mientras dure el entorno de
+la conversación; para un enlace estable, usa la Opción 2.
+
+## Opción 2 — Enlace permanente gratis con Render
+
+Render ofrece un plan gratuito con URL pública como
 `https://campus-circular.onrender.com`. Solo necesitas una cuenta de GitHub.
 
-1. Sube esta carpeta `campus-circular/` a un repositorio en GitHub
-   (sin la base de datos: ya está en `.gitignore`).
-2. Entra en <https://render.com> → **New → Web Service** → conecta el repo.
-3. Render detecta `render.yaml` y rellena solo:
+1. Sube el repositorio `campus-circular` a GitHub **sin la base de datos**
+   (ya está ignorada).
+2. Entra en <https://render.com> → **New → Blueprint** o **Web Service** →
+   conecta el repositorio y la rama correcta.
+3. Render lee `render.yaml`:
    - Build: `pip install -r requirements.txt`
    - Start: `python3 app.py`
-4. Pulsa **Create Web Service**. En 2–3 minutos tendrás la URL pública.
-5. Comparte esa URL en el grupo. Todos se registran con su email y publican.
+   - Health check: `/api/health`
+   - `DATABASE=/tmp/campus_circular.db`
+4. En **Environment**, sustituye antes de producción:
+   - `CONTACT_EMAIL`: correo real de privacidad/contacto.
+   - `CONTROLLER_NAME`: identificación real del responsable editorial.
+   - `LEGAL_VERSION` y `LEGAL_UPDATED`: si actualizas los textos legales.
+   - `SEED_DEMO=0` si no quieres objetos de ejemplo en un despliegue nuevo.
+5. Pulsa **Create** y, cuando el health check esté en verde, comparte la URL.
 
 Notas del plan gratuito:
-- La primera visita tras 15 min de inactividad tarda ~30–50 s en
-  «despertar» el servicio. Es normal.
-- La base SQLite se reinicia si Render reinicia el servicio. Para un
-  proyecto de clase es aceptable; si necesitáis persistencia, el siguiente
-  paso sería Postgres (cambiar `get_db()` en `app.py`).
 
-## Opción C — Ejecutarla en tu ordenador y pasar el zip
+- La primera visita tras un periodo de inactividad puede tardar en «despertar»
+  el servicio. Es normal.
+- La base SQLite en `/tmp` se reinicia si Render reinicia el servicio. Para
+  datos reales, añade persistencia, copias de seguridad y una revisión de
+  protección de datos; no basta con el almacenamiento efímero.
+- No configure secretos ni claves de PSP: la Opción A no integra pagos.
+- No uses marcas institucionales ni presentes la web como servicio oficial.
 
-Si alguien quiere probarla sin internet:
+## Opción 3 — Ejecutarla en local
 
 ```bash
 cd campus-circular
+python3 -m venv .venv
+. .venv/bin/activate
 pip install -r requirements.txt
 python3 app.py
 # Abrir http://127.0.0.1:5000
 ```
 
-Puedes comprimir la carpeta y subirla a la carpeta compartida de Drive
-del grupo. Cada ordenador tendrá su propia copia con sus propios datos
-(no se comparten objetos entre ordenadores en esta opción).
+Puedes comprimir la carpeta y compartirla, pero cada ordenador tendrá su
+propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
+`.venv/`, `__pycache__/` y `static/uploads/*`.
 
 ---
 
-## Qué decir en el grupo (mensaje listo para copiar)
+## Mensaje listo para compartir
 
-> Hola! He montado **Campus Circular** (CTC-07): una web para regalar,
-> prestar, intercambiar o vender materiales entre estudiantes de la UVigo
-> (libros, ropa, muebles, calculadoras…).
+> Hola! He montado **Circular Campus**, un prototipo independiente para dar una
+> segunda vida a libros, ropa, muebles, calculadoras y otros materiales.
 >
 > Entrad aquí: **[PEGA AQUÍ EL ENLACE]**
-> 1. Pulsa **Crear cuenta** y regístrate con vuestro email de la UVigo.
-> 2. Pulsa **Publicar** y subid un objeto que ya no uséis (con foto y
->    descripción honesta del estado).
-> 3. Buscad lo que necesitéis y enviad la solicitud. Quedamos en un punto
->    del campus (biblioteca, entrada principal…).
+> 1. Pulsad **Crear cuenta** y registráos con vuestro correo.
+> 2. Pulsad **Publicar** y subid un objeto que ya no uséis, con foto y una
+>    descripción honesta de su estado.
+> 3. Buscad lo que necesitéis y enviad una solicitud. Quedamos en un lugar
+>    público y acordamos la entrega.
 >
-> Está en español, inglés y gallego. Si algo falla, me decís y lo arreglo.
-> Gracias!
+> Está en español, inglés y gallego. Importante: **no hay pagos dentro de la
+> web**; si alguien indica un precio, es orientativo y se acuerda directamente
+> entre particulares, fuera de la plataforma. No es un servicio oficial de
+> ninguna universidad. Si algo falla, me decís y lo arreglo. ¡Gracias!
 
 ---
 
-## Verificación rápida (sin cuentas demo)
+## Verificación rápida
 
-- No existe ninguna credencial compartida: si alguien intenta entrar con
-  un email que no registró, el login falla.
-- Los objetos de ejemplo aparecen como propiedad de «Equipo CTC-07» y
-  sirven para ver cómo funciona antes de publicar los vuestros.
-- Para empezar de cero en un despliegue nuevo, basta con no subir
-  `campus_circular.db` (ya está ignorado en git).
+- `/api/health` responde con `ok: true`, `product: Circular Campus`,
+  `payment_option: A` y la versión legal.
+- No existe ninguna credencial compartida: un correo no registrado no puede
+  entrar.
+- `/aviso-legal`, `/privacidad` y `/condiciones` cargan directamente y están
+  enlazados desde el pie en los tres idiomas.
+- El registro exige casilla de consentimiento sin marcar; sin ella devuelve
+  `consent_required`.
+- Crear un objeto exige `private_seller: true` y solo acepta imágenes locales.
+- Desde **Mi área** se pueden descargar los datos y eliminar la cuenta.
+- El repositorio no contiene `.db`, `.sqlite`, `.sqlite3` ni volcados SQL.
+
+---
+
+Circular Campus · una idea de **Antonio Domínguez Trapero** · CTC Congress

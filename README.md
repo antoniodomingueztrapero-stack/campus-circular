@@ -1,17 +1,94 @@
-# Campus Circular — CTC-07 · Universidade de Vigo
+# Circular Campus
 
-**Reutilización e intercambio de materiales universitarios.**
-**Reuse and exchange of university materials.**
+**Prototipo independiente de reutilización e intercambio de materiales de segunda vida.**
 
-Versión funcional de la plataforma propuesta en el Abstract CTC-07: estudiantes
-publican, buscan y solicitan objetos (libros, ropa, muebles, calculadoras…)
-con fotos, descripción del estado y entrega en el campus.
+**Independent prototype for reusing and exchanging second-life materials.**
 
-> Investigación base: encuesta bilingüe con 26 respuestas y 6 entrevistas
-> (21–25 oct 2026). Hallazgos clave: 81% tenía objetos útiles que ya no
-> necesitaba; 69% había conseguido algo de segunda mano en el último año;
-> estado (77%) y confianza (50%) son las barreras principales; 50% prefiere
-> punto de intercambio en el campus.
+> Proyecto presentado en **CTC Congress**. No es un servicio oficial, avalado ni
+> gestionado por ninguna universidad. Las etiquetas Vigo, Pontevedra y Ourense
+> son únicamente referencias geográficas para organizar entregas.
+
+Circular Campus permite publicar, buscar, guardar y solicitar objetos usados:
+libros, ropa, muebles, material de estudio, electrónica, cocina, pequeños
+electrodomésticos, deporte y otros. La interfaz está en **español, inglés y
+gallego**. No hay cuentas de demostración compartidas: cada persona se registra
+con su propio correo.
+
+---
+
+## Decisión de pagos: Opción A (sin PSP)
+
+**Decisión explícita: no se ha integrado ninguna pasarela de pago.** El usuario
+planteó que solo tendría sentido si fuera *totalmente gratis* para él. Tras
+revisar tarifas oficiales, no existe un PSP con coste cero una vez se produce
+un cobro:
+
+| Proveedor | Coste relevante | Consecuencia |
+|---|---|---|
+| [Stripe España](https://stripe.com/es/pricing) | Sin cuota mensual ni de alta, pero `1,5 % + 0,25 €` por tarjeta EEE estándar, con recargos internacionales, FX, disputas y payouts | El alta puede ser gratuita; cada pago exitoso no lo es |
+| [PayPal España](https://www.paypal.com/es/webapps/mpp/merchant-fees) | `2,90 % + 0,35 €` en transacciones comerciales nacionales estándar, además de tarifas fijas e internacionales | Coste por operación |
+| Redsys / Bizum | Requieren contrato bancario de TPV y pueden implicar comisiones por operación o mantenimiento | No hay garantía de coste cero |
+
+*Tarifas consultadas en noviembre de 2026; pueden cambiar. Consulta siempre la
+fuente oficial antes de tomar una decisión.*
+
+Por tanto, Circular Campus:
+
+- **no procesa pagos, no cobra comisiones, no custodia fondos, no ofrece
+  depósito en garantía, no emite reembolsos, no garantiza objetos ni media en
+  disputas**;
+- mantiene «Vender» solo como **precio orientativo** y motivo de contacto;
+- deja cualquier contraprestación para un acuerdo **directo entre particulares,
+  fuera de la plataforma**, por ejemplo en efectivo o pago persona a persona en
+  la entrega;
+- excluye vendedores profesionales y actividad comercial habitual;
+- solo contemplaría una pasarela futura con un **proveedor de servicios de pago
+  regulado**, cuentas conectadas y verificación KYC; nunca con un monedero
+  propio, fondos retenidos ni comisiones ocultas.
+
+Esta decisión aparece también en la portada, en el formulario de publicación,
+en la ficha de objeto, en las normas, en las condiciones de uso y en el pie.
+
+---
+
+## Privacidad y datos
+
+La web aplica minimización desde el diseño y cumple el enfoque de información
+por capas del RGPD y la LOPDGDD:
+
+- **Consentimiento explícito**: casilla sin marcar en el registro, con enlaces
+  a la [política de privacidad](/privacidad) y a las
+  [condiciones](/condiciones); se guardan fecha y versión del consentimiento.
+- **Aviso legal, privacidad y condiciones** en ES / EN / GL, accesibles desde
+  el pie y por URL directa: `/aviso-legal`, `/privacidad`, `/condiciones`.
+- **Datos mínimos**: nombre visible, email, contraseña con hash, campus,
+  publicaciones, favoritos, solicitudes y token de sesión. Se eliminó el campo
+  de titulación y no se guarda IP asociada a la cuenta.
+- **Sin email en perfiles públicos**: la ficha de objeto solo muestra nombre,
+  campus y una insignia informativa de dominio académico. Esa insignia **no
+  verifica matrícula, identidad ni pertenencia institucional**.
+- **Derechos realizables en la app**: `/api/account/export` descarga los datos
+  propios en JSON; `/api/account/delete` elimina cuenta, sesiones, objetos,
+  favoritos, solicitudes propias y ficheros subidos. El borrado pide la
+  contraseña actual.
+- **Renovación de consentimiento**: si cambia `LEGAL_VERSION`, una cuenta
+  antigua ve un aviso no descartable y no puede publicar hasta aceptar la
+  versión vigente.
+- **Retención**: las sesiones caducan a los 30 días y se limpian al iniciar
+  sesión. En el despliegue gratuito, la base SQLite en `/tmp` puede ser
+  efímera; un reinicio puede borrar datos, lo cual **no sustituye** una
+  supresión formal ni una copia de seguridad.
+- **Cero rastreadores**: sin analítica, píxeles, cookies publicitarias,
+  fuentes externas, CDN de imágenes ni URL de imagen de terceros. Las
+  ilustraciones son SVG locales y las fotos se suben al propio servicio.
+- **Cabeceras de seguridad**: CSP local, `nosniff`, `Referrer-Policy`,
+  `Permissions-Policy` y `Cache-Control: no-store` en rutas de cuenta/auth.
+
+Antes de un despliegue institucional con datos reales, sustituye el correo de
+contacto por uno real, identifica correctamente al responsable, revisa el
+artículo 10 de la LSSI si el servicio pasa a ser económico y coordina con la
+delegación de protección de datos correspondiente. Este README no es
+asesoramiento jurídico, fiscal o de consumo.
 
 ---
 
@@ -19,132 +96,150 @@ con fotos, descripción del estado y entrega en el campus.
 
 | Capa | Tecnología |
 |---|---|
-| Backend | Python 3 + Flask 3 (API REST JSON) |
-| Base de datos | SQLite (stdlib `sqlite3`, sin driver extra) |
-| Frontend | HTML + CSS + JS vanilla (SPA, sin build) |
-| i18n | ES / EN / GL en frontend (diccionario en `static/js/app.js`) |
-| Auth | Token Bearer (sesiones en BD, 30 días), contraseñas con `werkzeug` |
-| Subida de imágenes | `static/uploads/` (JPG/PNG/WebP/GIF, máx. 5 MB) |
+| Backend | Python 3 + Flask 3, API REST JSON |
+| Base de datos | SQLite mediante `sqlite3` de la biblioteca estándar |
+| Frontend | HTML + CSS + JavaScript vanilla, SPA sin build |
+| i18n | ES / EN / GL en `static/js/app.js` y documentos legales |
+| Auth | Token Bearer en `localStorage`, sesiones en BD, contraseñas con `werkzeug` |
+| Imágenes | Recursos locales en `static/img/` y subidas en `static/uploads/` |
+| Seguridad | Validación en servidor, CSP, magic bytes, rutas locales, minimización |
 
 Sin dependencias de frontend que compilar: `pip install -r requirements.txt`
-y `python3 app.py` es suficiente.
+y `python3 app.py` bastan.
 
 ## Estructura
 
-```
+```text
 campus-circular/
-├── app.py                  # Backend: API + sirve el frontend + seed
+├── app.py                  # API, arranque, seguridad, seed y derechos de cuenta
+├── templates/index.html    # Shell SPA, cabecera, pie y configuración legal
+├── static/
+│   ├── css/style.css       # Diseño responsive y estilos de documentos legales
+│   ├── js/app.js           # SPA, i18n, vistas, modales y cliente API
+│   ├── img/                # Marca revisada, CTC Congress, foto y SVG locales
+│   └── uploads/            # Imágenes subidas (ignoradas en Git)
 ├── requirements.txt
-├── campus_circular.db      # SQLite (se crea solo al arrancar)
-├── templates/
-│   └── index.html          # Shell SPA
-└── static/
-    ├── css/style.css       # Diseño responsive
-    ├── js/app.js           # SPA: i18n ES/EN/GL, vistas, modales, API client
-    └── uploads/            # Imágenes subidas por usuarios
+├── render.yaml
+├── Procfile
+├── DEPLOY.md
+└── .gitignore
 ```
+
+`campus_circular.db` se crea solo al arrancar y está ignorada. **No se sube la
+base de datos al repositorio.**
 
 ## Cómo ejecutar
 
 ```bash
 cd campus-circular
+python3 -m venv .venv
+. .venv/bin/activate
 pip install -r requirements.txt
 python3 app.py
 # Abrir http://127.0.0.1:5000
 ```
 
-La base de datos y los datos de demostración se crean automáticamente en el
-primer arranque (`seed_if_empty()`). Para reiniciar los datos demo, borra
-`campus_circular.db` y vuelve a arrancar.
+La base y los objetos de ejemplo se crean automáticamente en el primer arranque.
+El propietario de ejemplo es `Equipo Circular Campus`, con contraseña aleatoria
+y no utilizable para iniciar sesión. Para reiniciar el demo, elimina el archivo
+de base de datos configurado y vuelve a arrancar.
 
-### Cuentas: registro propio, sin cuentas demo
+## Configuración
 
-No hay credenciales compartidas. Cada estudiante se registra con su propio
-email; si el dominio es `@alumnos.uvigo.es`, `@uvigo.gal` o `@uvigo.es`
-obtiene la insignia **Verificado/a UVigo**.
+| Variable | Valor por defecto | Uso |
+|---|---|---|
+| `DATABASE` | `campus_circular.db` junto a `app.py` | Ruta SQLite; en Render se usa `/tmp/campus_circular.db` |
+| `PORT` | `5000` | Puerto de escucha, `0.0.0.0` |
+| `SEED_DEMO` | `1` | `0` desactiva los objetos de ejemplo |
+| `CONTACT_EMAIL` | `privacidad@circular-campus.example` | **Sustituir por un correo real antes de producción** |
+| `CONTROLLER_NAME` | `Equipo Circular Campus (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
+| `LEGAL_VERSION` | `2026-11-17` | Versión del consentimiento; cambiarla fuerza renovación |
+| `LEGAL_UPDATED` | `17 de noviembre de 2026` | Fecha visible en los documentos |
 
-Los objetos de ejemplo pertenecen al usuario de sistema «Equipo CTC-07»,
-cuya contraseña es aleatoria y nunca se muestra: nadie puede iniciar
-sesión con él. Sirven solo para ver cómo funciona la plataforma.
-
-Para compartirla con el grupo y desplegarla con URL pública gratuita,
-consulta [DEPLOY.md](DEPLOY.md).
+No se necesita `SECRET_KEY`: la app no usa cookies de sesión de Flask, sino
+tokens Bearer aleatorios almacenados en el navegador.
 
 ## Funcionalidades
 
-- **Explorar**: buscador + filtros por categoría, campus, estado, tipo y orden.
-- **Categorías** (taxonomía de la encuesta Q6/Q10 + deporte y otros):
-  libros, ropa, muebles, calculadoras/material de estudio, electrónica,
-  cocina/hogar, pequeños electrodomésticos, deporte y ocio, otros.
-- **Publicar**: título, descripción honesta del estado, categoría, estado
-  (nuevo / como nuevo / bueno / usable con marcas), tipo (regalar / prestar /
-  intercambiar / vender con precio), campus, punto de entrega y foto
-  (URL o subida).
-- **Solicitar**: mensaje al propietario; el propietario acepta/rechaza;
-  al aceptar el objeto pasa a *reservado*; al completar, a *entregado*.
-- **Mi área**: mis objetos (cambiar estado, eliminar), mis solicitudes,
-  solicitudes recibidas y favoritos.
-- **Confianza**: insignia UVigo, descripción obligatoria del estado, normas
-  claras de préstamo, puntos de intercambio públicos del campus.
-- **Puntos de intercambio**: biblioteca, entrada principal, cafetería, punto
-  habilitado y lugar acordado (Vigo, Pontevedra, Ourense).
-- **Trilingüe**: ES / EN / GL con selector en la cabecera.
-- **Estadísticas**: objetos publicados, disponibles, reutilizados y usuarios.
+- **Explorar**: búsqueda, filtros por categoría, campus, estado, tipo y orden.
+- **Publicar**: título, descripción honesta, categoría, estado, tipo, campus,
+  punto de entrega, foto local y confirmación obligatoria de particular.
+- **Precio orientativo**: visible solo en «Vender», con aviso de Opción A.
+- **Solicitar**: mensaje breve; la otra persona acepta, rechaza o marca entrega.
+- **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos y panel de
+  datos con exportación y supresión.
+- **Confianza**: estado del objeto, normas, entrega en lugar público y nota
+  clara de que no hay verificación oficial.
+- **Puntos de entrega**: etiquetas orientativas; no son puntos oficiales.
+- **Legal**: aviso legal, privacidad y condiciones en tres idiomas, con
+  impresión/guardado en PDF desde el navegador.
+- **Trilingüe**: ES / EN / GL con selector y rutas directas.
+- **Estadísticas**: contadores reales de la base, sin métricas de impacto
+  inventadas.
 
 ## API (resumen)
 
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
-| GET | `/api/health` | — | Estado del servicio |
-| GET | `/api/stats` | — | Contadores y categorías |
-| GET | `/api/items?q=&category=&campus=&condition=&type=&sort=` | — | Listar objetos |
-| GET | `/api/items/:id` | — | Detalle + propietario |
-| POST | `/api/items` | ✓ | Crear objeto |
+| GET | `/api/health` | — | Estado, producto, opción de pago y versión legal |
+| GET | `/api/stats` | — | Contadores reales y categorías |
+| GET | `/api/items` | — | Listar objetos y filtros |
+| GET | `/api/items/:id` | — | Detalle con propietario mínimo, sin email |
+| POST | `/api/items` | ✓ | Crear objeto; exige `private_seller` |
 | PATCH | `/api/items/:id` | ✓ dueño | Cambiar estado |
-| DELETE | `/api/items/:id` | ✓ dueño | Eliminar |
-| POST | `/api/upload` | ✓ | Subir imagen (multipart) |
-| POST | `/api/auth/register` | — | Registro |
+| DELETE | `/api/items/:id` | ✓ dueño | Eliminar objeto e imagen subida |
+| POST | `/api/upload` | ✓ | Subir imagen local validada por extensión y magic bytes |
+| POST | `/api/auth/register` | — | Registro con `consent: true` |
 | POST | `/api/auth/login` | — | Login → token |
-| POST | `/api/auth/logout` | ✓ | Cerrar sesión |
-| GET | `/api/auth/me` | — | Usuario actual |
+| POST | `/api/auth/logout` | ✓ | Cerrar sesión actual |
+| GET | `/api/auth/me` | — | Usuario actual y versión legal |
+| POST | `/api/account/consent` | ✓ | Renovar consentimiento |
+| GET | `/api/account/export` | ✓ | Exportar datos propios en JSON |
+| DELETE | `/api/account/delete` | ✓ + contraseña | Suprimir cuenta y datos asociados |
 | POST | `/api/items/:id/request` | ✓ | Solicitar objeto |
-| GET | `/api/requests/mine` | ✓ | Mis solicitudes |
+| GET | `/api/requests/mine` | ✓ | Solicitudes enviadas |
 | GET | `/api/requests/received` | ✓ | Solicitudes recibidas |
 | PATCH | `/api/requests/:id` | ✓ | Aceptar/rechazar/completar/cancelar |
 | POST | `/api/items/:id/favorite` | ✓ | Alternar favorito |
-| GET | `/api/favorites` | ✓ | Mis favoritos |
+| GET | `/api/favorites` | ✓ | Favoritos |
 | GET | `/api/users/:id` | — | Perfil público mínimo |
+
+Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
+`/mi-area`, `/aviso-legal`, `/privacidad`, `/condiciones`.
 
 ## Decisiones de ingeniería
 
-- **SQLite + stdlib**: cero fricción para ejecutar en clase y en el sandbox;
+- **SQLite + stdlib**: cero fricción para clase, sandbox y vista previa;
   migrable a Postgres cambiando `get_db()` y las consultas.
-- **Validación en servidor** de todos los campos (longitudes, enums, precio,
-  URL de imagen) además de la validación del formulario.
-- **Sin framework JS**: la SPA es JS vanilla con render por vistas; fácil de
-  auditar y de extender a React/Vue después si se desea.
-- **i18n en frontend**: la API es neutral al idioma (guarda el contenido tal
-  como lo escribe el usuario); las etiquetas de categoría/estado/tipo se
-  traducen en cliente.
-- **Privacidad**: el perfil público no expone email; solo nombre, campus,
-  titulación y número de objetos.
+- **Migración tolerante**: `migrate_db()` añade `consent_at` y
+  `consent_version` a bases creadas por versiones anteriores.
+- **Arranque WSGI-compatible**: `bootstrap()` se ejecuta al importar el módulo,
+  no solo con `python3 app.py`.
+- **Validación en servidor** de longitudes, enumeraciones, precio, imagen,
+  consentimiento y condición de particular.
+- **CSP sin scripts inline**: la configuración se pasa como JSON en un bloque
+  `application/json`; no hay manejadores `onclick` ni `onerror` embebidos.
+- **Recursos propios**: se rechazan URL externas para imágenes de objeto.
+- **i18n en frontend**: la API guarda el contenido tal como lo escribe la
+  persona; las etiquetas y documentos se traducen en cliente.
 
-## Limitaciones honestas y próximos pasos
+## Limitaciones honestas
 
-- Datos demo ficticios inspirados en la investigación; no hay verificación
-  real de matrícula UVigo (solo dominio del email).
-- Sin mensajería en tiempo real: la solicitud incluye un mensaje; un chat
-  sería el siguiente paso.
-- Sin moderación ni reportes; añadir antes de un despliegue real.
-- Sin métricas de impacto ambiental: no se inventan kilos ni euros ahorrados
-  (la propia investigación lo advierte). Contar solo objetos entregados.
-- Siguientes pasos propuestos: SSO UVigo, fotos múltiples por objeto,
-  valoraciones entre usuarios, búsqueda por titulación/curso (petición de
-  las entrevistas) y test de usabilidad con estudiantes.
+- No hay verificación real de matrícula, identidad ni titularidad de objetos.
+- No hay moderación, reportes ni chat en tiempo real todavía.
+- El plan gratuito de Render puede reiniciar el servicio y perder la base
+  efímera; no es adecuado para datos reales sin persistencia y copias.
+- No se inventan kilos, euros ahorrados ni porcentajes de impacto: solo se
+  cuentan objetos, disponibilidad, entregas marcadas y cuentas.
+- Antes de uso real con datos personales o actividad económica, completa la
+  identificación del responsable, el correo de contacto y una revisión
+  jurídica/fiscal/LSSI específica.
 
-## Equipo
+## Despliegue
 
-CTC-07 · Universidade de Vigo — Antonio Domínguez Trapero, Pavlo Kovalenko,
-Karen Itzel Sandoval Ramos, Okechukwu Patrick Okeh, Fernando Heriberto
-Cardenas Rubi, Alba Grille Louro, Filip Juran, Greypher Alisander Garcia
-Alvarado, Jacob Schaal.
+Consulta [DEPLOY.md](DEPLOY.md). El Blueprint usa `healthCheckPath: /api/health`,
+`DATABASE=/tmp/campus_circular.db` y no incluye secretos ni base de datos.
+
+---
+
+Circular Campus · una idea de **Antonio Domínguez Trapero** · CTC Congress
