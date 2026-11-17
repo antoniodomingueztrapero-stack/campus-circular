@@ -1,28 +1,38 @@
 """
-Campus Circular — CTC-07 · Universidade de Vigo
-Reuse and exchange of university materials.
+Circular Campus — prototipo independiente de reutilización e intercambio.
 
-Backend: Flask + SQLite (stdlib only, no extra DB driver needed).
-Frontend: static SPA served from templates/ + static/.
+Backend: Flask + SQLite (stdlib, sin driver adicional).
+Frontend: SPA estática servida desde templates/ + static/, en ES / EN / GL.
 
-Run:
+Decisiones de producto y cumplimiento:
+- Proyecto independiente: no usa marcas institucionales ni se presenta como un
+  servicio oficial de ninguna universidad. Los campus son etiquetas geográficas.
+- Opción A en pagos: la plataforma no procesa pagos, no cobra comisiones, no
+  custodia fondos, no garantiza objetos ni media en disputas. «Vender» publica
+  únicamente un precio orientativo; cualquier contraprestación se acuerda
+  directamente entre particulares, fuera de Circular Campus.
+- Privacidad desde el diseño: consentimiento explícito en el registro, aviso
+  legal / privacidad / condiciones en tres idiomas, mínimos datos de perfil,
+  sin analítica ni recursos de terceros, exportación y supresión de cuenta.
+- Las imágenes de ejemplo y de categoría son locales. No se aceptan URL externas
+  para evitar peticiones a terceros desde el navegador.
+
+Arranque:
     python3 app.py
-Then open http://127.0.0.1:5000  (or the preview URL)
+    # http://127.0.0.1:5000, o la URL de vista previa / Render
 
-Design notes (from CTC-07 research):
-- Trust first: verified UVigo membership, mandatory condition photos/descriptions,
-  clear loan rules, safe campus handover points.
-- Categories mirror the survey taxonomy (Q6/Q10) + sport/leisure + other.
-- Bilingual/trilingual UI is handled on the frontend; the API is language-neutral
-  (stores user content as written).
+Variables de entorno opcionales:
+    DATABASE, PORT, SEED_DEMO, CONTACT_EMAIL, CONTROLLER_NAME,
+    LEGAL_VERSION, LEGAL_UPDATED.
 """
 
 import os
 import re
+import secrets
 import sqlite3
-import uuid
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from urllib.parse import urlparse
 
 from flask import Flask, g, jsonify, render_template, request, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -32,14 +42,20 @@ from werkzeug.utils import secure_filename
 # Config
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# DATABASE can be overridden for deployments (e.g. Render) where the
-# project directory may be ephemeral; default is a local SQLite file.
 DATABASE = os.environ.get("DATABASE", os.path.join(BASE_DIR, "campus_circular.db"))
 os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-UVIGO_DOMAINS = {"alumnos.uvigo.es", "uvigo.gal", "uvigo.es", "alumnado.uvigo.gal"}
+SERVICE_NAME = "Circular Campus"
+LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-17")
+LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "17 de noviembre de 2026")
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "privacidad@circular-campus.example")
+CONTROLLER_NAME = os.environ.get(
+    "CONTROLLER_NAME", "Equipo Circular Campus (proyecto académico independiente)"
+)
+SESSION_DAYS = 30
+SEED_DEMO = os.environ.get("SEED_DEMO", "1") != "0"
 
 CATEGORIES = [
     "libros", "ropa", "muebles", "estudio", "electronica",
@@ -54,9 +70,43 @@ REQUEST_STATUSES = ["pendiente", "aceptada", "rechazada", "cancelada", "completa
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+MAX_IMAGE_URL_LEN = 300
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
+app.json.ensure_ascii = False
+
+SPA_VIEWS = {
+    "/": "home",
+    "/publicar": "publish",
+    "/puntos": "points",
+    "/normas": "rules",
+    "/proyecto": "about",
+    "/mi-area": "my",
+    "/aviso-legal": "legal",
+    "/privacidad": "privacy",
+    "/condiciones": "terms",
+}
+
+# Endpoints que deben seguir disponibles aunque una cuenta antigua aún no haya
+# renovado su consentimiento (derechos de exportación/supresión y cierre).
+ALLOW_WITHOUT_CONSENT = {
+    "update_consent", "export_account", "delete_account", "logout",
+}
+
+
+def boot_config(view="home"):
+    """Configuración pública que el frontend necesita para los textos legales."""
+    return {
+        "view": view,
+        "service": SERVICE_NAME,
+        "contactEmail": CONTACT_EMAIL,
+        "controller": CONTROLLER_NAME,
+        "legalVersion": LEGAL_VERSION,
+        "legalUpdated": LEGAL_UPDATED,
+        "sessionDays": SESSION_DAYS,
+        "paymentOption": "A",
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +140,8 @@ def init_db():
             campus TEXT NOT NULL DEFAULT 'vigo',
             degree TEXT NOT NULL DEFAULT '',
             verified INTEGER NOT NULL DEFAULT 0,
+            consent_at TEXT NOT NULL DEFAULT '',
+            consent_version TEXT NOT NULL DEFAULT '',
             created_at TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS sessions (
@@ -132,11 +184,30 @@ def init_db():
     db.close()
 
 
+def migrate_db():
+    """Añade columnas nuevas a una base creada por una versión anterior."""
+    db = sqlite3.connect(DATABASE)
+    db.row_factory = sqlite3.Row
+    try:
+        cols = {r["name"] for r in db.execute("PRAGMA table_info(users)").fetchall()}
+        if "consent_at" not in cols:
+            db.execute("ALTER TABLE users ADD COLUMN consent_at TEXT NOT NULL DEFAULT ''")
+        if "consent_version" not in cols:
+            db.execute("ALTER TABLE users ADD COLUMN consent_version TEXT NOT NULL DEFAULT ''")
+        db.commit()
+    except sqlite3.OperationalError:
+        # Otro proceso pudo migrar a la vez; init_db() ya garantiza el esquema nuevo.
+        pass
+    finally:
+        db.close()
+
+
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
 def row_to_user(r):
+    """Vista privada: solo se entrega a la propia cuenta autenticada."""
     if r is None:
         return None
     return {
@@ -144,9 +215,23 @@ def row_to_user(r):
         "name": r["name"],
         "email": r["email"],
         "campus": r["campus"],
-        "degree": r["degree"],
-        "verified": bool(r["verified"]),
+        "academic_email": bool(r["verified"]),
+        "consent_ok": bool(r["consent_at"]) and r["consent_version"] == LEGAL_VERSION,
+        "consent_at": r["consent_at"],
+        "consent_version": r["consent_version"],
         "created_at": r["created_at"],
+    }
+
+
+def row_to_public_user(r):
+    """Vista pública mínima: nunca incluye email, titulación ni consentimiento."""
+    if r is None:
+        return None
+    return {
+        "id": r["id"],
+        "name": r["name"],
+        "campus": r["campus"],
+        "academic_email": bool(r["verified"]),
     }
 
 
@@ -185,6 +270,71 @@ def row_to_request(r):
 
 
 # ---------------------------------------------------------------------------
+# Validación y archivos
+# ---------------------------------------------------------------------------
+def valid_email(email: str) -> bool:
+    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email or ""))
+
+
+def has_academic_domain(email: str) -> bool:
+    """Insignia meramente informativa: NO acredita matrícula ni identidad."""
+    try:
+        domain = email.rsplit("@", 1)[1].lower().strip().rstrip(".")
+    except Exception:
+        return False
+    return bool(
+        re.search(r"(^|\.)(edu|ac)(\.|$)", domain)
+        or domain.endswith((".edu", ".edu.es", ".ac.uk"))
+        or domain.startswith(("alumnos.", "alumnado.", "estudiantes.", "students.", "campus."))
+    )
+
+
+def valid_local_image_url(url: str) -> bool:
+    """Solo recursos propios: evita fugas a CDN / imágenes de terceros."""
+    if not url:
+        return True
+    if len(url) > MAX_IMAGE_URL_LEN or url.startswith("//"):
+        return False
+    if any(ch.isspace() or ord(ch) < 32 for ch in url):
+        return False
+    parsed = urlparse(url)
+    if parsed.scheme or parsed.netloc or ".." in parsed.path or "\\" in parsed.path:
+        return False
+    return parsed.path.startswith("/static/")
+
+
+def remove_uploaded_file(url: str) -> bool:
+    """Borra de forma segura una imagen subida por el usuario."""
+    if not url or not url.startswith("/static/uploads/"):
+        return False
+    filename = secure_filename(os.path.basename(urlparse(url).path))
+    if not filename or "." not in filename:
+        return False
+    root = os.path.abspath(UPLOAD_DIR)
+    path = os.path.abspath(os.path.join(root, filename))
+    if os.path.commonpath([root, path]) != root:
+        return False
+    try:
+        os.remove(path)
+        return True
+    except FileNotFoundError:
+        return False
+
+
+def valid_image_bytes(head: bytes) -> bool:
+    return (
+        head.startswith(b"\xff\xd8\xff")
+        or head[:8] == b"\x89PNG\r\n\x1a\n"
+        or head[:6] in (b"GIF87a", b"GIF89a")
+        or (head[:4] == b"RIFF" and head[8:12] == b"WEBP")
+    )
+
+
+def cleanup_expired_sessions(db):
+    db.execute("DELETE FROM sessions WHERE expires_at <= ?", (now_iso(),))
+
+
+# ---------------------------------------------------------------------------
 # Auth helpers
 # ---------------------------------------------------------------------------
 def current_user():
@@ -207,138 +357,173 @@ def require_auth(fn):
         user = current_user()
         if not user:
             return jsonify({"error": "unauthorized", "message": "Inicia sesión para continuar."}), 401
+        if not user.get("consent_ok") and fn.__name__ not in ALLOW_WITHOUT_CONSENT:
+            return jsonify({
+                "error": "consent_required",
+                "message": "Acepta la política de privacidad vigente para seguir usando la cuenta.",
+            }), 403
         return fn(user, *args, **kwargs)
 
     return wrapper
 
 
-def is_uvigo_email(email: str) -> bool:
-    try:
-        domain = email.rsplit("@", 1)[1].lower().strip()
-    except Exception:
-        return False
-    return domain in UVIGO_DOMAINS
-
-
-def valid_email(email: str) -> bool:
-    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email or ""))
-
-
 # ---------------------------------------------------------------------------
-# Seed data — example items only, NO demo logins.
-# There is intentionally NO shared/demo account: every student registers
-# with their own email. Example items are owned by a system account
-# ("Equipo CTC-07") whose password is random and unusable for login,
-# so nobody can sign in as a demo user. Friends register themselves
-# and publish their real items.
+# Seed data — contenido de demostración, sin credenciales compartidas
 # ---------------------------------------------------------------------------
 SEED_OWNER = {
-    "name": "Equipo CTC-07",
-    "email": "equipo-ctc07@campus-circular.local",
+    "name": "Equipo Circular Campus",
+    "email": "equipo@circular-campus.local",
     "campus": "vigo",
-    "degree": "Ejemplo — regístrate con tu cuenta para publicar",
 }
 
 SEED_ITEMS = [
     {"owner": 0, "title": "Libro de Derecho Civil — edición 2023",
-     "description": "Libro de texto de Derecho Civil usado un curso. Subrayados leves en los primeros capítulos, resto limpio. Incluyo apuntes de clase en PDF. Ideal para 1º de Derecho.",
+     "description": "Libro de texto usado un curso. Subrayados leves en los primeros capítulos, resto limpio. Incluyo apuntes de clase en PDF. Se entrega en mano.",
      "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "biblioteca",
-     "image_url": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&q=80&auto=format&fit=crop"},
-    {"owner": 0, "title": "Calculadora Casio fx-991ES Plus",
-     "description": "Calculadora científica en perfecto estado, con funda y tapa. La usé para exámenes de finanzas. Puedo prestarla por un cuatrimestre con normas claras de devolución.",
+     "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/libros.svg"},
+    {"owner": 0, "title": "Calculadora científica",
+     "description": "Calculadora en perfecto estado, con funda y tapa. Puedo prestarla por un cuatrimestre; acordamos por escrito la fecha de devolución.",
      "category": "estudio", "condition": "como_nuevo", "exchange_type": "prestar", "price": 0,
-     "campus": "vigo", "handover_point": "punto",
-     "image_url": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80&auto=format&fit=crop"},
+     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/estudio.svg"},
     {"owner": 0, "title": "Chaqueta de invierno talla M",
-     "description": "Chaqueta de invierno en buen estado, sin manchas ni roturas. Me queda pequeña ahora. Busco intercambiar por otra talla o regalarla a quien la necesite.",
+     "description": "Chaqueta en buen estado, sin manchas ni roturas. Busco intercambiarla por otra talla o regalarla a quien la necesite.",
      "category": "ropa", "condition": "bueno", "exchange_type": "intercambiar", "price": 0,
-     "campus": "vigo", "handover_point": "entrada",
-     "image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80&auto=format&fit=crop"},
-    {"owner": 0, "title": "Escritorio pequeño para piso de estudiantes",
-     "description": "Escritorio de 110x55 cm, estable y sin daños. Lo compré de segunda mano el año pasado y ahora me mudo. Hay que desmontarlo, puedo ayudar con el desmontaje.",
+     "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/ropa.svg"},
+    {"owner": 0, "title": "Escritorio pequeño para piso compartido",
+     "description": "Escritorio de 110 x 55 cm, estable y sin daños. Hay que desmontarlo; puedo ayudar con el desmontaje en el punto de entrega.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "acordado",
-     "image_url": "https://images.unsplash.com/photo-1499933374294-4584851497cc?w=800&q=80&auto=format&fit=crop"},
+     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/muebles.svg"},
     {"owner": 0, "title": "Estantería pequeña de 3 baldas",
-     "description": "Estantería de madera clara, perfecta para libros y apuntes. En buen estado, sin arañazos visibles. Entrego desmontada en el campus.",
+     "description": "Estantería de madera clara para libros y apuntes. En buen estado, sin arañazos visibles. Se entrega desmontada.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "pontevedra", "handover_point": "biblioteca",
-     "image_url": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=80&auto=format&fit=crop"},
+     "campus": "pontevedra", "handover_point": "biblioteca", "image_url": "/static/img/items/muebles.svg"},
     {"owner": 0, "title": "Auriculares inalámbricos",
-     "description": "Auriculares Bluetooth con estuche de carga. Funcionan perfectamente, batería dura todo el día. Los vendo porque me regalaron otros.",
+     "description": "Auriculares con estuche de carga y batería en buen estado. Precio orientativo; el pago, si procede, se acuerda directamente y fuera de la plataforma.",
      "category": "electronica", "condition": "como_nuevo", "exchange_type": "vender", "price": 15,
-     "campus": "vigo", "handover_point": "punto",
-     "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80&auto=format&fit=crop"},
+     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/electronica.svg"},
     {"owner": 0, "title": "Juego de ollas y sartenes",
-     "description": "Set de cocina para piso compartido: 2 ollas, 2 sartenes y tapas. Usados pero en buen estado. Puedo prestarlos a compañeros que acaban de mudarse.",
+     "description": "Set de cocina para piso compartido: dos ollas, dos sartenes y tapas. Usados pero en buen estado. Préstamo temporal con devolución acordada.",
      "category": "cocina", "condition": "bueno", "exchange_type": "prestar", "price": 0,
-     "campus": "ourense", "handover_point": "cafeteria",
-     "image_url": "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80&auto=format&fit=crop"},
-    {"owner": 0, "title": "Freidora de aire 4L",
-     "description": "Freidora de aire en buen estado, funciona sin problemas. La regalo porque en mi piso nuevo ya tengo una. Incluyo manual.",
+     "campus": "ourense", "handover_point": "cafeteria", "image_url": "/static/img/items/cocina.svg"},
+    {"owner": 0, "title": "Freidora de aire 4 L",
+     "description": "Freidora de aire en buen estado, funciona sin problemas y se entrega con manual. La regalo porque en mi piso nuevo ya hay una.",
      "category": "electrodomesticos", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "punto",
-     "image_url": "https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=80&auto=format&fit=crop"},
-    {"owner": 0, "title": "Apuntes completos de Ingeniería Industrial",
-     "description": "Carpeta con apuntes, exámenes resueltos y prácticas de 1º y 2º de Ingeniería Industrial. Muy útiles para quien empieza. En papel, puedo pasar fotos si hace falta.",
+     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/electrodomesticos.svg"},
+    {"owner": 0, "title": "Apuntes completos de Ingeniería",
+     "description": "Carpeta con apuntes, exámenes resueltos y prácticas de primeros cursos. En papel; puedo enviar fotos si hace falta antes de quedar.",
      "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "biblioteca",
-     "image_url": "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80&auto=format&fit=crop"},
-    {"owner": 0, "title": "Mochila universitaria 25L",
-     "description": "Mochila resistente con compartimento para portátil. Como nueva, sin roturas. La intercambio por una más pequeña o la regalo.",
+     "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/libros.svg"},
+    {"owner": 0, "title": "Mochila 25 L con compartimento para portátil",
+     "description": "Mochila resistente, como nueva y sin roturas. La intercambio por una más pequeña o la regalo.",
      "category": "ropa", "condition": "como_nuevo", "exchange_type": "intercambiar", "price": 0,
-     "campus": "vigo", "handover_point": "entrada",
-     "image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80&auto=format&fit=crop"},
+     "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/ropa.svg"},
     {"owner": 0, "title": "Lámpara de escritorio LED",
-     "description": "Lámpara de escritorio con luz regulable. En buen estado, ideal para estudiar. La regalo porque me mudo a una residencia con lámpara incluida.",
+     "description": "Lámpara con luz regulable, ideal para estudiar. En buen estado. Se entrega en un lugar público y acordado.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "acordado",
-     "image_url": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&q=80&auto=format&fit=crop"},
-    {"owner": 0, "title": "Teclado inalámbrico",
-     "description": "Teclado inalámbrico silencioso, perfecto para biblioteca y aulas. Funciona con pilas AA. Lo vendo a precio simbólico para estudiantes.",
+     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/muebles.svg"},
+    {"owner": 0, "title": "Teclado inalámbrico silencioso",
+     "description": "Teclado perfecto para biblioteca y aulas, funciona con pilas AA. Precio simbólico orientativo; Circular Campus no gestiona el cobro.",
      "category": "electronica", "condition": "bueno", "exchange_type": "vender", "price": 10,
-     "campus": "pontevedra", "handover_point": "punto",
-     "image_url": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&q=80&auto=format&fit=crop"},
+     "campus": "pontevedra", "handover_point": "punto", "image_url": "/static/img/items/electronica.svg"},
 ]
 
 
 def seed_if_empty():
     db = sqlite3.connect(DATABASE)
     db.row_factory = sqlite3.Row
-    count = db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
-    if count > 0:
+    if db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"] > 0:
         db.close()
         return
-    # Single system owner for example items. Password is random and
-    # never shown, so this account can never be used to log in.
+    ts = now_iso()
     cur = db.execute(
-        "INSERT INTO users (name, email, password_hash, campus, degree, verified, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+        "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, '', '', ?)",
         (SEED_OWNER["name"], SEED_OWNER["email"],
-         generate_password_hash(uuid.uuid4().hex),
-         SEED_OWNER["campus"], SEED_OWNER["degree"], 0, now_iso()),
+         generate_password_hash(secrets.token_urlsafe(32)),
+         SEED_OWNER["campus"], ts),
     )
-    user_ids = [cur.lastrowid]
+    owner_id = cur.lastrowid
     for it in SEED_ITEMS:
         db.execute(
-            "INSERT INTO items (owner_id, title, description, category, condition, exchange_type, "
-            "price, campus, handover_point, image_url, status, created_at) "
+            "INSERT INTO items (owner_id, title, description, category, condition, "
+            "exchange_type, price, campus, handover_point, image_url, status, created_at) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?)",
-            (user_ids[it["owner"]], it["title"], it["description"], it["category"],
-             it["condition"], it["exchange_type"], it["price"], it["campus"],
-             it["handover_point"], it["image_url"], now_iso()),
+            (owner_id, it["title"], it["description"], it["category"], it["condition"],
+             it["exchange_type"], it["price"], it["campus"], it["handover_point"],
+             it["image_url"], ts),
         )
     db.commit()
     db.close()
 
 
+_BOOTSTRAPPED = False
+
+
+def bootstrap():
+    """Funciona tanto con `python3 app.py` como con un servidor WSGI."""
+    global _BOOTSTRAPPED
+    if _BOOTSTRAPPED:
+        return
+    init_db()
+    migrate_db()
+    if SEED_DEMO:
+        seed_if_empty()
+    _BOOTSTRAPPED = True
+
+
+# ---------------------------------------------------------------------------
+# Cabeceras de seguridad
+# ---------------------------------------------------------------------------
+@app.after_request
+def security_headers(resp):
+    csp = "; ".join([
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-src 'none'",
+        "img-src 'self' data: blob:",
+        "style-src 'self' 'unsafe-inline'",
+        "script-src 'self'",
+        "connect-src 'self'",
+        "font-src 'self'",
+        "form-action 'self'",
+        "frame-ancestors *",
+    ])
+    resp.headers["Content-Security-Policy"] = csp
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    resp.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
+    if request.path.startswith("/api/") and (
+        "/auth/" in request.path or "/account/" in request.path
+    ):
+        resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.errorhandler(413)
+def too_large(e):
+    return jsonify({"error": "file_too_large", "message": "La imagen supera 5 MB."}), 413
+
+
 # ---------------------------------------------------------------------------
 # Routes — frontend
 # ---------------------------------------------------------------------------
-@app.route("/")
-def index():
-    return render_template("index.html")
+@app.get("/")
+@app.get("/publicar")
+@app.get("/puntos")
+@app.get("/normas")
+@app.get("/proyecto")
+@app.get("/mi-area")
+@app.get("/aviso-legal")
+@app.get("/privacidad")
+@app.get("/condiciones")
+def spa_shell():
+    return render_template("index.html", boot=boot_config(SPA_VIEWS.get(request.path, "home")))
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return send_from_directory(os.path.join(BASE_DIR, "static", "img"), "favicon.ico")
 
 
 @app.route("/static/uploads/<path:filename>")
@@ -351,7 +536,14 @@ def uploads(filename):
 # ---------------------------------------------------------------------------
 @app.get("/api/health")
 def health():
-    return jsonify({"ok": True, "service": "campus-circular", "time": now_iso()})
+    return jsonify({
+        "ok": True,
+        "service": "circular-campus",
+        "product": SERVICE_NAME,
+        "payment_option": "A",
+        "legal_version": LEGAL_VERSION,
+        "time": now_iso(),
+    })
 
 
 @app.get("/api/stats")
@@ -434,7 +626,7 @@ def get_item(item_id):
         fav = db.execute("SELECT 1 FROM favorites WHERE user_id=? AND item_id=?",
                          (user["id"], item_id)).fetchone() is not None
     item = row_to_item(row, fav)
-    item["owner"] = row_to_user(owner)
+    item["owner"] = row_to_public_user(owner)
     return jsonify({"item": item})
 
 
@@ -450,11 +642,17 @@ def create_item(user):
     campus = data.get("campus", user["campus"])
     handover_point = data.get("handover_point", "punto")
     image_url = (data.get("image_url") or "").strip()
+    private_seller = data.get("private_seller") is True
     try:
         price = float(data.get("price") or 0)
     except (TypeError, ValueError):
         return jsonify({"error": "invalid_price"}), 400
 
+    if not private_seller:
+        return jsonify({
+            "error": "private_seller_required",
+            "message": "Confirma que publicas como particular; no se admiten vendedores profesionales.",
+        }), 400
     if len(title) < 3 or len(title) > 80:
         return jsonify({"error": "invalid_title", "message": "El título debe tener entre 3 y 80 caracteres."}), 400
     if len(description) < 10 or len(description) > 2000:
@@ -473,8 +671,11 @@ def create_item(user):
         price = 0
     if price < 0 or price > 10000:
         return jsonify({"error": "invalid_price"}), 400
-    if image_url and not image_url.startswith(("http://", "https://", "/static/")):
-        return jsonify({"error": "invalid_image_url"}), 400
+    if not valid_local_image_url(image_url):
+        return jsonify({
+            "error": "invalid_image_url",
+            "message": "Usa una imagen subida a Circular Campus; no se permiten URL externas.",
+        }), 400
 
     db = get_db()
     cur = db.execute(
@@ -517,8 +718,10 @@ def delete_item(user, item_id):
         return jsonify({"error": "not_found"}), 404
     if row["owner_id"] != user["id"]:
         return jsonify({"error": "forbidden"}), 403
+    image_url = row["image_url"]
     db.execute("DELETE FROM items WHERE id = ?", (item_id,))
     db.commit()
+    remove_uploaded_file(image_url)
     return jsonify({"ok": True})
 
 
@@ -533,7 +736,11 @@ def upload(user):
     ext = os.path.splitext(f.filename)[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         return jsonify({"error": "invalid_type", "message": "Solo imágenes JPG, PNG, WebP o GIF."}), 400
-    filename = f"{uuid.uuid4().hex}{ext}"
+    head = f.stream.read(12)
+    f.stream.seek(0)
+    if not valid_image_bytes(head):
+        return jsonify({"error": "invalid_type", "message": "El archivo no parece una imagen válida."}), 400
+    filename = f"{secrets.token_hex(16)}{ext}"
     f.save(os.path.join(UPLOAD_DIR, secure_filename(filename)))
     return jsonify({"url": f"/static/uploads/{filename}"}), 201
 
@@ -546,33 +753,41 @@ def register():
     email = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
     campus = data.get("campus", "vigo")
-    degree = (data.get("degree") or "").strip()
+    consent = data.get("consent") is True
 
     if len(name) < 2 or len(name) > 60:
         return jsonify({"error": "invalid_name"}), 400
     if not valid_email(email):
         return jsonify({"error": "invalid_email"}), 400
-    if len(password) < 6:
-        return jsonify({"error": "invalid_password", "message": "La contraseña debe tener al menos 6 caracteres."}), 400
+    if len(password) < 8:
+        return jsonify({"error": "invalid_password", "message": "La contraseña debe tener al menos 8 caracteres."}), 400
     if campus not in CAMPUSES:
         return jsonify({"error": "invalid_campus"}), 400
+    if not consent:
+        return jsonify({
+            "error": "consent_required",
+            "message": "Debes aceptar la política de privacidad y las condiciones de uso.",
+        }), 400
 
     db = get_db()
     if db.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone():
         return jsonify({"error": "email_taken", "message": "Ya existe una cuenta con ese email."}), 409
+    ts = now_iso()
     cur = db.execute(
-        "INSERT INTO users (name, email, password_hash, campus, degree, verified, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (name, email, generate_password_hash(password), campus, degree,
-         1 if is_uvigo_email(email) else 0, now_iso()),
+        "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+        "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', ?, ?, ?, ?)",
+        (name, email, generate_password_hash(password), campus,
+         1 if has_academic_domain(email) else 0, ts, LEGAL_VERSION, ts),
+    )
+    cleanup_expired_sessions(db)
+    token = secrets.token_urlsafe(32)
+    db.execute(
+        "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+        (token, cur.lastrowid, (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
     )
     db.commit()
-    token = uuid.uuid4().hex
-    db.execute("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-               (token, cur.lastrowid, (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()))
-    db.commit()
     row = db.execute("SELECT * FROM users WHERE id = ?", (cur.lastrowid,)).fetchone()
-    return jsonify({"token": token, "user": row_to_user(row)}), 201
+    return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION}), 201
 
 
 @app.post("/api/auth/login")
@@ -584,11 +799,14 @@ def login():
     row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
     if not row or not check_password_hash(row["password_hash"], password):
         return jsonify({"error": "invalid_credentials", "message": "Email o contraseña incorrectos."}), 401
-    token = uuid.uuid4().hex
-    db.execute("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-               (token, row["id"], (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()))
+    cleanup_expired_sessions(db)
+    token = secrets.token_urlsafe(32)
+    db.execute(
+        "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+        (token, row["id"], (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
+    )
     db.commit()
-    return jsonify({"token": token, "user": row_to_user(row)})
+    return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION})
 
 
 @app.post("/api/auth/logout")
@@ -605,10 +823,83 @@ def logout(user):
 
 @app.get("/api/auth/me")
 def me():
-    user = current_user()
-    if not user:
-        return jsonify({"user": None})
-    return jsonify({"user": user})
+    return jsonify({"user": current_user(), "legal_version": LEGAL_VERSION})
+
+
+# --- Cuenta, privacidad y derechos -----------------------------------------
+@app.post("/api/account/consent")
+@require_auth
+def update_consent(user):
+    data = request.get_json(silent=True) or {}
+    if data.get("consent") is not True:
+        return jsonify({"error": "consent_required"}), 400
+    db = get_db()
+    db.execute(
+        "UPDATE users SET consent_at = ?, consent_version = ? WHERE id = ?",
+        (now_iso(), LEGAL_VERSION, user["id"]),
+    )
+    db.commit()
+    row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    return jsonify({"user": row_to_user(row)})
+
+
+@app.get("/api/account/export")
+@require_auth
+def export_account(user):
+    db = get_db()
+    row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    items = [row_to_item(r) for r in db.execute(
+        "SELECT * FROM items WHERE owner_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+    sent_requests = [row_to_request(r) for r in db.execute(
+        "SELECT * FROM requests WHERE requester_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+    favorites = [row_to_item(r, True) for r in db.execute(
+        "SELECT i.* FROM favorites f JOIN items i ON i.id = f.item_id "
+        "WHERE f.user_id = ? ORDER BY f.created_at DESC", (user["id"],)).fetchall()]
+    sessions = db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"]
+
+    payload = {
+        "service": SERVICE_NAME,
+        "exported_at": now_iso(),
+        "legal_version": LEGAL_VERSION,
+        "profile": row_to_user(row),
+        "items": items,
+        "sent_requests": sent_requests,
+        "favorites": favorites,
+        "session_count": sessions,
+        "notes": [
+            "Exportación de los datos propios de la cuenta.",
+            "No se incluyen contraseñas, tokens de sesión ni mensajes escritos por otras personas.",
+            "La eliminación de cuenta borra perfil, sesiones, publicaciones, favoritos y solicitudes propias.",
+        ],
+    }
+    resp = jsonify(payload)
+    resp.headers["Content-Disposition"] = f'attachment; filename="circular-campus-export-{user["id"]}.json"'
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@app.delete("/api/account/delete")
+@require_auth
+def delete_account(user):
+    data = request.get_json(silent=True) or {}
+    password = data.get("password") or ""
+    db = get_db()
+    row = db.execute("SELECT password_hash FROM users WHERE id = ?", (user["id"],)).fetchone()
+    if not row or not check_password_hash(row["password_hash"], password):
+        return jsonify({"error": "invalid_password", "message": "Confirma tu contraseña para eliminar la cuenta."}), 401
+
+    image_urls = [r["image_url"] for r in db.execute(
+        "SELECT image_url FROM items WHERE owner_id = ?", (user["id"],)).fetchall()]
+    counts = {
+        "items": db.execute("SELECT COUNT(*) c FROM items WHERE owner_id = ?", (user["id"],)).fetchone()["c"],
+        "sent_requests": db.execute("SELECT COUNT(*) c FROM requests WHERE requester_id = ?", (user["id"],)).fetchone()["c"],
+        "favorites": db.execute("SELECT COUNT(*) c FROM favorites WHERE user_id = ?", (user["id"],)).fetchone()["c"],
+        "sessions": db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"],
+    }
+    db.execute("DELETE FROM users WHERE id = ?", (user["id"],))
+    db.commit()
+    removed_files = sum(1 for url in image_urls if remove_uploaded_file(url))
+    return jsonify({"ok": True, "deleted": counts, "removed_images": removed_files})
 
 
 # --- Requests (solicitudes) -------------------------------------------------
@@ -694,7 +985,6 @@ def update_request(user, request_id):
     is_requester = row["requester_id"] == user["id"]
     if not (is_owner or is_requester):
         return jsonify({"error": "forbidden"}), 403
-    # Owner accepts/rejects/completes; requester cancels.
     if is_owner and new_status not in ("aceptada", "rechazada", "completada"):
         return jsonify({"error": "invalid_transition"}), 400
     if is_requester and not is_owner and new_status != "cancelada":
@@ -746,10 +1036,8 @@ def public_user(user_id):
     row = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     if not row:
         return jsonify({"error": "not_found"}), 404
-    u = row_to_user(row)
-    u.pop("email", None)
-    count = db.execute("SELECT COUNT(*) c FROM items WHERE owner_id=?", (user_id,)).fetchone()["c"]
-    u["items_count"] = count
+    u = row_to_public_user(row)
+    u["items_count"] = db.execute("SELECT COUNT(*) c FROM items WHERE owner_id=?", (user_id,)).fetchone()["c"]
     return jsonify({"user": u})
 
 
@@ -757,11 +1045,11 @@ def public_user(user_id):
 def not_found(e):
     if request.path.startswith("/api/"):
         return jsonify({"error": "not_found"}), 404
-    return render_template("index.html")
+    return render_template("index.html", boot=boot_config("home")), 200
 
+
+bootstrap()
 
 if __name__ == "__main__":
-    init_db()
-    seed_if_empty()
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=False)

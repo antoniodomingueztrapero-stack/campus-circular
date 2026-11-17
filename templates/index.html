@@ -3,34 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Campus Circular · CTC-07 · Universidade de Vigo</title>
-<meta name="description" content="Campus Circular conecta a estudiantes de la Universidade de Vigo con materiales en buen estado que ya no se usan.">
+<title>Circular Campus · Reutilización e intercambio</title>
+<meta name="description" content="Circular Campus es un prototipo independiente para publicar, encontrar y reutilizar materiales de segunda vida. Sin pagos dentro de la plataforma y con control sobre tus datos.">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#1f7a4d">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Circular Campus">
+<meta property="og:description" content="Reutilizar es sencillo. Proyecto independiente presentado en CTC Congress.">
+<meta property="og:image" content="/static/img/circular-campus-og.png">
+<link rel="icon" href="/static/img/favicon.ico" sizes="any">
+<link rel="icon" href="/static/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
 <link rel="stylesheet" href="/static/css/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♻️</text></svg>">
 </head>
 <body>
+<a class="skip-link" href="#app" data-i18n="skip_content">Saltar al contenido</a>
 
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="#" data-nav="home">
-      <span class="brand-mark" aria-hidden="true">♻️</span>
+    <a class="brand" href="/" data-nav="home" aria-label="Circular Campus — inicio">
+      <img class="brand-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="46" height="46">
       <span class="brand-text">
-        <strong>Campus Circular</strong>
-        <small>CTC-07 · Universidade de Vigo</small>
+        <strong>Circular Campus</strong>
+        <small data-i18n="brand_tag">Proyecto independiente · CTC Congress</small>
       </span>
     </a>
     <nav class="mainnav" aria-label="Principal">
       <button data-nav="home" data-i18n="nav_home">Explorar</button>
       <button data-nav="publish" data-i18n="nav_publish">Publicar</button>
-      <button data-nav="points" data-i18n="nav_points">Puntos de intercambio</button>
+      <button data-nav="points" data-i18n="nav_points">Puntos de entrega</button>
       <button data-nav="rules" data-i18n="nav_rules">Normas y confianza</button>
       <button data-nav="about" data-i18n="nav_about">El proyecto</button>
     </nav>
     <div class="topbar-actions">
       <div class="lang-switch" role="group" aria-label="Idioma / Language / Lingua">
-        <button data-lang="es" class="active">ES</button>
-        <button data-lang="en">EN</button>
-        <button data-lang="gl">GL</button>
+        <button data-lang="es" class="active" aria-label="Español">ES</button>
+        <button data-lang="en" aria-label="English">EN</button>
+        <button data-lang="gl" aria-label="Galego">GL</button>
       </div>
       <div id="auth-area"></div>
     </div>
@@ -40,24 +49,44 @@
 <main id="app" class="wrap"></main>
 
 <footer class="footer">
-  <div class="wrap footer-inner">
-    <div>
-      <strong>♻️ Campus Circular</strong>
-      <p data-i18n="footer_tag">Reutilización e intercambio de materiales universitarios.</p>
-      <p class="muted" data-i18n="footer_research">Proyecto CTC-07 · Design Thinking · Universidade de Vigo. Investigación con 26 respuestas y 6 entrevistas (octubre 2026).</p>
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <img class="footer-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="62" height="62">
+      <div>
+        <strong>Circular Campus</strong>
+        <p data-i18n="footer_tag">Reutilización e intercambio de materiales de segunda vida.</p>
+        <p class="muted" data-i18n="footer_independent">Proyecto independiente. No es un servicio oficial de ninguna universidad.</p>
+      </div>
     </div>
-    <div class="footer-links">
-      <button data-nav="points" data-i18n="nav_points">Puntos de intercambio</button>
-      <button data-nav="rules" data-i18n="nav_rules">Normas y confianza</button>
-      <button data-nav="about" data-i18n="nav_about">El proyecto</button>
+    <div class="footer-col">
+      <h3 data-i18n="footer_explore">Explorar</h3>
+      <a href="/puntos" data-route="points" data-i18n="nav_points">Puntos de entrega</a>
+      <a href="/normas" data-route="rules" data-i18n="nav_rules">Normas y confianza</a>
+      <a href="/proyecto" data-route="about" data-i18n="nav_about">El proyecto</a>
     </div>
+    <div class="footer-col">
+      <h3 data-i18n="footer_legal">Información legal</h3>
+      <a href="/aviso-legal" data-route="legal" data-i18n="footer_legal_notice">Aviso legal</a>
+      <a href="/privacidad" data-route="privacy" data-i18n="footer_privacy">Privacidad y datos</a>
+      <a href="/condiciones" data-route="terms" data-i18n="footer_terms">Condiciones de uso</a>
+    </div>
+    <div class="footer-partner">
+      <span data-i18n="footer_presented">Presentado en</span>
+      <img src="/static/img/ctc-congress.png" alt="CTC Congress" width="260" height="78">
+      <p class="footer-payment" data-i18n="footer_payment_mini">Opción A · sin pagos dentro de la plataforma</p>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <p class="muted" data-i18n="footer_note">Prototipo sin ánimo de lucro · sin analítica · sin recursos de terceros · las imágenes de ejemplo son locales.</p>
+    <p class="credit"><span data-i18n="credit_label">Una idea de</span> <strong>Antonio Domínguez Trapero</strong></p>
   </div>
 </footer>
 
-<!-- Modals -->
 <div id="modal-root"></div>
-<div id="toast-root" aria-live="polite"></div>
+<div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+<noscript><div class="noscript" data-i18n="noscript">Circular Campus necesita JavaScript para mostrar el catálogo y gestionar la cuenta.</div></noscript>
 
+<script id="cc-boot" type="application/json">{{ boot|tojson }}</script>
 <script src="/static/js/app.js"></script>
 </body>
 </html>

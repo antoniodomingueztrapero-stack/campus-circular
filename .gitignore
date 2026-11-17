@@ -1,7 +1,14 @@
 __pycache__/
 *.pyc
 campus_circular.db
+*.db
+*.sqlite
+*.sqlite3
+*.sql
 static/uploads/*
 !static/uploads/.gitkeep
 .env
 .venv/
+.DS_Store
+*.log
+.pytest_cache/
