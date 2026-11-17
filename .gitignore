@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+campus_circular.db
+static/uploads/*
+!static/uploads/.gitkeep
+.env
+.venv/
