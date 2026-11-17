@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Circular · CTC-07 · Universidade de Vigo</title>
+<meta name="description" content="Campus Circular conecta a estudiantes de la Universidade de Vigo con materiales en buen estado que ya no se usan.">
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♻️</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#" data-nav="home">
+      <span class="brand-mark" aria-hidden="true">♻️</span>
+      <span class="brand-text">
+        <strong>Campus Circular</strong>
+        <small>CTC-07 · Universidade de Vigo</small>
+      </span>
+    </a>
+    <nav class="mainnav" aria-label="Principal">
+      <button data-nav="home" data-i18n="nav_home">Explorar</button>
+      <button data-nav="publish" data-i18n="nav_publish">Publicar</button>
+      <button data-nav="points" data-i18n="nav_points">Puntos de intercambio</button>
+      <button data-nav="rules" data-i18n="nav_rules">Normas y confianza</button>
+      <button data-nav="about" data-i18n="nav_about">El proyecto</button>
+    </nav>
+    <div class="topbar-actions">
+      <div class="lang-switch" role="group" aria-label="Idioma / Language / Lingua">
+        <button data-lang="es" class="active">ES</button>
+        <button data-lang="en">EN</button>
+        <button data-lang="gl">GL</button>
+      </div>
+      <div id="auth-area"></div>
+    </div>
+  </div>
+</header>
+
+<main id="app" class="wrap"></main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <strong>♻️ Campus Circular</strong>
+      <p data-i18n="footer_tag">Reutilización e intercambio de materiales universitarios.</p>
+      <p class="muted" data-i18n="footer_research">Proyecto CTC-07 · Design Thinking · Universidade de Vigo. Investigación con 26 respuestas y 6 entrevistas (octubre 2026).</p>
+    </div>
+    <div class="footer-links">
+      <button data-nav="points" data-i18n="nav_points">Puntos de intercambio</button>
+      <button data-nav="rules" data-i18n="nav_rules">Normas y confianza</button>
+      <button data-nav="about" data-i18n="nav_about">El proyecto</button>
+    </div>
+  </div>
+</footer>
+
+<!-- Modals -->
+<div id="modal-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
