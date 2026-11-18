@@ -1,7 +1,7 @@
 """
 Circular Campus — prototipo independiente de reutilización e intercambio.
 
-Backend: Flask + SQLite (stdlib, sin driver adicional).
+Backend: Flask + SQLite local o PostgreSQL gestionado en despliegue.
 Frontend: SPA estática servida desde templates/ + static/, en ES / EN / GL.
 
 Criterios de funcionamiento:
@@ -22,10 +22,11 @@ Arranque:
     # http://127.0.0.1:5000, o la URL de vista previa / Render
 
 Variables de entorno opcionales:
-    DATABASE, PORT, SEED_DEMO, CONTACT_EMAIL, CONTROLLER_NAME,
-    LEGAL_VERSION, LEGAL_UPDATED.
+    DATABASE (SQLite local), DATABASE_URL (PostgreSQL gestionado), APP_ENV,
+    PORT, SEED_DEMO, CONTACT_EMAIL, CONTROLLER_NAME, LEGAL_VERSION, LEGAL_UPDATED.
 """
 
+import hashlib
 import os
 import re
 import secrets
@@ -34,6 +35,8 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 from urllib.parse import urlparse
 
+import psycopg
+from psycopg.rows import dict_row
 from flask import Flask, g, jsonify, render_template, request, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -42,8 +45,16 @@ from werkzeug.utils import secure_filename
 # Config
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+APP_ENV = os.environ.get("APP_ENV", "development").lower()
+USE_POSTGRES = DATABASE_URL.startswith(("postgres://", "postgresql://"))
+if DATABASE_URL and not USE_POSTGRES:
+    raise RuntimeError("DATABASE_URL debe ser una URL PostgreSQL (postgres:// o postgresql://)")
+if APP_ENV == "production" and not USE_POSTGRES:
+    raise RuntimeError("En producción es obligatorio configurar DATABASE_URL para evitar perder datos")
 DATABASE = os.environ.get("DATABASE", os.path.join(BASE_DIR, "campus_circular.db"))
-os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
+if not USE_POSTGRES:
+    os.makedirs(os.path.dirname(DATABASE) or ".", exist_ok=True)
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -56,6 +67,8 @@ CONTROLLER_NAME = os.environ.get(
 )
 SESSION_DAYS = 30
 SEED_DEMO = os.environ.get("SEED_DEMO", "1") != "0"
+DB_INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.errors.IntegrityError)
+DB_ERRORS = (sqlite3.Error, psycopg.Error)
 
 CATEGORIES = [
     "libros", "ropa", "muebles", "estudio", "electronica",
@@ -111,11 +124,71 @@ def boot_config(view="home"):
 # ---------------------------------------------------------------------------
 # Database helpers
 # ---------------------------------------------------------------------------
+class DatabaseConnection:
+    """Small DB-API adapter: SQLite locally or PostgreSQL for hosted storage."""
+
+    def __init__(self):
+        self.is_postgres = USE_POSTGRES
+        if self.is_postgres:
+            self.raw = psycopg.connect(
+                DATABASE_URL, row_factory=dict_row, connect_timeout=10
+            )
+        else:
+            self.raw = sqlite3.connect(DATABASE, timeout=15)
+            self.raw.row_factory = sqlite3.Row
+            self.raw.execute("PRAGMA foreign_keys = ON")
+
+    def execute(self, statement, params=()):
+        if self.is_postgres:
+            statement = statement.replace("?", "%s")
+        return self.raw.execute(statement, params)
+
+    def executescript(self, script):
+        if self.is_postgres:
+            script = script.replace(
+                "INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY"
+            ).replace("INTEGER NOT NULL REFERENCES", "BIGINT NOT NULL REFERENCES")
+            script = script.replace("price REAL", "price DOUBLE PRECISION")
+            for statement in script.split(";"):
+                if statement.strip():
+                    self.execute(statement)
+        else:
+            self.raw.executescript(script)
+
+    def commit(self):
+        self.raw.commit()
+
+    def rollback(self):
+        self.raw.rollback()
+
+    def close(self):
+        self.raw.close()
+
+
+def connect_db():
+    return DatabaseConnection()
+
+
+def inserted_id(cursor):
+    """Return an INSERT id across both backends (Postgres uses RETURNING id)."""
+    row = cursor.fetchone()
+    if USE_POSTGRES:
+        return row["id"]
+    # Exhaust SQLite's RETURNING cursor before committing the transaction.
+    cursor.fetchall()
+    return cursor.lastrowid
+
+
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
-        g.db.row_factory = sqlite3.Row
-        g.db.execute("PRAGMA foreign_keys = ON")
+        g.db = connect_db()
+        if not USE_POSTGRES:
+            # La base contiene emails y hashes de contraseñas: no dejarla
+            # legible para otros usuarios del sistema donde SQLite la crea.
+            try:
+                os.chmod(DATABASE, 0o600)
+            except OSError:
+                app.logger.warning("No se pudieron restringir los permisos de la base de datos")
     return g.db
 
 
@@ -127,8 +200,7 @@ def close_db(exc=None):
 
 
 def init_db():
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
+    db = connect_db()
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS users (
@@ -184,20 +256,44 @@ def init_db():
 
 
 def migrate_db():
-    """Añade columnas nuevas a una base creada por una versión anterior."""
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
+    """Añade columnas y protege sesiones antiguas almacenadas en claro."""
+    db = connect_db()
     try:
-        cols = {r["name"] for r in db.execute("PRAGMA table_info(users)").fetchall()}
-        if "consent_at" not in cols:
-            db.execute("ALTER TABLE users ADD COLUMN consent_at TEXT NOT NULL DEFAULT ''")
-        if "consent_version" not in cols:
-            db.execute("ALTER TABLE users ADD COLUMN consent_version TEXT NOT NULL DEFAULT ''")
+        if USE_POSTGRES:
+            # Serializa cambios de esquema cuando arrancan varios workers.
+            db.execute("LOCK TABLE users, sessions IN ACCESS EXCLUSIVE MODE")
+            db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_at TEXT NOT NULL DEFAULT ''")
+            db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_version TEXT NOT NULL DEFAULT ''")
+            cols = {r["column_name"] for r in db.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_schema = current_schema() AND table_name = 'users'"
+            ).fetchall()}
+        else:
+            db.execute("BEGIN IMMEDIATE")
+            cols = {r["name"] for r in db.execute("PRAGMA table_info(users)").fetchall()}
+            if "consent_at" not in cols:
+                db.execute("ALTER TABLE users ADD COLUMN consent_at TEXT NOT NULL DEFAULT ''")
+            if "consent_version" not in cols:
+                db.execute("ALTER TABLE users ADD COLUMN consent_version TEXT NOT NULL DEFAULT ''")
+
+        # Las versiones anteriores guardaban el bearer token directamente. Como
+        # son aleatorios de alta entropía, SHA-256 impide reutilizarlos si se
+        # copia la base. La migración conserva las sesiones vigentes.
+        for row in db.execute("SELECT token FROM sessions").fetchall():
+            token = row["token"]
+            if not re.fullmatch(r"[0-9a-f]{64}", token):
+                digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
+                db.execute("UPDATE sessions SET token = ? WHERE token = ?", (digest, token))
         db.commit()
-    except sqlite3.OperationalError:
-        # Otro proceso pudo migrar a la vez; init_db() ya garantiza el esquema nuevo.
-        pass
+    except (sqlite3.Error, psycopg.Error):
+        db.rollback()
+        raise
     finally:
+        if not USE_POSTGRES:
+            try:
+                os.chmod(DATABASE, 0o600)
+            except OSError:
+                pass
         db.close()
 
 
@@ -275,6 +371,14 @@ def valid_email(email: str) -> bool:
     return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email or ""))
 
 
+def valid_password(password: str) -> bool:
+    """Bound password hashing work and reject invalid Unicode safely."""
+    try:
+        return len(password) >= 8 and len(password.encode("utf-8")) <= 1024
+    except UnicodeEncodeError:
+        return False
+
+
 def has_academic_domain(email: str) -> bool:
     """Insignia meramente informativa: NO acredita matrícula ni identidad."""
     try:
@@ -333,6 +437,10 @@ def cleanup_expired_sessions(db):
     db.execute("DELETE FROM sessions WHERE expires_at <= ?", (now_iso(),))
 
 
+def session_token_digest(token):
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
 # ---------------------------------------------------------------------------
 # Auth helpers
 # ---------------------------------------------------------------------------
@@ -345,7 +453,7 @@ def current_user():
     row = db.execute(
         "SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id "
         "WHERE s.token = ? AND s.expires_at > ?",
-        (token, now_iso()),
+        (session_token_digest(token), now_iso()),
     ).fetchone()
     return row_to_user(row) if row else None
 
@@ -428,20 +536,19 @@ SEED_ITEMS = [
 
 
 def seed_if_empty():
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
+    db = connect_db()
     if db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"] > 0:
         db.close()
         return
     ts = now_iso()
     cur = db.execute(
         "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
-        "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, '', '', ?)",
+        "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, '', '', ?) RETURNING id",
         (SEED_OWNER["name"], SEED_OWNER["email"],
          generate_password_hash(secrets.token_urlsafe(32)),
          SEED_OWNER["campus"], ts),
     )
-    owner_id = cur.lastrowid
+    owner_id = inserted_id(cur)
     for it in SEED_ITEMS:
         db.execute(
             "INSERT INTO items (owner_id, title, description, category, condition, "
@@ -679,12 +786,13 @@ def create_item(user):
     cur = db.execute(
         "INSERT INTO items (owner_id, title, description, category, condition, exchange_type, "
         "price, campus, handover_point, image_url, status, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?)",
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?) RETURNING id",
         (user["id"], title, description, category, condition, exchange_type,
          price, campus, handover_point, image_url, now_iso()),
     )
+    item_id = inserted_id(cur)
     db.commit()
-    row = db.execute("SELECT * FROM items WHERE id = ?", (cur.lastrowid,)).fetchone()
+    row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     return jsonify({"item": row_to_item(row)}), 201
 
 
@@ -746,20 +854,27 @@ def upload(user):
 # --- Auth -------------------------------------------------------------------
 @app.post("/api/auth/register")
 def register():
-    data = request.get_json(silent=True) or {}
-    name = (data.get("name") or "").strip()
-    email = (data.get("email") or "").strip().lower()
-    password = data.get("password") or ""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid_request"}), 400
+
+    raw_name = data.get("name", "")
+    raw_email = data.get("email", "")
+    password = data.get("password", "")
     campus = data.get("campus", "vigo")
+    if not isinstance(raw_name, str) or not isinstance(raw_email, str) or not isinstance(password, str):
+        return jsonify({"error": "invalid_request"}), 400
+    name = raw_name.strip()
+    email = raw_email.strip().lower()
     consent = data.get("consent") is True
 
-    if len(name) < 2 or len(name) > 60:
+    if len(name) < 2 or len(name) > 60 or any(ord(ch) < 32 for ch in name):
         return jsonify({"error": "invalid_name"}), 400
-    if not valid_email(email):
+    if len(email) > 254 or not valid_email(email):
         return jsonify({"error": "invalid_email"}), 400
-    if len(password) < 8:
-        return jsonify({"error": "invalid_password", "message": "La contraseña debe tener al menos 8 caracteres."}), 400
-    if campus not in CAMPUSES:
+    if not valid_password(password):
+        return jsonify({"error": "invalid_password", "message": "La contraseña debe tener entre 8 y 1024 bytes."}), 400
+    if not isinstance(campus, str) or campus not in CAMPUSES:
         return jsonify({"error": "invalid_campus"}), 400
     if not consent:
         return jsonify({
@@ -768,31 +883,50 @@ def register():
         }), 400
 
     db = get_db()
-    if db.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone():
-        return jsonify({"error": "email_taken", "message": "Ya existe una cuenta con ese email."}), 409
     ts = now_iso()
-    cur = db.execute(
-        "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
-        "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', ?, ?, ?, ?)",
-        (name, email, generate_password_hash(password), campus,
-         1 if has_academic_domain(email) else 0, ts, LEGAL_VERSION, ts),
-    )
-    cleanup_expired_sessions(db)
     token = secrets.token_urlsafe(32)
-    db.execute(
-        "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-        (token, cur.lastrowid, (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
-    )
-    db.commit()
-    row = db.execute("SELECT * FROM users WHERE id = ?", (cur.lastrowid,)).fetchone()
+    try:
+        # User y sesión comparten una transacción; nunca se devuelve éxito si
+        # no quedaron ambos escritos de forma duradera en la base configurada.
+        cur = db.execute(
+            "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', ?, ?, ?, ?) RETURNING id",
+            (name, email, generate_password_hash(password), campus,
+             1 if has_academic_domain(email) else 0, ts, LEGAL_VERSION, ts),
+        )
+        user_id = inserted_id(cur)
+        cleanup_expired_sessions(db)
+        db.execute(
+            "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+            (session_token_digest(token), user_id,
+             (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
+        )
+        db.commit()
+    except DB_INTEGRITY_ERRORS:
+        db.rollback()
+        if db.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone():
+            return jsonify({"error": "email_taken", "message": "Ya existe una cuenta con ese email."}), 409
+        app.logger.exception("Error de integridad al crear una cuenta")
+        return jsonify({"error": "registration_failed", "message": "No se pudo crear la cuenta. Inténtalo de nuevo."}), 500
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudo guardar una cuenta en la base de datos")
+        return jsonify({"error": "storage_unavailable", "message": "No se pudo guardar la cuenta en este momento. Inténtalo de nuevo más tarde."}), 503
+
+    row = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION}), 201
 
 
 @app.post("/api/auth/login")
 def login():
-    data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip().lower()
-    password = data.get("password") or ""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid_request"}), 400
+    raw_email = data.get("email", "")
+    password = data.get("password", "")
+    if not isinstance(raw_email, str) or not isinstance(password, str) or not valid_password(password):
+        return jsonify({"error": "invalid_credentials", "message": "Email o contraseña incorrectos."}), 401
+    email = raw_email.strip().lower()
     db = get_db()
     row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
     if not row or not check_password_hash(row["password_hash"], password):
@@ -801,7 +935,8 @@ def login():
     token = secrets.token_urlsafe(32)
     db.execute(
         "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-        (token, row["id"], (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
+        (session_token_digest(token), row["id"],
+         (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
     )
     db.commit()
     return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION})
@@ -814,7 +949,7 @@ def logout(user):
     token = auth[7:].strip() if auth.startswith("Bearer ") else None
     db = get_db()
     if token:
-        db.execute("DELETE FROM sessions WHERE token = ?", (token,))
+        db.execute("DELETE FROM sessions WHERE token = ?", (session_token_digest(token),))
         db.commit()
     return jsonify({"ok": True})
 
@@ -923,10 +1058,11 @@ def create_request(user, item_id):
         return jsonify({"error": "already_requested", "message": "Ya tienes una solicitud pendiente para este objeto."}), 409
     cur = db.execute(
         "INSERT INTO requests (item_id, requester_id, message, status, created_at) "
-        "VALUES (?, ?, ?, 'pendiente', ?)",
+        "VALUES (?, ?, ?, 'pendiente', ?) RETURNING id",
         (item_id, user["id"], message, now_iso()))
+    request_id = inserted_id(cur)
     db.commit()
-    row = db.execute("SELECT * FROM requests WHERE id = ?", (cur.lastrowid,)).fetchone()
+    row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
     return jsonify({"request": row_to_request(row)}), 201
 
 

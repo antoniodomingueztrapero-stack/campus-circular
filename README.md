@@ -57,9 +57,9 @@ del RGPD y la LOPDGDD:
   antigua ve un aviso no descartable y no puede publicar hasta aceptar la
   versión vigente.
 - **Retención**: las sesiones caducan a los 30 días y se limpian al iniciar
-  sesión. En el despliegue gratuito, la base SQLite en `/tmp` puede ser
-  efímera; un reinicio puede borrar datos, lo cual **no sustituye** una
-  supresión formal ni una copia de seguridad.
+  sesión. En despliegue se puede usar PostgreSQL externo mediante `DATABASE_URL`
+  para no depender del disco efímero de Render. Revisa las cuotas y copias del
+  proveedor elegido; un nivel gratuito no garantiza disponibilidad.
 - **Cero rastreadores**: sin analítica, píxeles, cookies publicitarias, fuentes
   externas ni CDN de imágenes. Las imágenes de ejemplo y de categoría son
   locales y las fotos se suben al propio servicio.
@@ -79,7 +79,7 @@ asesoramiento jurídico, fiscal o de consumo.
 | Capa | Tecnología |
 |---|---|
 | Backend | Python 3 + Flask 3, API REST JSON |
-| Base de datos | SQLite mediante `sqlite3` de la biblioteca estándar |
+| Base de datos | SQLite local; PostgreSQL gestionado en despliegue mediante `psycopg` |
 | Frontend | HTML + CSS + JavaScript vanilla, SPA sin build |
 | i18n | ES / EN / GL en `static/js/app.js` y documentos legales |
 | Auth | Token Bearer en `localStorage`, sesiones en BD, contraseñas con `werkzeug` |
@@ -130,7 +130,9 @@ de base de datos configurado y vuelve a arrancar.
 
 | Variable | Valor por defecto | Uso |
 |---|---|---|
-| `DATABASE` | `campus_circular.db` junto a `app.py` | Ruta SQLite; en Render se usa `/tmp/campus_circular.db` |
+| `DATABASE` | `campus_circular.db` junto a `app.py` | Ruta SQLite local, ignorada en Git |
+| `DATABASE_URL` | vacío | URL secreta de PostgreSQL para despliegue; si está definida, usa PostgreSQL en lugar de SQLite |
+| `APP_ENV` | `development` | Con `production`, exige `DATABASE_URL` y evita arrancar con SQLite efímero |
 | `PORT` | `5000` | Puerto de escucha, `0.0.0.0` |
 | `SEED_DEMO` | `1` | `0` desactiva los objetos de ejemplo |
 | `CONTACT_EMAIL` | `privacidad@circular-campus.example` | **Sustituir por un correo real antes de producción** |
@@ -192,8 +194,9 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 
 ## Criterios de ingeniería
 
-- **SQLite + stdlib**: cero fricción para clase, sandbox y vista previa;
-  migrable a Postgres cambiando `get_db()` y las consultas.
+- **SQLite local + PostgreSQL alojado**: el mismo código funciona con SQLite
+  para desarrollo y con PostgreSQL mediante `DATABASE_URL` para desplegar sin
+  depender de almacenamiento local persistente.
 - **Migración tolerante**: `migrate_db()` añade `consent_at` y
   `consent_version` a bases creadas por versiones anteriores.
 - **Arranque WSGI-compatible**: `bootstrap()` se ejecuta al importar el módulo,
@@ -210,8 +213,9 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 
 - No hay verificación real de matrícula, identidad ni titularidad de objetos.
 - No hay moderación ni reportes todavía.
-- El plan gratuito de Render puede reiniciar el servicio y perder la base
-  efímera; no es adecuado para datos reales sin persistencia y copias.
+- En Render gratuito configura `DATABASE_URL` con PostgreSQL gestionado; si no,
+  SQLite quedará en almacenamiento efímero y podría borrarse al reiniciar.
+  Revisa los límites, pausas y copias del proveedor PostgreSQL.
 - Solo se cuentan objetos, disponibilidad, entregas marcadas y cuentas.
 - Antes de uso real con datos personales o actividad económica, completa la
   identificación del responsable, el correo de contacto y una revisión
@@ -219,8 +223,9 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 
 ## Despliegue
 
-Consulta [DEPLOY.md](DEPLOY.md). El Blueprint usa `healthCheckPath: /api/health`,
-`DATABASE=/tmp/campus_circular.db` y no incluye secretos ni base de datos.
+Consulta [DEPLOY.md](DEPLOY.md). El Blueprint usa el plan gratuito de Render,
+`healthCheckPath: /api/health` y solicita `DATABASE_URL` para conectar
+PostgreSQL externo. La URL de base de datos es secreta: no la guardes en Git.
 
 ---
 
