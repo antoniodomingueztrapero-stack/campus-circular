@@ -19,6 +19,9 @@ services:
         sync: false
       - key: SEED_DEMO
         value: "1"
+      # Correos con permiso para gestionar los objetos de ejemplo (separados por comas).
+      - key: ADMIN_EMAILS
+        sync: false
       # Sustituir por un correo real antes de usar datos personales reales.
       - key: CONTACT_EMAIL
         value: privacidad@circular-campus.example

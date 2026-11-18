@@ -67,8 +67,28 @@ CONTROLLER_NAME = os.environ.get(
 )
 SESSION_DAYS = 30
 SEED_DEMO = os.environ.get("SEED_DEMO", "1") != "0"
+# Emails con permiso de administración de los objetos de ejemplo. Se configura
+# solo vía variable de entorno (secreta) para no dejar credenciales en el repo.
+ADMIN_EMAILS = {
+    e.strip().lower()
+    for e in os.environ.get("ADMIN_EMAILS", "").split(",")
+    if e.strip()
+}
 DB_INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.errors.IntegrityError)
 DB_ERRORS = (sqlite3.Error, psycopg.Error)
+
+
+def is_admin_email(email: str) -> bool:
+    try:
+        return email.strip().lower() in ADMIN_EMAILS
+    except Exception:
+        return False
+
+
+def is_admin_user(user: dict) -> bool:
+    if not user or not user.get("email"):
+        return False
+    return is_admin_email(user["email"])
 
 CATEGORIES = [
     "libros", "ropa", "muebles", "estudio", "electronica",
@@ -305,12 +325,14 @@ def row_to_user(r):
     """Vista privada: solo se entrega a la propia cuenta autenticada."""
     if r is None:
         return None
+    email = r["email"]
     return {
         "id": r["id"],
         "name": r["name"],
-        "email": r["email"],
+        "email": email,
         "campus": r["campus"],
         "academic_email": bool(r["verified"]),
+        "is_admin": is_admin_email(email),
         "consent_ok": bool(r["consent_at"]) and r["consent_version"] == LEGAL_VERSION,
         "consent_at": r["consent_at"],
         "consent_version": r["consent_version"],
@@ -803,7 +825,7 @@ def update_item(user, item_id):
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     if not row:
         return jsonify({"error": "not_found"}), 404
-    if row["owner_id"] != user["id"]:
+    if row["owner_id"] != user["id"] and not is_admin_user(user):
         return jsonify({"error": "forbidden"}), 403
     data = request.get_json(silent=True) or {}
     new_status = data.get("status")
@@ -822,7 +844,7 @@ def delete_item(user, item_id):
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     if not row:
         return jsonify({"error": "not_found"}), 404
-    if row["owner_id"] != user["id"]:
+    if row["owner_id"] != user["id"] and not is_admin_user(user):
         return jsonify({"error": "forbidden"}), 403
     image_url = row["image_url"]
     db.execute("DELETE FROM items WHERE id = ?", (item_id,))

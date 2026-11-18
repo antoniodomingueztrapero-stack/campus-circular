@@ -71,6 +71,11 @@ const I18N = {
     trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones, sin fondos retenidos y sin métricas de impacto.",
     login: "Iniciar sesión", register: "Crear cuenta", logout: "Cerrar sesión", my_area: "Mi área",
     my_items: "Mis objetos", my_requests: "Mis solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
+    admin_tab: "Administración", admin_badge: "Administración", admin_role: "Con acceso de administración",
+    admin_title: "Objetos de ejemplo", admin_lead: "Como administrador puedes cambiar el estado o eliminar los objetos publicados por Equipo Circular Campus.",
+    admin_hint: "Activa este acceso configurando tu correo en ADMIN_EMAILS en el servidor. No hay contraseña compartida.",
+    admin_empty: "No hay objetos de ejemplo activos.", admin_only: "Solo visible para administradores.",
+    admin_manage_hint: "Puedes gestionar este objeto como administrador.",
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Circular Campus no gestiona cobros.",
     f_title: "Título", f_desc: "Descripción", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Precio orientativo (€)", f_price_hint: "No se cobra aquí. El importe se acuerda directamente y fuera de la plataforma.",
@@ -188,6 +193,10 @@ const I18N = {
     trust_3: "Local images, no payment gateway, no fees, no held funds and no impact metrics.",
     login: "Log in", register: "Create account", logout: "Log out", my_area: "My area",
     my_items: "My items", my_requests: "My requests", received: "Received requests", favorites: "Favorites",
+    admin_tab: "Admin", admin_badge: "Admin", admin_role: "With admin access",
+    admin_title: "Sample listings", admin_lead: "As an admin you can change the status or delete listings published by Equipo Circular Campus.",
+    admin_hint: "Enable this by setting your email in ADMIN_EMAILS on the server. No shared password.",
+    admin_empty: "No sample listings.", admin_only: "Admin only.", admin_manage_hint: "You can manage this item as an admin.",
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Circular Campus does not handle payments.",
     f_title: "Title", f_desc: "Description", f_category: "Category", f_condition: "Condition", f_type: "Exchange type",
     f_campus: "Campus", f_handover: "Handover point", f_price: "Indicative price (€)", f_price_hint: "No payment happens here. Settle any amount directly, outside the platform.",
@@ -305,6 +314,10 @@ const I18N = {
     trust_3: "Imaxes locais, sen pasarela de pago, sen comisións, sen fondos retidos e sen métricas de impacto.",
     login: "Iniciar sesión", register: "Crear conta", logout: "Pechar sesión", my_area: "A miña área",
     my_items: "Os meus obxectos", my_requests: "As miñas solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
+    admin_tab: "Administración", admin_badge: "Administración", admin_role: "Con acceso de administración",
+    admin_title: "Obxectos de exemplo", admin_lead: "Como administrador podes cambiar o estado ou eliminar os obxectos publicados por Equipo Circular Campus.",
+    admin_hint: "Activa este acceso configurando o teu correo en ADMIN_EMAILS no servidor. Non hai contrasinal compartido.",
+    admin_empty: "Non hai obxectos de exemplo activos.", admin_only: "Só visible para administradores.", admin_manage_hint: "Podes xestionar este obxecto como administrador.",
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Circular Campus non xestiona cobros.",
     f_title: "Título", f_desc: "Descrición", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Prezo orientativo (€)", f_price_hint: "Aquí non se cobra. O importe acórdase directamente e fóra da plataforma.",
@@ -1196,7 +1209,9 @@ async function renderMy(app) {
     $("#my-login").onclick = () => openAuth("login");
     return;
   }
-  const tab = state.myTab;
+  const isAdmin = Boolean(state.user.is_admin);
+  let tab = state.myTab;
+  if (tab === "admin" && !isAdmin) { state.myTab = tab = "items"; }
   let content = "";
   if (tab === "items") {
     const data = await api("/api/items?status=&sort=recent").catch(() => ({ items: [] }));
@@ -1236,18 +1251,41 @@ async function renderMy(app) {
   } else if (tab === "favorites") {
     const data = await api("/api/favorites").catch(() => ({ items: [] }));
     content = data.items.length ? `<div class="grid">${data.items.map(itemCard).join("")}</div>` : `<div class="empty">${esc(t("my_empty_favs"))}</div>`;
+  } else if (tab === "admin" && isAdmin) {
+    const data = await api("/api/items?status=&sort=recent").catch(() => ({ items: [] }));
+    const demo = (data.items || []).filter(i => i.owner_id !== state.user.id);
+    content = `
+      <div class="info-card" style="margin-bottom:16px">
+        <h3>${esc(t("admin_title"))}</h3>
+        <p class="muted">${esc(t("admin_lead"))}</p>
+        <p class="muted" style="font-size:13px">${esc(t("admin_hint"))}</p>
+      </div>` +
+      (demo.length ? demo.map(it => `
+      <div class="list-item">
+        <img src="${esc(itemImage(it))}" alt="" data-fallback data-category="${esc(it.category)}">
+        <div class="grow"><strong>${esc(it.title)}</strong><br><span class="muted">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))} · #${it.id}</span></div>
+        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
+        <button class="btn btn-ghost btn-sm" data-view="${it.id}">${esc(t("view_item"))}</button>
+        <select data-status="${it.id}" aria-label="${esc(t("status_disponible"))}">
+          <option value="disponible" ${it.status === "disponible" ? "selected" : ""}>${esc(t("status_disponible"))}</option>
+          <option value="reservado" ${it.status === "reservado" ? "selected" : ""}>${esc(t("status_reservado"))}</option>
+          <option value="entregado" ${it.status === "entregado" ? "selected" : ""}>${esc(t("status_entregado"))}</option>
+        </select>
+        <button class="btn btn-danger btn-sm" data-del="${it.id}">${esc(t("delete_item"))}</button>
+      </div>`).join("") : `<div class="empty">${esc(t("admin_empty"))}</div>`);
   }
 
   setApp(app, `
     <div class="section-title">
-      <h2>${esc(t("my_area"))} · ${esc(state.user.name)}</h2>
-      <p>${state.user.academic_email ? esc(t("academic_email")) : esc(t("personal_email"))} · ${esc(t("identity_note"))}</p>
+      <h2>${esc(t("my_area"))} · ${esc(state.user.name)} ${isAdmin ? `<span class="pill\" style=\"margin-left:8px\">${esc(t("admin_badge"))}</span>` : ""}</h2>
+      <p>${state.user.academic_email ? esc(t("academic_email")) : esc(t("personal_email"))} · ${esc(t("identity_note"))}${isAdmin ? ` · <strong>${esc(t("admin_role"))}</strong>` : ""}</p>
     </div>
     <div class="tabs">
       <button data-tab="items" class="${tab === "items" ? "active" : ""}">${esc(t("my_items"))}</button>
       <button data-tab="requests" class="${tab === "requests" ? "active" : ""}">${esc(t("my_requests"))}</button>
       <button data-tab="received" class="${tab === "received" ? "active" : ""}">${esc(t("received"))}</button>
       <button data-tab="favorites" class="${tab === "favorites" ? "active" : ""}">${esc(t("favorites"))}</button>
+      ${isAdmin ? `<button data-tab="admin" class="${tab === "admin" ? "active" : ""}">${esc(t("admin_tab"))}</button>` : ""}
     </div>
     ${content}
     ${accountToolsHtml()}`);
@@ -1287,6 +1325,8 @@ async function openItem(id) {
     const it = data.item;
     const owner = it.owner || {};
     const isOwn = state.user && state.user.id === it.owner_id;
+    const isAdmin = state.user && state.user.is_admin;
+    const canManage = isOwn || isAdmin;
     const isSale = it.exchange_type === "vender";
     const price = isSale ? `€${Number(it.price).toFixed(0)}` : esc(t("free"));
     openModal(`
@@ -1315,10 +1355,19 @@ async function openItem(id) {
       <p class="muted" style="font-size:14px">${esc(t("loan_rules"))}</p>
       <p class="muted" style="font-size:14px">${esc(t("detail_privacy_note"))}</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-        ${isOwn ? `<button class="btn btn-ghost" id="detail-manage">${esc(t("my_area"))}</button>`
+        ${canManage ? `<button class="btn btn-ghost" id="detail-manage">${esc(t("my_area"))}</button>`
                 : `<button class="btn btn-primary" id="detail-request" ${it.status !== "disponible" ? "disabled" : ""}>${esc(t("detail_request"))}</button>`}
         <button class="btn btn-ghost" id="detail-fav">${it.is_favorite ? esc(t("detail_faved")) : esc(t("detail_fav"))}</button>
-      </div>`);
+      </div>
+      ${canManage ? `<div class="admin-detail-box" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span class="pill">${esc(t("admin_badge"))}</span><span class="muted" style="font-size:13px">${esc(t("admin_manage_hint"))}</span>
+        <select id="detail-status" aria-label="${esc(t("status_disponible"))}">
+          <option value="disponible" ${it.status === "disponible" ? "selected" : ""}>${esc(t("status_disponible"))}</option>
+          <option value="reservado" ${it.status === "reservado" ? "selected" : ""}>${esc(t("status_reservado"))}</option>
+          <option value="entregado" ${it.status === "entregado" ? "selected" : ""}>${esc(t("status_entregado"))}</option>
+        </select>
+        <button class="btn btn-danger btn-sm" id="detail-delete">${esc(t("delete_item"))}</button>
+      </div>` : ""}`);
     const favBtn = $("#detail-fav");
     if (favBtn) favBtn.onclick = async () => {
       if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
@@ -1334,6 +1383,17 @@ async function openItem(id) {
     if (reqBtn) reqBtn.onclick = () => {
       if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
       openRequest(id);
+    };
+    const detailStatus = $("#detail-status");
+    if (detailStatus) detailStatus.onchange = async () => {
+      try { await api(`/api/items/${id}`, { method: "PATCH", body: JSON.stringify({ status: detailStatus.value }) }); toast(t("toast_status")); openItem(id); render(); }
+      catch (e) { toast(errorMessage(e), true); }
+    };
+    const detailDel = $("#detail-delete");
+    if (detailDel) detailDel.onclick = async () => {
+      if (!confirm(t("delete_item") + "?")) return;
+      try { await api(`/api/items/${id}`, { method: "DELETE" }); toast(t("toast_deleted")); closeModal(); render(); }
+      catch (e) { toast(errorMessage(e), true); }
     };
   } catch (e) { toast(errorMessage(e), true); }
 }
