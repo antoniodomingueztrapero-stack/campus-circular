@@ -1,32 +1,37 @@
 #!/usr/bin/env python3
 """
-Genera el símbolo de Circular Campus (propuesta "dos C") en SVG vectorial.
+Genera el símbolo de Circular Campus ("dos C") en SVG vectorial.
 
-Idea: el anillo de flechas del logo actual se gira a horizontal y se dibuja con
-líneas finas concéntricas (como el logo del Instituto de Lingua da UVigo).
-Cada remate nace de las propias líneas y converge en una punta afilada sobre el
-eje del anillo. En el centro, la planta de tres lóbulos del escudo antiguo de la
-UVigo (maciza, sin líneas) y debajo la onda en azul institucional.
+Concepto
+--------
+- El anillo de flechas del logo actual se gira a horizontal: dos "C" enfrentadas.
+- Cada C se dibuja con líneas finas concéntricas (lenguaje gráfico del Instituto
+  de Lingua da UVigo) y termina en una FLECHA angulosa de chevrones anidados con
+  púa inferior, no en una punta redondeada.
+- En el centro, el árbol del escudo antiguo de la UVigo: tres lóbulos redondos
+  recortados en media luna, tronco ensanchado en la base.
+- Debajo, la onda del escudo en azul institucional.
 
-Todo se calcula matemáticamente: el anillo es un círculo exacto y el símbolo
-queda centrado al píxel. Sin dependencias externas.
+Todo se calcula matemáticamente (círculo exacto, símbolo centrado al píxel).
+Sin dependencias externas.
 
 Uso:  python3 design/build_logo.py
 """
 import math
 import os
-import sys
 
 # ---------------------------------------------------------------- ajustes ---
 CX = CY = 512.0                 # centro del lienzo (viewBox 0 0 1024 1024)
 R_OUT, R_IN = 432.0, 362.0      # banda exterior / interior del anillo
-N_LINES = 9                     # nº de líneas concéntricas
+N_LINES = 8                     # líneas concéntricas (par: una por brazo de flecha)
 STROKE = 4.2                    # grosor de línea
-GAP = 7.0                       # medio hueco (grados) arriba y abajo
-TIP = 20.0                      # longitud de la punta de flecha (grados)
-TIP_EASE = 1.5                  # exponente de convergencia (1 = lineal, >1 = punta más afilada)
-TIP_SPREAD = 1.0                # ensanchamiento de la punta (aletas)
-TIP_R = None                    # radio donde converge la punta (None = eje de la banda)
+GAP_BACK = 15.0                 # grados entre la punta y el corte de la banda
+GAP_FRONT = 18.0                # grados entre la punta y el arranque de la otra C
+
+ARROW_BARB = 11.0               # cuánto sobresalen las púas por fuera de la banda (px)
+ARROW_NOTCH = 5.0               # profundidad de la muesca trasera (grados)
+ARROW_LEVELS = 3                # nº de contornos concéntricos de la flecha
+STROKE_EFFECTIVE = 10.0         # separación entre contornos de la flecha (px)
 
 GREEN = "#1B6B3A"               # verde del logo actual (anillo)
 GREEN_PLANT = "#3C8F52"         # verde de la planta
@@ -74,60 +79,160 @@ def catmull_path(points, close=False):
     return " ".join(d)
 
 
-def smoothstep(t):
-    return t * t * (3.0 - 2.0 * t)
-
-
-# ----------------------------------------------------------------- anillo ---
-def stroke_d(start, tip, r):
-    """Una línea concéntrica: arco exacto + remate que converge en la punta."""
-    taper_start = tip - TIP
-    p0 = pt(start, r)
-    p1 = pt(taper_start, r)
-    d = [
-        f"M {f(p0[0])} {f(p0[1])}",
-        # arco exacto, sweep=1 (horario en pantalla)
-        f"A {f(r)} {f(r)} 0 0 1 {f(p1[0])} {f(p1[1])}",
-    ]
-    pts = [p1]
-    n = 16
-    for i in range(1, n + 1):
-        t = i / n
-        th = taper_start + TIP * t
-        k = t ** TIP_EASE
-        w = 1.0 + (TIP_SPREAD - 1.0) * math.sin(math.pi * t) ** 1.2
-        tr = R_MID if TIP_R is None else TIP_R
-        rr = tr + (r - tr) * w * (1.0 - k)
-        pts.append(pt(th, rr))
-    # tramo de la punta como béziers suaves (sin su "M x y" inicial)
-    tail = catmull_path(pts)
-    d.append(tail.split(" ", 3)[3])
+def poly_path(points, close=False):
+    """Polilínea recta (para las aristas de la flecha)."""
+    d = ["M {} {}".format(f(points[0][0]), f(points[0][1]))]
+    for p in points[1:]:
+        d.append("L {} {}".format(f(p[0]), f(p[1])))
+    if close:
+        d.append("Z")
     return " ".join(d)
 
 
-def ring_paths(n_lines=None):
+# ----------------------------------------------------------------- anillo ---
+def arc_d(theta_start, theta_end, r):
+    """Arco exacto (sweep horario)."""
+    p0 = pt(theta_start, r)
+    p1 = pt(theta_end, r)
+    return "M {} {} A {} {} 0 0 1 {} {}".format(
+        f(p0[0]), f(p0[1]), f(r), f(r), f(p1[0]), f(p1[1])
+    )
+
+
+def local(x, y, theta_tip, sign):
+    """(distancia hacia atrás, radio relativo al eje) -> punto del lienzo."""
+    th = theta_tip + sign * math.degrees(x / R_MID)
+    return pt(th, R_MID + y)
+
+
+def arrow_polygon(theta_tip, sign):
+    """Contorno de la flecha: punta, dos púas y muesca trasera (en V).
+
+    T punta · A púa superior · N muesca · C púa inferior. La muesca muerde hacia
+    dentro de la banda, así las líneas del anillo pueden acabar justo en ella.
+    """
+    half = (R_OUT - R_IN) / 2.0
+    length = R_MID * math.radians(GAP_BACK)
+    notch = R_MID * math.radians(ARROW_NOTCH)
+    T = local(0.0, 0.0, theta_tip, sign)
+    A = local(length, half + ARROW_BARB, theta_tip, sign)
+    N = local(length + notch, 0.0, theta_tip, sign)
+    C = local(length, -half - ARROW_BARB, theta_tip, sign)
+    return [T, A, N, C]
+
+
+def _chevrons(theta_tip, sign):
+    """V's paralelas (chevrones) que rellenan la flecha, recortadas por su contorno."""
+    half = (R_OUT - R_IN) / 2.0
+    length = R_MID * math.radians(GAP_BACK)
+    hb = half + ARROW_BARB
+    theta = math.atan2(hb, length)
+    d = (R_OUT - R_IN) / (N_LINES - 1)          # misma separación que las líneas
+    stag = d / math.sin(theta)
     paths = []
-    # arco derecho: 7 -> 180 (punta abajo, apuntando a la izquierda)
-    # arco izquierdo: 187 -> 360 (punta arriba, apuntando a la derecha)
+    i = 1
+    while i * stag < length * 1.45:
+        x = i * stag
+        V = local(x, 0.0, theta_tip, sign)
+        step_len = 40.0
+        U1 = local(x + step_len * math.cos(theta), step_len * math.sin(theta), theta_tip, sign)
+        L1 = local(x + step_len * math.cos(theta), -step_len * math.sin(theta), theta_tip, sign)
+        du = (U1[0] - V[0], U1[1] - V[1])
+        dl = (L1[0] - V[0], L1[1] - V[1])
+        nu = math.hypot(*du) or 1.0
+        nl = math.hypot(*dl) or 1.0
+        U = (V[0] + du[0] / nu * 900.0, V[1] + du[1] / nu * 900.0)
+        Lo = (V[0] + dl[0] / nl * 900.0, V[1] + dl[1] / nl * 900.0)
+        paths.append(poly_path([U, V, Lo]))
+        i += 1
+    return paths
+
+
+def arrow_paths(theta_tip, sign):
+    """Contorno de la flecha + chevrones interiores (se recortan con clipPath)."""
+    poly = arrow_polygon(theta_tip, sign)
+    return poly_path(poly, close=True), _chevrons(theta_tip, sign)
+
+
+def _circle_segment_hit(p0, p1, r, cx=CX, cy=CY):
+    """Ángulo del primer corte entre el círculo de radio r y el segmento p0-p1."""
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+    fx, fy = p0[0] - cx, p0[1] - cy
+    a = dx * dx + dy * dy
+    b = 2 * (fx * dx + fy * dy)
+    c = fx * fx + fy * fy - r * r
+    disc = b * b - 4 * a * c
+    if a == 0 or disc < 0:
+        return None
+    sq = math.sqrt(disc)
+    hits = [t for t in ((-b - sq) / (2 * a), (-b + sq) / (2 * a)) if 0.0 <= t <= 1.0]
+    if not hits:
+        return None
+    t = min(hits)
+    px, py = p0[0] + dx * t, p0[1] + dy * t
+    return math.degrees(math.atan2(px - cx, cy - py))
+
+
+def _band_end(theta_tip, sign, r):
+    """Ángulo donde la línea de radio r debe terminar, sobre la muesca."""
+    half = (R_OUT - R_IN) / 2.0
+    y = r - R_MID
+    poly = arrow_polygon(theta_tip, sign)
+    T, A, N, C = poly
+    if y > 1e-6:
+        ang = _circle_segment_hit(A, N, r)
+    elif y < -1e-6:
+        ang = _circle_segment_hit(N, C, r)
+    else:
+        ang = _circle_segment_hit(A, N, r)
+    if ang is None:
+        ang = theta_tip + sign * GAP_BACK
+    # llevar el ángulo al sentido de giro correcto
+    while sign > 0 and ang < theta_tip:
+        ang += 360.0
+    while sign < 0 and ang > theta_tip:
+        ang -= 360.0
+    return ang
+
+
+def ring_paths(n_lines=None):
     n_lines = n_lines or N_LINES
+    paths = []
     step = (R_OUT - R_IN) / (n_lines - 1)
     for i in range(n_lines):
         r = R_IN + i * step
-        paths.append(stroke_d(GAP, 180.0, r))
-        paths.append(stroke_d(180.0 + GAP, 360.0, r))
+        # C derecha: baja hasta la punta de abajo
+        end_bottom = _band_end(180.0, -1.0, r)
+        paths.append(arc_d(GAP_FRONT, end_bottom, r))
+        # C izquierda: sube hasta la punta de arriba
+        end_top = _band_end(0.0, -1.0, r)
+        paths.append(arc_d(180.0 + GAP_FRONT, end_top, r))
+    return paths
+
+
+def arrow_group(n_lines=None):
+    paths = arrow_paths(0.0, -1.0)      # punta arriba, apuntando a la derecha
+    paths += arrow_paths(180.0, -1.0)   # punta abajo, apuntando a la izquierda
     return paths
 
 
 # ---------------------------------------------------------------- la planta --
-# Silueta tipo metaball: tres lóbulos redondos + tallo, unidos con unión suave
-# (los "fillets" del escudo antiguo salen solos).
-LOBE_TOP = ((0.0, -110.0), 58.0)
-LOBE_L = ((-86.0, 0.0), 57.0)
-LOBE_R = ((86.0, 0.0), 57.0)
-STEM = ((0.0, 158.0), (0.0, -40.0), 16.0)   # (a, b, radio en la punta superior)
-FILLET = 32.0                               # k de la unión suave
-STEM_FLARE = 1.35                           # ensanchamiento del tallo en la base
-PLANT_SCALE = 1.0
+# Árbol del escudo: tres lóbulos redondos recortados en media luna + tronco
+# troncocónico, unidos con unión suave (metaballs) para que salgan los enlaces
+# curvos del escudo.
+LOBE_TOP = ((0.0, -120.0), 59.0)
+LOBE_L = ((-89.0, -2.0), 57.0)
+LOBE_R = ((89.0, -2.0), 57.0)
+STEM = ((0.0, 158.0), (0.0, -30.0), 13.0)   # (a, b, radio arriba)
+STEM_FLARE = 1.55                           # ensanchamiento del tronco en la base
+FILLET = 34.0                               # k de la unión suave
+
+# recortes en media luna: (dirección en la que se desplaza el círculo, radio relativo)
+CUT_TOP = ((0.0, 1.0), 0.78)                # el hueco se abre hacia el tronco
+CUT_L = ((1.0, 0.0), 0.78)
+CUT_R = ((-1.0, 0.0), 0.78)
+CUT_DEPTH = 0.30                            # cuánto se desplaza el círculo que recorta
+PLANT_SCALE = 1.06
 
 
 def _circle_sdf(p, c, r):
@@ -135,7 +240,7 @@ def _circle_sdf(p, c, r):
 
 
 def _taper_sdf(p, a, b, ra, rb):
-    """Cápsula con radio variable (el tallo se ensancha en la base)."""
+    """Cápsula de radio variable (el tronco se ensancha en la base)."""
     ax, ay = a
     bx, by = b
     px, py = p
@@ -147,34 +252,30 @@ def _taper_sdf(p, a, b, ra, rb):
     return math.hypot(dx, dy) - (ra + (rb - ra) * t)
 
 
-def _capsule_sdf(p, a, b, r):
-    ax, ay = a
-    bx, by = b
-    px, py = p
-    vx, vy = bx - ax, by - ay
-    wx, wy = px - ax, py - ay
-    L2 = vx * vx + vy * vy
-    t = 0.0 if L2 == 0 else max(0.0, min(1.0, (wx * vx + wy * vy) / L2))
-    dx, dy = px - (ax + t * vx), py - (ay + t * vy)
-    return math.hypot(dx, dy) - r
-
-
 def _smin(a, b, k):
     h = max(0.0, k - abs(a - b)) / k
     return min(a, b) - h * h * k * 0.25
 
 
+def _lobe(p, lobe, cut):
+    """Lóbulo redondo con un bocado en media luna."""
+    (cx, cy), r = lobe
+    d = _circle_sdf(p, (cx, cy), r)
+    (dx, dy), kr = cut
+    n = math.hypot(dx, dy) or 1.0
+    cc = (cx + dx / n * r * CUT_DEPTH, cy + dy / n * r * CUT_DEPTH)
+    return max(d, -_circle_sdf(p, cc, r * kr))
+
+
 def plant_sdf(p):
-    d = _circle_sdf(p, *LOBE_TOP)
-    d = _smin(d, _circle_sdf(p, *LOBE_L), FILLET)
-    d = _smin(d, _circle_sdf(p, *LOBE_R), FILLET)
-    (sa, sb, rstem) = STEM
-    d = _smin(d, _taper_sdf(p, sa, sb, rstem, rstem * STEM_FLARE), FILLET)
+    d = _lobe(p, LOBE_TOP, CUT_TOP)
+    d = _smin(d, _lobe(p, LOBE_L, CUT_L), FILLET)
+    d = _smin(d, _lobe(p, LOBE_R, CUT_R), FILLET)
+    d = _smin(d, _taper_sdf(p, STEM[0], STEM[1], STEM[2], STEM[2] * STEM_FLARE), FILLET)
     return d
 
 
 def marching_squares(sdf, x0, y0, x1, y1, step):
-    """Contorno de nivel 0 -> lista de polilíneas cerradas."""
     nx = int(round((x1 - x0) / step)) + 1
     ny = int(round((y1 - y0) / step)) + 1
     grid = [[sdf((x0 + i * step, y0 + j * step)) for i in range(nx)] for j in range(ny)]
@@ -267,7 +368,7 @@ def resample(points, n=120, closed=True):
     acc = [0.0]
     for i in range(1, len(pts)):
         acc.append(acc[-1] + math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
-    total = acc[-1]
+    total = acc[-1] or 1.0
     out, j = [], 0
     for k in range(n):
         target = total * k / n
@@ -285,15 +386,19 @@ def resample(points, n=120, closed=True):
 
 
 def plant_points():
+    """Contorno exterior + huecos de los lóbulos (se rellenan con evenodd)."""
     loops = marching_squares(plant_sdf, -200.0, -200.0, 200.0, 195.0, 1.0)
     loops.sort(key=len, reverse=True)
-    # la silueta debe ser una sola pieza: si no, avisamos
-    big = [l for l in loops if len(l) > 30]
-    if len(big) != 1:
-        raise SystemExit("la planta se ha partido en %d piezas" % len(big))
-    pts = chaikin(big[0], iters=3, closed=True)
-    pts = resample(pts, n=170, closed=True)
-    return [(x * PLANT_SCALE, y * PLANT_SCALE) for x, y in pts]
+    big = [l for l in loops if len(l) > 25]
+    if not big:
+        raise SystemExit("la planta se ha quedado vacía")
+    out = []
+    for k, loop in enumerate(big):
+        n = 200 if k == 0 else 90
+        pts = chaikin(loop, iters=3, closed=True)
+        pts = resample(pts, n=n, closed=True)
+        out.append([(x * PLANT_SCALE, y * PLANT_SCALE) for x, y in pts])
+    return out
 
 
 def bbox(points):
@@ -303,10 +408,10 @@ def bbox(points):
 
 
 # -------------------------------------------------------------------- onda --
-WAVE_HALF = 152.0
+WAVE_HALF = 150.0
 WAVE_AMP = 22.0
 WAVE_THICK = 26.0
-WAVE_GAP = 26.0     # separación entre la base del tallo y la cresta
+WAVE_GAP = 26.0
 
 
 def wave_points(cy):
@@ -324,16 +429,17 @@ def wave_points(cy):
 
 # -------------------------------------------------------------------- SVG ---
 def geometry():
-    """Devuelve (planta_path, onda_path) ya centrados en el lienzo."""
-    ppts = plant_points()
+    loops = plant_points()
+    ppts = [p for loop in loops for p in loop]
     px0, py0, px1, py1 = bbox(ppts)
     wave_cy = py1 + WAVE_GAP
     upper, lower = wave_points(wave_cy)
-    wy0 = min(p[1] for p in lower)
     top, bottom = py0, max(p[1] for p in lower)
     dy = CY - (top + bottom) / 2.0
 
-    plant = catmull_path([(CX + x, dy + y) for x, y in ppts], close=True)
+    plant = " ".join(
+        catmull_path([(CX + x, dy + y) for x, y in loop], close=True) for loop in loops
+    )
     wave = catmull_path([(CX + x, dy + y) for x, y in upper], close=False)
     wave += " " + catmull_path([(CX + x, dy + y) for x, y in reversed(lower)],
                                close=False).split(" ", 3)[3] + " Z"
@@ -358,7 +464,18 @@ def build_svg(ring=GREEN, plant=GREEN_PLANT, wave=BLUE, bg=None, size=1024,
     for d in ring_paths(n_lines):
         parts.append('<path d="%s"/>' % d)
     parts.append("</g>")
-    parts.append('<path fill="%s" d="%s"/>' % (plant, plant_path))
+    parts.append('<g fill="none" stroke="%s" stroke-width="%s" stroke-linecap="round" '
+                 'stroke-linejoin="round">' % (ring, f(stroke if stroke else STROKE)))
+    for idx, (tip, sgn) in enumerate(((0.0, -1.0), (180.0, -1.0))):
+        outline, chevs = arrow_paths(tip, sgn)
+        parts.append('<clipPath id="a%d"><path d="%s"/></clipPath>' % (idx, outline))
+        parts.append('<g clip-path="url(#a%d)">' % idx)
+        parts.append('<path d="%s"/>' % outline)
+        for d in chevs:
+            parts.append('<path d="%s"/>' % d)
+        parts.append("</g>")
+    parts.append("</g>")
+    parts.append('<path fill="%s" fill-rule="evenodd" d="%s"/>' % (plant, plant_path))
     parts.append('<path fill="%s" d="%s"/>' % (wave, wave_path))
     parts.append("</g>")
     parts.append("</svg>")
@@ -373,9 +490,8 @@ def main():
     os.makedirs(logos, exist_ok=True)
 
     specs = [
-        # fichero, carpeta, ajustes
         ("circular-campus-2c.svg", logos, {}),
-        ("circular-campus-2c-compact.svg", logos, dict(n_lines=4, stroke=11.0)),
+        ("circular-campus-2c-compact.svg", logos, dict(n_lines=6, stroke=6.0)),
         ("circular-campus-2c-verde.svg", logos, dict(wave=GREEN)),
         ("circular-campus-2c-mono.svg", logos,
          dict(ring="#FFFFFF", plant="#FFFFFF", wave="#FFFFFF")),
