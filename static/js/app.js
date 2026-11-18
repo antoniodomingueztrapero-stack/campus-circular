@@ -21,9 +21,8 @@ const CONFIG = {
   contactEmail: BOOT.contactEmail || "privacidad@circular-campus.example",
   controller: BOOT.controller || "Equipo Circular Campus (proyecto académico independiente)",
   legalVersion: BOOT.legalVersion || "2026-11-17",
-  legalUpdated: BOOT.legalUpdated || "17 de noviembre de 2026",
+  legalUpdated: BOOT.legalUpdated || "2026-11-17",
   sessionDays: Number(BOOT.sessionDays) || 30,
-  paymentOption: BOOT.paymentOption || "A",
 };
 
 const ROUTE_PATHS = {
@@ -34,6 +33,11 @@ const ROUTE_PATHS = {
 const PATH_VIEWS = Object.fromEntries(
   Object.entries(ROUTE_PATHS).map(([view, path]) => [path, view])
 );
+const TEAM_NAMES = [
+  "Pavlo Kovalenko", "Karen Itzel Sandoval Ramos", "Okechukwu Patrick Okeh",
+  "Fernando Heriberto Cardenas Rubi", "Alba Grille Louro", "Filip Juran",
+  "Greypher Alisander Garcia Alvarado", "Jacob Schaal", "Antonio Domínguez Trapero"
+];
 
 /* ---------------- i18n ---------------- */
 const I18N = {
@@ -44,16 +48,16 @@ const I18N = {
     footer_independent: "Proyecto independiente. No es un servicio oficial de ninguna universidad.",
     footer_explore: "Explorar", footer_legal: "Información legal", footer_legal_notice: "Aviso legal",
     footer_privacy: "Privacidad y datos", footer_terms: "Condiciones de uso", footer_presented: "Presentado en",
-    footer_payment_mini: "Opción A · sin pagos dentro de la plataforma",
+    footer_payment_mini: "Sin pagos dentro de la plataforma",
     footer_note: "Prototipo sin ánimo de lucro · sin analítica · sin recursos de terceros · las imágenes de ejemplo son locales.",
-    credit_label: "Una idea de", noscript: "Circular Campus necesita JavaScript para mostrar el catálogo y gestionar la cuenta.",
+    credit_label: "Equipo del proyecto", payment_eyebrow: "Pagos", noscript: "Circular Campus necesita JavaScript para mostrar el catálogo y gestionar la cuenta.",
     title_home: "Explorar", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas y confianza",
     title_about: "El proyecto", title_my: "Mi área", title_legal: "Aviso legal", title_privacy: "Privacidad y datos", title_terms: "Condiciones de uso",
     hero_eyebrow: "Reutilizar es sencillo", hero_title: "Lo que ya no usas puede seguir teniendo una buena historia.",
     hero_lead: "Circular Campus es un prototipo independiente para publicar, encontrar y dar una segunda vida a libros, ropa, muebles y material de estudio. Publica, busca y acuerda la entrega en un lugar público.",
     hero_search_ph: "Buscar libros, ropa, muebles…", hero_search_btn: "Buscar", publish_cta: "Publicar un objeto",
     stat_items: "objetos publicados", stat_available: "disponibles ahora", stat_delivered: "entregas marcadas", stat_users: "cuentas creadas",
-    payment_banner_title: "Opción A · sin pasarela de pago",
+    payment_banner_title: "Sin pasarela de pago",
     payment_banner_body: "Circular Campus no procesa pagos, no cobra comisiones, no custodia dinero ni garantiza objetos. «Vender» muestra solo un precio orientativo: cualquier pago se acuerda directamente entre particulares, fuera de la plataforma.",
     all: "Todo", search: "Buscar", filters: "Filtros", campus: "Campus", condition: "Estado", type: "Tipo", sort: "Ordenar",
     sort_recent: "Más recientes", sort_price_asc: "Precio: menor a mayor", sort_price_desc: "Precio: mayor a menor",
@@ -64,7 +68,7 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Acordad un lugar seguro y marcado como entregado cuando terminéis.",
     trust_title: "Diseñado con criterios claros", trust_1: "Consentimiento explícito, aviso legal, privacidad y condiciones en tres idiomas.",
     trust_2: "Exportación y supresión de cuenta desde Mi área; sin analítica, cookies de terceros ni rastreadores.",
-    trust_3: "Imágenes locales, sin PSP, sin comisiones, sin fondos retenidos y sin promesas de impacto inventadas.",
+    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones, sin fondos retenidos y sin métricas de impacto.",
     login: "Iniciar sesión", register: "Crear cuenta", logout: "Cerrar sesión", my_area: "Mi área",
     my_items: "Mis objetos", my_requests: "Mis solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Circular Campus no gestiona cobros.",
@@ -74,7 +78,7 @@ const I18N = {
     upload: "Subir imagen", f_private: "Confirmo que publico como particular", f_private_hint: "No se admiten vendedores profesionales ni actividad comercial habitual.",
     desc_hint: "Describe marcas, defectos y qué incluye. No escribas teléfonos, direcciones ni datos de contacto.",
     publish_btn: "Publicar objeto", cancel: "Cancelar", payment_notice_title: "Pago fuera de Circular Campus",
-    payment_notice_body: "Opción A: la plataforma no intermedia ni procesa el pago. Acordadlo directamente en la entrega, en efectivo o por un medio directo entre particulares. No hay comisión, reembolso ni garantía de Circular Campus.",
+    payment_notice_body: "La plataforma no intermedia ni procesa el pago. Acordadlo directamente en la entrega, en efectivo o por un medio directo entre particulares. No hay comisión, reembolso ni garantía de Circular Campus.",
     detail_request: "Solicitar", detail_fav: "Guardar", detail_faved: "Guardado", request_title: "Solicitar este objeto",
     request_msg: "Mensaje para la otra persona (opcional)", request_msg_ph: "Hola, me interesa… ¿podemos quedar en un lugar público?",
     request_btn: "Enviar solicitud", request_sent: "Solicitud enviada. La otra persona la verá en su área.",
@@ -96,7 +100,7 @@ const I18N = {
     auth_password: "Contraseña", auth_password_hint: "Mínimo 8 caracteres. No la compartas.", auth_campus: "Campus",
     auth_email_hint: "Vale cualquier correo válido. No verificamos matrícula ni identidad.",
     auth_btn_login: "Entrar", auth_btn_register: "Registrarme", auth_no_account: "¿No tienes cuenta?", auth_have_account: "¿Ya tienes cuenta?",
-    auth_minimum: "Resumen: guardamos nombre, email, contraseña cifrada, campus y los contenidos que publiques. Puedes exportarlos o borrarlos desde Mi área.",
+    auth_minimum: "Resumen: guardamos nombre, email, contraseña con hash, campus y los contenidos que publiques. Puedes exportarlos o borrarlos desde Mi área.",
     auth_consent: "Acepto la {privacy} y las {terms}. He leído el resumen y consiento expresamente el tratamiento de mis datos para usar el servicio.",
     demo_hint: "Crea tu cuenta con cualquier correo válido. No hay cuentas de demostración compartidas.",
     need_login: "Inicia sesión para continuar.", need_login_publish: "Inicia sesión para publicar un objeto.",
@@ -126,7 +130,7 @@ const I18N = {
     rules_4_t: "Entregas seguras", rules_4_b: "Lugares públicos y concurridos, nunca domicilios de desconocidos.",
     rules_5_t: "Comunicación amable", rules_5_b: "Responde con tiempo. Si no puedes, cancela la solicitud.",
     rules_6_t: "Sin envíos por correo", rules_6_b: "Todo se entrega en mano para evitar problemas y costes innecesarios.",
-    rules_payment_title: "Opción A · pagos fuera de la plataforma", rules_payment_body: "No hay PSP, monedero, depósito, comisión ni reembolso gestionado por Circular Campus. El precio es orientativo y cualquier pago directo se acuerda entre particulares, fuera del servicio.",
+    rules_payment_title: "Pagos fuera de la plataforma", rules_payment_body: "No hay pasarela de pago, monedero, depósito, comisión ni reembolso gestionado por Circular Campus. El precio es orientativo y cualquier pago directo se acuerda entre particulares, fuera del servicio.",
     rules_data_title: "Datos mínimos", rules_data_body: "Solo pedimos lo necesario para la cuenta y la publicación. Puedes exportar tus datos o eliminar la cuenta; no usamos analítica ni publicidad de terceros.",
     points_biblioteca_t: "Biblioteca", points_biblioteca_b: "Zona de paso sencilla; queda en la entrada o recepción.",
     points_entrada_t: "Entrada principal", points_entrada_b: "Visible y fácil de encontrar entre clases.",
@@ -136,10 +140,10 @@ const I18N = {
     about_p1: "La idea es sencilla: facilitar que objetos en buen estado encuentren a otra persona antes de convertirse en residuo, sin crear una tienda, un monedero ni un servicio oficial.",
     about_p2: "La web permite publicar, buscar, guardar favoritos y solicitar materiales. La información sobre el estado y un punto de entrega claro sustituyen a las promesas comerciales: cada acuerdo es entre particulares.",
     about_p3: "Esta versión es un prototipo sin ánimo de lucro. Los objetos de ejemplo son ficticios, las imágenes son locales y el despliegue gratuito puede usar una base de datos efímera. No sustituye a una evaluación jurídica, fiscal o de protección de datos antes de un uso real con datos personales.",
-    about_pillars_title: "Tres decisiones deliberadas", about_pillar_1: "Independencia: sin marca institucional ni afirmación de servicio oficial.",
+    about_pillars_title: "Tres ideas clave", about_pillar_1: "Independencia: sin marca institucional ni afirmación de servicio oficial.",
     about_pillar_2: "Privacidad: consentimiento, minimización, exportación, supresión y cero rastreadores.",
-    about_pillar_3: "Pagos: Opción A. Ninguna comisión ni custodia de fondos; acuerdos directos fuera de la plataforma.",
-    photo_caption: "Foto de equipo aportada para el proyecto.", photo_privacy: "Si apareces en la imagen y prefieres que se retire, escríbenos.",
+    about_pillar_3: "Pagos: sin comisiones ni custodia de fondos; acuerdos directos fuera de la plataforma.",
+    photo_caption: "Fotografía del equipo del proyecto.", photo_privacy: "Si apareces en la imagen y prefieres que se retire, escríbenos.",
     account_data_title: "Tus datos, bajo tu control", account_data_body: "Consulta qué guarda tu cuenta, descarga una copia o elimínala. La supresión borra perfil, sesiones, publicaciones, favoritos y solicitudes propias.",
     account_email: "Email", account_campus: "Campus", account_consent: "Consentimiento", account_consent_ok: "Vigente", account_consent_old: "Pendiente de renovar",
     account_rights: "Derechos", account_rights_body: "Acceso, rectificación, supresión, oposición, limitación y portabilidad. También puedes reclamar ante la AEPD.",
@@ -161,16 +165,16 @@ const I18N = {
     footer_independent: "Independent project. Not an official service of any university.",
     footer_explore: "Explore", footer_legal: "Legal information", footer_legal_notice: "Legal notice",
     footer_privacy: "Privacy & data", footer_terms: "Terms of use", footer_presented: "Presented at",
-    footer_payment_mini: "Option A · no payments inside the platform",
+    footer_payment_mini: "No payments inside the platform",
     footer_note: "Non-profit prototype · no analytics · no third-party resources · sample images are local.",
-    credit_label: "An idea by", noscript: "Circular Campus needs JavaScript to show the catalogue and manage your account.",
+    credit_label: "Project team", payment_eyebrow: "Payments", noscript: "Circular Campus needs JavaScript to show the catalogue and manage your account.",
     title_home: "Browse", title_publish: "List an item", title_points: "Handover points", title_rules: "Rules & trust",
     title_about: "The project", title_my: "My area", title_legal: "Legal notice", title_privacy: "Privacy & data", title_terms: "Terms of use",
     hero_eyebrow: "Reuse made simple", hero_title: "What you no longer use can still have a good story.",
     hero_lead: "Circular Campus is an independent prototype for listing, finding and giving a second life to books, clothing, furniture and study materials. List, search and arrange handover in a public place.",
     hero_search_ph: "Search books, clothing, furniture…", hero_search_btn: "Search", publish_cta: "List an item",
     stat_items: "items listed", stat_available: "available now", stat_delivered: "handovers marked", stat_users: "accounts created",
-    payment_banner_title: "Option A · no payment gateway",
+    payment_banner_title: "No payment gateway",
     payment_banner_body: "Circular Campus does not process payments, charge fees, hold funds or guarantee items. “Sell” shows an indicative price only: any payment is agreed directly between private individuals, outside the platform.",
     all: "All", search: "Search", filters: "Filters", campus: "Campus", condition: "Condition", type: "Type", sort: "Sort",
     sort_recent: "Most recent", sort_price_asc: "Price: low to high", sort_price_desc: "Price: high to low",
@@ -181,7 +185,7 @@ const I18N = {
     how_3_t: "3. Meet in public", how_3_b: "Choose a safe public place and mark the item as handed over when you are done.",
     trust_title: "Built with clear choices", trust_1: "Explicit consent, legal notice, privacy policy and terms in three languages.",
     trust_2: "Account export and deletion in My area; no analytics, third-party cookies or trackers.",
-    trust_3: "Local images, no PSP, no fees, no held funds and no invented impact claims.",
+    trust_3: "Local images, no payment gateway, no fees, no held funds and no impact metrics.",
     login: "Log in", register: "Create account", logout: "Log out", my_area: "My area",
     my_items: "My items", my_requests: "My requests", received: "Received requests", favorites: "Favorites",
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Circular Campus does not handle payments.",
@@ -191,7 +195,7 @@ const I18N = {
     upload: "Upload image", f_private: "I confirm I am listing as a private individual", f_private_hint: "Professional sellers and regular commercial activity are not allowed.",
     desc_hint: "Describe marks, defects and what is included. Do not add phone numbers, addresses or contact details.",
     publish_btn: "List item", cancel: "Cancel", payment_notice_title: "Payment outside Circular Campus",
-    payment_notice_body: "Option A: the platform does not intermediate or process payment. Arrange it directly at handover, in cash or by a direct person-to-person method. Circular Campus charges no fee, offers no refund and gives no guarantee.",
+    payment_notice_body: "The platform does not intermediate or process payment. Arrange it directly at handover, in cash or by a direct person-to-person method. Circular Campus charges no fee, offers no refund and gives no guarantee.",
     detail_request: "Request", detail_fav: "Save", detail_faved: "Saved", request_title: "Request this item",
     request_msg: "Message for the other person (optional)", request_msg_ph: "Hi, I'm interested… can we meet somewhere public?",
     request_btn: "Send request", request_sent: "Request sent. The other person will see it in their area.",
@@ -243,7 +247,7 @@ const I18N = {
     rules_4_t: "Safe handovers", rules_4_b: "Busy public places, never a stranger's home.",
     rules_5_t: "Kind communication", rules_5_b: "Reply in good time. If you cannot, cancel the request.",
     rules_6_t: "No postal shipping", rules_6_b: "Everything is handed over in person to avoid problems and unnecessary costs.",
-    rules_payment_title: "Option A · payments outside the platform", rules_payment_body: "There is no PSP, wallet, deposit, commission or refund managed by Circular Campus. The price is indicative and any direct payment is agreed between private individuals outside the service.",
+    rules_payment_title: "Payments outside the platform", rules_payment_body: "There is no payment gateway, wallet, deposit, commission or refund managed by Circular Campus. The price is indicative and any direct payment is agreed between private individuals outside the service.",
     rules_data_title: "Minimal data", rules_data_body: "We ask only for what the account and listing need. You can export your data or delete your account; we use no analytics or third-party advertising.",
     points_biblioteca_t: "Library", points_biblioteca_b: "Easy meeting spot; use the entrance or reception.",
     points_entrada_t: "Main entrance", points_entrada_b: "Visible and easy to find between classes.",
@@ -253,10 +257,10 @@ const I18N = {
     about_p1: "The idea is simple: help usable items find another person before they become waste, without creating a shop, a wallet or an official service.",
     about_p2: "The site lets people list, search, save favorites and request materials. Honest condition details and a clear handover point replace commercial promises: each agreement is between private individuals.",
     about_p3: "This version is a non-profit prototype. Sample items are fictional, images are local and the free deployment may use an ephemeral database. It does not replace legal, tax or data-protection review before real use with personal data.",
-    about_pillars_title: "Three deliberate decisions", about_pillar_1: "Independence: no institutional branding or claim of an official service.",
+    about_pillars_title: "Three key ideas", about_pillar_1: "Independence: no institutional branding or claim of an official service.",
     about_pillar_2: "Privacy: consent, minimisation, export, erasure and zero trackers.",
-    about_pillar_3: "Payments: Option A. No fees or held funds; direct agreements outside the platform.",
-    photo_caption: "Team photo provided for the project.", photo_privacy: "If you appear in the image and would like it removed, contact us.",
+    about_pillar_3: "Payments: no fees or held funds; direct agreements outside the platform.",
+    photo_caption: "Project team photograph.", photo_privacy: "If you appear in the image and would like it removed, contact us.",
     account_data_title: "Your data, under your control", account_data_body: "See what your account stores, download a copy or erase it. Deletion removes your profile, sessions, listings, favorites and own requests.",
     account_email: "Email", account_campus: "Campus", account_consent: "Consent", account_consent_ok: "Current", account_consent_old: "Renewal pending",
     account_rights: "Rights", account_rights_body: "Access, rectification, erasure, objection, restriction and portability. You may also complain to the AEPD.",
@@ -278,16 +282,16 @@ const I18N = {
     footer_independent: "Proxecto independente. Non é un servizo oficial de ningunha universidade.",
     footer_explore: "Explorar", footer_legal: "Información legal", footer_legal_notice: "Aviso legal",
     footer_privacy: "Privacidade e datos", footer_terms: "Condicións de uso", footer_presented: "Presentado en",
-    footer_payment_mini: "Opción A · sen pagos dentro da plataforma",
+    footer_payment_mini: "Sen pagos dentro da plataforma",
     footer_note: "Prototipo sen ánimo de lucro · sen analítica · sen recursos de terceiros · as imaxes de exemplo son locais.",
-    credit_label: "Unha idea de", noscript: "Circular Campus necesita JavaScript para amosar o catálogo e xestionar a conta.",
+    credit_label: "Equipo do proxecto", payment_eyebrow: "Pagos", noscript: "Circular Campus necesita JavaScript para amosar o catálogo e xestionar a conta.",
     title_home: "Explorar", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas e confianza",
     title_about: "O proxecto", title_my: "A miña área", title_legal: "Aviso legal", title_privacy: "Privacidade e datos", title_terms: "Condicións de uso",
     hero_eyebrow: "Reutilizar é sinxelo", hero_title: "O que xa non usas pode seguir tendo unha boa historia.",
     hero_lead: "Circular Campus é un prototipo independente para publicar, atopar e darlle unha segunda vida a libros, roupa, mobles e material de estudo. Publica, busca e acorda a entrega nun lugar público.",
     hero_search_ph: "Buscar libros, roupa, mobles…", hero_search_btn: "Buscar", publish_cta: "Publicar un obxecto",
     stat_items: "obxectos publicados", stat_available: "dispoñibles agora", stat_delivered: "entregas marcadas", stat_users: "contas creadas",
-    payment_banner_title: "Opción A · sen pasarela de pago",
+    payment_banner_title: "Sen pasarela de pago",
     payment_banner_body: "Circular Campus non procesa pagos, non cobra comisións, non custodia cartos nin garante obxectos. «Vender» amosa só un prezo orientativo: calquera pago acórdase directamente entre particulares, fóra da plataforma.",
     all: "Todo", search: "Buscar", filters: "Filtros", campus: "Campus", condition: "Estado", type: "Tipo", sort: "Ordenar",
     sort_recent: "Máis recentes", sort_price_asc: "Prezo: de menor a maior", sort_price_desc: "Prezo: de maior a menor",
@@ -298,7 +302,7 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Escollede un lugar seguro e marcade como entregado ao rematar.",
     trust_title: "Deseñado con criterios claros", trust_1: "Consentimento explícito, aviso legal, privacidade e condicións en tres idiomas.",
     trust_2: "Exportación e supresión de conta na Miña área; sen analítica, cookies de terceiros nin rastrexadores.",
-    trust_3: "Imaxes locais, sen PSP, sen comisións, sen fondos retidos e sen métricas de impacto inventadas.",
+    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións, sen fondos retidos e sen métricas de impacto.",
     login: "Iniciar sesión", register: "Crear conta", logout: "Pechar sesión", my_area: "A miña área",
     my_items: "Os meus obxectos", my_requests: "As miñas solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Circular Campus non xestiona cobros.",
@@ -308,7 +312,7 @@ const I18N = {
     upload: "Subir imaxe", f_private: "Confirmo que publico como particular", f_private_hint: "Non se admiten vendedores profesionais nin actividade comercial habitual.",
     desc_hint: "Describe marcas, defectos e que inclúe. Non escribas teléfonos, enderezos nin datos de contacto.",
     publish_btn: "Publicar obxecto", cancel: "Cancelar", payment_notice_title: "Pago fóra de Circular Campus",
-    payment_notice_body: "Opción A: a plataforma non intermediou nin procesa o pago. Acordádeo directamente na entrega, en efectivo ou cun medio directo entre particulares. Non hai comisión, reembolso nin garantía de Circular Campus.",
+    payment_notice_body: "A plataforma non intermedia nin procesa o pago. Acordádeo directamente na entrega, en efectivo ou cun medio directo entre particulares. Non hai comisión, reembolso nin garantía de Circular Campus.",
     detail_request: "Solicitar", detail_fav: "Gardar", detail_faved: "Gardado", request_title: "Solicitar este obxecto",
     request_msg: "Mensaxe para a outra persoa (opcional)", request_msg_ph: "Ola, interésame… podemos quedar nun lugar público?",
     request_btn: "Enviar solicitude", request_sent: "Solicitude enviada. A outra persoa veraa na súa área.",
@@ -330,7 +334,7 @@ const I18N = {
     auth_password: "Contrasinal", auth_password_hint: "Mínimo 8 caracteres. Non o compartas.", auth_campus: "Campus",
     auth_email_hint: "Vale calquera correo válido. Non verificamos matrícula nin identidade.",
     auth_btn_login: "Entrar", auth_btn_register: "Rexistrarme", auth_no_account: "Non tes conta?", auth_have_account: "Xa tes conta?",
-    auth_minimum: "Resumo: gardamos nome, email, contrasinal cifrado, campus e os contidos que publiques. Podes exportalos ou borralos na Miña área.",
+    auth_minimum: "Resumo: gardamos nome, email, contrasinal con hash, campus e os contidos que publiques. Podes exportalos ou borralos na Miña área.",
     auth_consent: "Acepto a {privacy} e as {terms}. Lin o resumo e consinto expresamente o tratamento dos meus datos para usar o servizo.",
     demo_hint: "Crea a túa conta con calquera correo válido. Non hai contas de demostración compartidas.",
     need_login: "Inicia sesión para continuar.", need_login_publish: "Inicia sesión para publicar un obxecto.",
@@ -360,7 +364,7 @@ const I18N = {
     rules_4_t: "Entregas seguras", rules_4_b: "Lugares públicos e concorridos, nunca domicilios de descoñecidos.",
     rules_5_t: "Comunicación amable", rules_5_b: "Responde con tempo. Se non podes, cancela a solicitude.",
     rules_6_t: "Sen envíos por correo", rules_6_b: "Todo entrégase en man para evitar problemas e custos innecesarios.",
-    rules_payment_title: "Opción A · pagos fóra da plataforma", rules_payment_body: "Non hai PSP, moedeiro, depósito, comisión nin reembolso xestionado por Circular Campus. O prezo é orientativo e calquera pago directo acórdase entre particulares, fóra do servizo.",
+    rules_payment_title: "Pagos fóra da plataforma", rules_payment_body: "Non hai pasarela de pago, moedeiro, depósito, comisión nin reembolso xestionado por Circular Campus. O prezo é orientativo e calquera pago directo acórdase entre particulares, fóra do servizo.",
     rules_data_title: "Datos mínimos", rules_data_body: "Só pedimos o necesario para a conta e a publicación. Podes exportar os datos ou eliminar a conta; non usamos analítica nin publicidade de terceiros.",
     points_biblioteca_t: "Biblioteca", points_biblioteca_b: "Zona de paso sinxela; queda na entrada ou recepción.",
     points_entrada_t: "Entrada principal", points_entrada_b: "Visible e doado de atopar entre clases.",
@@ -370,10 +374,10 @@ const I18N = {
     about_p1: "A idea é sinxela: facilitar que obxectos en bo estado atopen outra persoa antes de converterse en residuo, sen crear unha tenda, unha moedeira nin un servizo oficial.",
     about_p2: "A web permite publicar, buscar, gardar favoritos e solicitar materiais. A información sobre o estado e un punto de entrega claro substitúen as promesas comerciais: cada acordo é entre particulares.",
     about_p3: "Esta versión é un prototipo sen ánimo de lucro. Os obxectos de exemplo son ficticios, as imaxes son locais e o despregue gratuíto pode usar unha base de datos efémera. Non substitúe unha avaliación xurídica, fiscal ou de protección de datos antes dun uso real con datos persoais.",
-    about_pillars_title: "Tres decisións deliberadas", about_pillar_1: "Independencia: sen marca institucional nin afirmación de servizo oficial.",
+    about_pillars_title: "Tres ideas clave", about_pillar_1: "Independencia: sen marca institucional nin afirmación de servizo oficial.",
     about_pillar_2: "Privacidade: consentimento, minimización, exportación, supresión e cero rastrexadores.",
-    about_pillar_3: "Pagos: Opción A. Ningunha comisión nin custodia de fondos; acordos directos fóra da plataforma.",
-    photo_caption: "Foto de equipo achegada para o proxecto.", photo_privacy: "Se apareces na imaxe e prefires que se retire, escríbenos.",
+    about_pillar_3: "Pagos: sen comisións nin custodia de fondos; acordos directos fóra da plataforma.",
+    photo_caption: "Fotografía do equipo do proxecto.", photo_privacy: "Se apareces na imaxe e prefires que se retire, escríbenos.",
     account_data_title: "Os teus datos, baixo o teu control", account_data_body: "Consulta que garda a túa conta, descarga unha copia ou elimínaa. A supresión borra perfil, sesións, publicacións, favoritos e solicitudes propias.",
     account_email: "Email", account_campus: "Campus", account_consent: "Consentimento", account_consent_ok: "Vixente", account_consent_old: "Pendente de renovar",
     account_rights: "Dereitos", account_rights_body: "Acceso, rectificación, supresión, oposición, limitación e portabilidade. Tamén podes reclamar ante a AEPD.",
@@ -397,7 +401,7 @@ const LEGAL_DOCS = {
       { h: "1. Identificación", p: ["El responsable editorial de este prototipo es {controller}. Contacto: {contact}. Circular Campus es el nombre visible del proyecto; no es una sociedad, una tienda ni un servicio administrativo."] },
       { h: "2. Naturaleza independiente", p: ["Circular Campus es un prototipo sin ánimo de lucro presentado en CTC Congress. No utiliza marcas, logotipos ni denominaciones institucionales como propias, y no se presenta como un servicio oficial, avalado o gestionado por ninguna universidad.", "Las denominaciones Vigo, Pontevedra y Ourense se usan únicamente como etiquetas geográficas para organizar entregas."] },
       { h: "3. Información general y LSSI", p: ["Esta versión de demostración no realiza una actividad económica online: no vende, no cobra, no gestiona pagos ni ofrece servicios profesionales. Por eso no se facilitan NIF, domicilio mercantil ni datos registrales.", "Si en el futuro el proyecto presta un servicio de la sociedad de la información con carácter económico, antes deberán completarse los deberes de información permanente, fácil, directa y gratuita del artículo 10 de la Ley 34/2002 (LSSI), y revisarse obligaciones de consumo, fiscales y de comercio."] },
-      { h: "4. Contenidos y propiedad intelectual", p: ["El código, los textos, las ilustraciones vectoriales y el diseño se publican para este prototipo. La marca gráfica de CTC Congress y la fotografía de equipo se usan como materiales aportados para el proyecto; no se cede su titularidad.", "Los contenidos publicados por las personas usuarias siguen siendo suyos. Al publicar, permiten únicamente su mostrado dentro del servicio mientras la cuenta o el objeto existan."] },
+      { h: "4. Contenidos y propiedad intelectual", p: ["El código, los textos, las fotografías locales y el diseño se publican para este prototipo. La marca gráfica de CTC Congress y la fotografía de equipo forman parte de los materiales del proyecto; no se cede su titularidad.", "Los contenidos publicados por las personas usuarias siguen siendo suyos. Al publicar, permiten únicamente su mostrado dentro del servicio mientras la cuenta o el objeto existan."] },
       { h: "5. Enlaces, disponibilidad y contacto", p: ["Los documentos de {privacyLink} y {termsLink} son accesibles de forma permanente desde el pie de página y también por URL directa. No se utilizan enlaces a recursos de terceros para mostrar imágenes, fuentes o analítica.", "Para retirar un contenido, ejercer derechos o comunicar un problema, escribe a {contact}."] },
     ],
     privacy: [
@@ -408,10 +412,10 @@ const LEGAL_DOCS = {
       { h: "5. Conservación", p: ["Los datos de la cuenta se conservan mientras exista y, después, solo durante el plazo necesario para atender incidencias o cumplir obligaciones legales. Las sesiones caducan a los {days} días y se eliminan las caducadas al iniciar sesión.", "En el despliegue gratuito de demostración la base SQLite puede estar en almacenamiento efímero: un reinicio puede hacer desaparecer los datos. Esta circunstancia no sustituye una copia de seguridad ni una solicitud formal de supresión."] },
       { h: "6. Destinatarios y transferencias", p: ["No se venden ni ceden datos a terceros. El proveedor de alojamiento puede tratar datos técnicos mínimos para prestar el servicio; no se contratan analíticas, píxeles, fuentes externas ni CDN de imágenes.", "No se prevén transferencias internacionales de datos de cuenta. Si se introduce un proveedor externo, se informará antes y se evaluará su encaje en el RGPD y la LOPDGDD."] },
       { h: "7. Derechos", p: ["Puedes ejercer acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad. La exportación descarga tus datos propios en JSON; la supresión elimina perfil, sesiones, publicaciones, favoritos y solicitudes propias.", "Escríbenos a {contact}. Si consideras que no se atiende tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD)."] },
-      { h: "8. Seguridad y limitaciones", p: ["Se usan contraseñas con hash, tokens de sesión aleatorios, validación en servidor, una política de contenido local y cabeceras de seguridad. No se almacenan contraseñas en texto plano ni se exponen emails en perfiles públicos.", "Este prototipo no verifica matrícula, identidad ni titularidad de los objetos; aún no dispone de moderación, reportes ni chat en tiempo real. Antes de un despliegue institucional con datos reales, coordina con la delegación de protección de datos correspondiente y realiza una evaluación de riesgos."] },
+      { h: "8. Seguridad y limitaciones", p: ["Se usan contraseñas con hash, tokens de sesión aleatorios, validación en servidor, una política de contenido local y cabeceras de seguridad. No se almacenan contraseñas en texto plano ni se exponen emails en perfiles públicos.", "Este prototipo no verifica matrícula, identidad ni titularidad de los objetos; no dispone de moderación ni reportes. Antes de un despliegue institucional con datos reales, coordina con la delegación de protección de datos correspondiente y realiza una evaluación de riesgos."] },
       { h: "9. Menores", p: ["El servicio está pensado para personas adultas. No se recoge fecha de nacimiento y no se admite el registro de menores de 14 años. Si eres menor de edad, no publiques datos personales ni quedes sin acompañamiento."] },
       { h: "10. Cookies, analítica y recursos de terceros", p: ["No se usan cookies de sesión, cookies publicitarias, analítica, píxeles ni rastreadores. El idioma y el token se guardan en el almacenamiento local del navegador; puedes borrarlos desde su configuración.", "Las imágenes de ejemplo y de categoría se sirven desde este mismo dominio. Para privacidad, no se aceptan URL de imágenes externas en las publicaciones."] },
-      { h: "11. Fotografías", p: ["Las fotos de objetos que subas pueden contener datos personales si muestras cartas, pantallas, etiquetas o documentos: revísalas antes de publicar.", "La fotografía de grupo de la página del proyecto se muestra porque fue aportada para CTC Congress. Las imágenes de personas son datos personales; si apareces en ella y deseas que se retire, escribe a {contact}."] },
+      { h: "11. Fotografías", p: ["Las fotos de objetos que subas pueden contener datos personales si muestras cartas, pantallas, etiquetas o documentos: revísalas antes de publicar.", "La fotografía de grupo de la página del proyecto forma parte de los materiales del proyecto. Las imágenes de personas son datos personales; si apareces en ella y deseas que se retire, escribe a {contact}."] },
       { h: "12. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
     ],
     terms: [
@@ -419,7 +423,7 @@ const LEGAL_DOCS = {
       { h: "2. Independencia y ausencia de verificación", p: ["El proyecto no usa marcas institucionales ni afirma contar con aval, autorización o verificación oficial. La insignia de dominio académico, cuando aparece, es automática y meramente informativa: no comprueba matrícula, identidad ni pertenencia.", "Cualquier punto físico de entrega necesitaría autorización de quien gestione ese espacio. Las etiquetas de puntos de esta web son solo sugerencias."] },
       { h: "3. Cuenta y consentimiento", p: ["Puedes registrarte con cualquier email válido. Debes marcar expresamente la casilla de aceptación de {privacyLink} y {termsLink}, usar una contraseña propia y no compartirla.", "La sesión caduca a los {days} días. Eres responsable de la información que publicas y de mantener tu contraseña en secreto."] },
       { h: "4. Publicaciones permitidas", p: ["Solo se admiten anuncios ocasionales de particulares. Quedan fuera vendedores profesionales, actividad comercial habitual, artículos prohibidos, productos que requieran requisitos especiales y contenido que incluya datos personales de terceros.", "Describe el estado con honestidad, sube una foto real del objeto y no escribas teléfonos, direcciones ni datos bancarios en la descripción."] },
-      { h: "5. Opción A: pagos fuera de la plataforma", p: ["Decisión explícita: no se ha integrado ningún PSP porque un proveedor totalmente gratuito para la persona que publica no existe una vez hay un cobro. Las tarifas oficiales de Stripe y PayPal aplican comisiones por transacción; Redsys/Bizum requieren contrato bancario y pueden tener costes por operación o mantenimiento.", "Por tanto, Circular Campus no procesa pagos, no cobra comisiones, no retiene fondos, no ofrece depósito en garantía, no emite reembolsos, no garantiza objetos ni media en disputas. «Vender» es solo un precio orientativo y un motivo para contactar.", "Si hay contraprestación, se acuerda directamente entre particulares fuera de la plataforma, por ejemplo en efectivo o mediante un pago directo persona a persona en la entrega. Cada persona asume su propio cumplimiento legal y fiscal: la venta habitual o profesional puede activar obligaciones de consumo, IVA, IRPF, LSSI y prevención de blanqueo.", "Una futura pasarela solo se plantearía con un proveedor de servicios de pago regulado, cuentas conectadas y verificación KYC; nunca con un monedero propio, custodia de fondos o comisiones ocultas."] },
+      { h: "5. Pagos fuera de la plataforma", p: ["Circular Campus no procesa pagos, no cobra comisiones, no retiene fondos, no ofrece depósito en garantía, no emite reembolsos, no garantiza objetos ni media en disputas. «Vender» es solo un precio orientativo y un motivo para contactar.", "Si hay contraprestación, se acuerda directamente entre particulares fuera de la plataforma, por ejemplo en efectivo o mediante un pago directo persona a persona en la entrega. Cada persona asume su propio cumplimiento legal y fiscal: la venta habitual o profesional puede activar obligaciones de consumo, IVA, IRPF, LSSI y prevención de blanqueo."] },
       { h: "6. Entregas y solicitudes", p: ["La solicitud sirve para coordinar el intercambio. Elegid un lugar público y concurrido, comprobad el objeto antes de aceptarlo y acordad por escrito la devolución si es un préstamo.", "No hay envíos por correo gestionados por Circular Campus. Marca el objeto como entregado solo cuando la entrega real haya terminado."] },
       { h: "7. Usos prohibidos", p: ["Prohibido publicar datos de contacto en abierto, suplantar identidades, acosar, estafar, vender como profesional, eludir la validación de imágenes, introducir URL externas o intentar usar la plataforma como monedero, escrow o sistema de comisiones.", "Prohibido subir contenido ilegal, peligroso, discriminatorio o que vulnere derechos de terceros."] },
       { h: "8. Responsabilidad", p: ["Circular Campus ofrece una herramienta técnica de publicación y solicitud, pero no verifica objetos, no participa en los acuerdos y no responde por su cumplimiento, estado, precio, pago, devolución o daños.", "El prototipo puede tener errores, reiniciarse o perder datos en un alojamiento gratuito efímero. No lo uses como único repositorio de información importante."] },
@@ -432,7 +436,7 @@ const LEGAL_DOCS = {
       { h: "1. Identification", p: ["The editorial controller of this prototype is {controller}. Privacy contact: {contact}. Circular Campus is the visible project name; it is not a company, a shop or an administrative service."] },
       { h: "2. Independent nature", p: ["Circular Campus is a non-profit prototype presented at CTC Congress. It does not use institutional names, logos or brands as its own and does not present itself as an official, endorsed or managed service of any university.", "Vigo, Pontevedra and Ourense are used only as geographic labels to organise handovers."] },
       { h: "3. General information and LSSI", p: ["This demo version does not carry out an economic online activity: it does not sell, charge, process payments or provide professional services. For that reason no tax ID, business address or registry details are provided.", "If the project later becomes an economic information-society service, the permanent, easy, direct and free information duties of article 10 of Spanish Law 34/2002 (LSSI) must be completed first, together with a consumer, tax and commerce review."] },
-      { h: "4. Content and intellectual property", p: ["The code, texts, vector illustrations and design are published for this prototype. The CTC Congress mark and the team photograph are materials provided for the project; ownership is not transferred.", "User-generated content remains its author's. By listing an item, the author allows only its display within the service while the account or listing exists."] },
+      { h: "4. Content and intellectual property", p: ["The code, texts, local photographs and design are published for this prototype. The CTC Congress mark and the team photograph are part of the project materials; ownership is not transferred.", "User-generated content remains its author's. By listing an item, the author allows only its display within the service while the account or listing exists."] },
       { h: "5. Links, availability and contact", p: ["The {privacyLink} and {termsLink} documents are permanently available from the footer and by direct URL. No third-party resources are used for images, fonts or analytics.", "To remove content, exercise rights or report a problem, write to {contact}."] },
     ],
     privacy: [
@@ -443,10 +447,10 @@ const LEGAL_DOCS = {
       { h: "5. Retention", p: ["Account data is kept while the account exists and afterwards only as long as needed to handle incidents or legal duties. Sessions expire after {days} days and expired sessions are removed at login.", "On the free demo deployment the SQLite database may be on ephemeral storage: a restart can remove data. That is not a backup and does not replace a formal erasure request."] },
       { h: "6. Recipients and transfers", p: ["Data is not sold or transferred to third parties. The hosting provider may process minimal technical data to deliver the service; no analytics, pixels, external fonts or image CDNs are contracted.", "No international transfers of account data are planned. If an external provider is added, users will be informed first and its GDPR/LOPDGDD fit assessed."] },
       { h: "7. Rights", p: ["You may exercise access, rectification, erasure, objection, restriction and portability. Export downloads your own data as JSON; erasure deletes the profile, sessions, listings, favorites and own requests.", "Write to {contact}. If your request is not satisfied, you may complain to the Spanish Data Protection Agency (AEPD)."] },
-      { h: "8. Security and limitations", p: ["Passwords are hashed, session tokens are random, inputs are validated server-side, resources are local and security headers are set. Passwords are never stored in plain text and emails are not exposed in public profiles.", "This prototype does not verify enrolment, identity or ownership; it has no moderation, reports or real-time chat yet. Before an institutional deployment with real data, coordinate with the relevant data protection officer and complete a risk assessment."] },
+      { h: "8. Security and limitations", p: ["Passwords are hashed, session tokens are random, inputs are validated server-side, resources are local and security headers are set. Passwords are never stored in plain text and emails are not exposed in public profiles.", "This prototype does not verify enrolment, identity or ownership; it has no moderation or reports. Before an institutional deployment with real data, coordinate with the relevant data protection officer and complete a risk assessment."] },
       { h: "9. Minors", p: ["The service is intended for adults. No date of birth is collected and registration by children under 14 is not accepted. Minors should not post personal data or attend handovers unaccompanied."] },
       { h: "10. Cookies, analytics and third-party resources", p: ["No session cookies, advertising cookies, analytics, pixels or trackers are used. Language and token are stored in browser local storage and can be cleared in browser settings.", "Sample and category images are served from this same domain. For privacy, external image URLs are not accepted in listings."] },
-      { h: "11. Photographs", p: ["Photos you upload may contain personal data if they show letters, screens, labels or documents: check them before publishing.", "The group photo on the project page is shown because it was provided for CTC Congress. Images of people are personal data; if you appear in it and want it removed, write to {contact}."] },
+      { h: "11. Photographs", p: ["Photos you upload may contain personal data if they show letters, screens, labels or documents: check them before publishing.", "The group photo on the project page is part of the project materials. Images of people are personal data; if you appear in it and want it removed, write to {contact}."] },
       { h: "12. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
     ],
     terms: [
@@ -454,7 +458,7 @@ const LEGAL_DOCS = {
       { h: "2. Independence and no verification", p: ["The project uses no institutional branding and claims no official endorsement, authorisation or verification. An academic-domain badge, when shown, is automatic and informative only: it does not check enrolment, identity or membership.", "Any physical handover point would need authorisation from whoever manages the space. The point labels on this site are suggestions only."] },
       { h: "3. Account and consent", p: ["You may register with any valid email. You must explicitly tick the box accepting {privacyLink} and {termsLink}, use your own password and keep it secret.", "Sessions expire after {days} days. You are responsible for the information you publish and for your password."] },
       { h: "4. Permitted listings", p: ["Only occasional listings by private individuals are allowed. Professional sellers, regular commercial activity, prohibited goods, regulated items requiring special conditions and content containing third-party personal data are excluded.", "Describe condition honestly, upload a real photo and do not put phone numbers, addresses or bank details in the description."] },
-      { h: "5. Option A: payments outside the platform", p: ["Explicit decision: no PSP has been integrated because a provider that is completely free for the publisher does not exist once a charge succeeds. Official Stripe and PayPal rates charge per transaction; Redsys/Bizum require a bank contract and may carry per-operation or maintenance costs.", "Therefore Circular Campus does not process payments, charge fees, hold funds, provide escrow, issue refunds, guarantee items or mediate disputes. “Sell” is only an indicative price and a reason to make contact.", "Any consideration is agreed directly between private individuals outside the platform, for example in cash or by a direct person-to-person payment at handover. Each person remains responsible for their own legal and tax duties: regular or professional selling can trigger consumer, VAT, income-tax, LSSI and anti-money-laundering obligations.", "A future gateway would only be considered with a regulated payment provider, connected accounts and KYC verification; never with a proprietary wallet, fund custody or hidden fees."] },
+      { h: "5. Payments outside the platform", p: ["Circular Campus does not process payments, charge fees, hold funds, provide escrow, issue refunds, guarantee items or mediate disputes. “Sell” is only an indicative price and a reason to make contact.", "Any consideration is agreed directly between private individuals outside the platform, for example in cash or by a direct person-to-person payment at handover. Each person remains responsible for their own legal and tax duties: regular or professional selling can trigger consumer, VAT, income-tax, LSSI and anti-money-laundering obligations."] },
       { h: "6. Handovers and requests", p: ["The request coordinates the exchange. Choose a busy public place, inspect the item before accepting it and agree a return date in writing for a loan.", "Circular Campus does not manage postal shipping. Mark an item as delivered only after the real handover is complete."] },
       { h: "7. Prohibited uses", p: ["Do not post open contact details, impersonate others, harass, defraud, sell professionally, bypass image validation, insert external URLs or try to use the platform as a wallet, escrow or commission system.", "Do not upload illegal, dangerous, discriminatory content or material that infringes third-party rights."] },
       { h: "8. Liability", p: ["Circular Campus provides a technical listing and request tool, but does not verify items, take part in agreements or answer for their performance, condition, price, payment, return or damages.", "The prototype may contain errors, restart or lose data on a free ephemeral host. Do not use it as the only repository for important information."] },
@@ -467,7 +471,7 @@ const LEGAL_DOCS = {
       { h: "1. Identificación", p: ["O responsable editorial deste prototipo é {controller}. Contacto de privacidade: {contact}. Circular Campus é o nome visible do proxecto; non é unha sociedade, unha tenda nin un servizo administrativo."] },
       { h: "2. Natureza independente", p: ["Circular Campus é un prototipo sen ánimo de lucro presentado en CTC Congress. Non usa marcas, logotipos nin denominacións institucionais como propias, e non se presenta como un servizo oficial, avalado ou xestionado por ningunha universidade.", "As denominacións Vigo, Pontevedra e Ourense úsanse só como etiquetas xeográficas para organizar entregas."] },
       { h: "3. Información xeral e LSSI", p: ["Esta versión de demostración non realiza unha actividade económica en liña: non vende, non cobra, non xestiona pagos nin ofrece servizos profesionais. Por iso non se facilitan NIF, domicilio mercantil nin datos rexistrais.", "Se no futuro o proxecto presta un servizo da sociedade da información con carácter económico, antes deberán completarse os deberes de información permanente, doada, directa e gratuíta do artigo 10 da Lei 34/2002 (LSSI), e revisarse obrigas de consumo, fiscais e de comercio."] },
-      { h: "4. Contidos e propiedade intelectual", p: ["O código, os textos, as ilustracións vectoriais e o deseño publícanse para este prototipo. A marca gráfica de CTC Congress e a fotografía de equipo úsanse como materiais achegados para o proxecto; non se cede a súa titularidade.", "Os contidos publicados polas persoas usuarias seguen sendo seus. Ao publicar, permiten só a súa visualización dentro do servizo mentres existan a conta ou o obxecto."] },
+      { h: "4. Contidos e propiedade intelectual", p: ["O código, os textos, as fotografías locais e o deseño publícanse para este prototipo. A marca gráfica de CTC Congress e a fotografía de equipo forman parte dos materiais do proxecto; non se cede a súa titularidade.", "Os contidos publicados polas persoas usuarias seguen sendo seus. Ao publicar, permiten só a súa visualización dentro do servizo mentres existan a conta ou o obxecto."] },
       { h: "5. Ligazóns, dispoñibilidade e contacto", p: ["Os documentos de {privacyLink} e {termsLink} son accesibles de forma permanente desde o pé de páxina e tamén por URL directa. Non se usan ligazóns a recursos de terceiros para amosar imaxes, fontes ou analítica.", "Para retirar un contido, exercer dereitos ou comunicar un problema, escribe a {contact}."] },
     ],
     privacy: [
@@ -478,10 +482,10 @@ const LEGAL_DOCS = {
       { h: "5. Conservación", p: ["Os datos da conta consérvanse mentres exista e, despois, só durante o prazo necesario para atender incidencias ou cumprir obrigas legais. As sesións caducan aos {days} días e elimínanse as caducadas ao iniciar sesión.", "No despregue gratuíto de demostración a base SQLite pode estar en almacenamento efémero: un reinicio pode facer desaparecer os datos. Isto non substitúe unha copia de seguridade nin unha solicitude formal de supresión."] },
       { h: "6. Destinatarios e transferencias", p: ["Non se venden nin ceden datos a terceiros. O provedor de aloxamento pode tratar datos técnicos mínimos para prestar o servizo; non se contratan analíticas, píxeles, fontes externas nin CDN de imaxes.", "Non se prevén transferencias internacionais de datos de conta. Se se introduce un provedor externo, informarase antes e avaliarase o seu encaixe no RGPD e na LOPDGDD."] },
       { h: "7. Dereitos", p: ["Podes exercer acceso, rectificación, supresión, oposición, limitación do tratamento e portabilidade. A exportación descarga os teus datos propios en JSON; a supresión elimina perfil, sesións, publicacións, favoritos e solicitudes propias.", "Escríbenos a {contact}. Se consideras que non se atende a túa solicitude, podes presentar unha reclamación ante a Axencia Española de Protección de Datos (AEPD)."] },
-      { h: "8. Seguridade e limitacións", p: ["Úsanse contrasinais con hash, tokens de sesión aleatorios, validación no servidor, unha política de contido local e cabeceiras de seguridade. Non se almacenan contrasinais en texto plano nin se expoñen emails en perfís públicos.", "Este prototipo non verifica matrícula, identidade nin titularidade dos obxectos; aínda non dispón de moderación, reportes nin chat en tempo real. Antes dun despregue institucional con datos reais, coordina coa delegación de protección de datos correspondente e realiza unha avaliación de riscos."] },
+      { h: "8. Seguridade e limitacións", p: ["Úsanse contrasinais con hash, tokens de sesión aleatorios, validación no servidor, unha política de contido local e cabeceiras de seguridade. Non se almacenan contrasinais en texto plano nin se expoñen emails en perfís públicos.", "Este prototipo non verifica matrícula, identidade nin titularidade dos obxectos; non dispón de moderación nin reportes. Antes dun despregue institucional con datos reais, coordina coa delegación de protección de datos correspondente e realiza unha avaliación de riscos."] },
       { h: "9. Menores", p: ["O servizo está pensado para persoas adultas. Non se recolle data de nacemento e non se admite o rexistro de menores de 14 anos. Se es menor, non publiques datos persoais nin quedes sen acompañamento."] },
       { h: "10. Cookies, analítica e recursos de terceiros", p: ["Non se usan cookies de sesión, cookies publicitarias, analítica, píxeles nin rastrexadores. O idioma e o token gárdanse no almacenamento local do navegador; podes borralos desde a súa configuración.", "As imaxes de exemplo e de categoría sírvense desde este mesmo dominio. Para privacidade, non se aceptan URL de imaxes externas nas publicacións."] },
-      { h: "11. Fotografías", p: ["As fotos de obxectos que subas poden conter datos persoais se amosan cartas, pantallas, etiquetas ou documentos: revísaas antes de publicar.", "A fotografía de grupo da páxina do proxecto amósase porque foi achegada para CTC Congress. As imaxes de persoas son datos persoais; se apareces nela e desexas que se retire, escribe a {contact}."] },
+      { h: "11. Fotografías", p: ["As fotos de obxectos que subas poden conter datos persoais se amosan cartas, pantallas, etiquetas ou documentos: revísaas antes de publicar.", "A fotografía de grupo da páxina do proxecto forma parte dos materiais do proxecto. As imaxes de persoas son datos persoais; se apareces nela e desexas que se retire, escribe a {contact}."] },
       { h: "12. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
     ],
     terms: [
@@ -489,7 +493,7 @@ const LEGAL_DOCS = {
       { h: "2. Independencia e ausencia de verificación", p: ["O proxecto non usa marcas institucionais nin afirma contar con aval, autorización ou verificación oficial. A insignia de dominio académico, cando aparece, é automática e só informativa: non comproba matrícula, identidade nin pertenza.", "Calquera punto físico de entrega necesitaría autorización de quen xestione ese espazo. As etiquetas de puntos desta web son só suxestións."] },
       { h: "3. Conta e consentimento", p: ["Podes rexistrarte con calquera email válido. Debes marcar expresamente a caixa de aceptación de {privacyLink} e {termsLink}, usar un contrasinal propio e non compartilo.", "A sesión caduca aos {days} días. Es responsable da información que publicas e de manter o contrasinal en segredo."] },
       { h: "4. Publicacións permitidas", p: ["Só se admiten anuncios ocasionais de particulares. Quedan fóra vendedores profesionais, actividade comercial habitual, artigos prohibidos, produtos con requisitos especiais e contido con datos persoais de terceiros.", "Describe o estado con honestidade, sube unha foto real e non escribas teléfonos, enderezos nin datos bancarios na descrición."] },
-      { h: "5. Opción A: pagos fóra da plataforma", p: ["Decisión explícita: non se integrou ningún PSP porque un provedor totalmente gratuíto para quen publica non existe unha vez hai un cobro. As tarifas oficiais de Stripe e PayPal aplican comisións por transacción; Redsys/Bizum requiren contrato bancario e poden ter custos por operación ou mantemento.", "Polo tanto, Circular Campus non procesa pagos, non cobra comisións, non retén fondos, non ofrece depósito en garantía, non emite reembolsos, non garante obxectos nin media en disputas. «Vender» é só un prezo orientativo e un motivo para contactar.", "Se hai contraprestación, acórdase directamente entre particulares fóra da plataforma, por exemplo en efectivo ou cun pago directo persoa a persoa na entrega. Cada persoa asume o seu propio cumprimento legal e fiscal: a venda habitual ou profesional pode activar obrigas de consumo, IVE, IRPF, LSSI e prevención de branqueo.", "Unha futura pasarela só se plantearía cun provedor de servizos de pago regulado, contas conectadas e verificación KYC; nunca cun moedeiro propio, custodia de fondos ou comisións ocultas."] },
+      { h: "5. Pagos fóra da plataforma", p: ["Circular Campus non procesa pagos, non cobra comisións, non retén fondos, non ofrece depósito en garantía, non emite reembolsos, non garante obxectos nin media en disputas. «Vender» é só un prezo orientativo e un motivo para contactar.", "Se hai contraprestación, acórdase directamente entre particulares fóra da plataforma, por exemplo en efectivo ou cun pago directo persoa a persoa na entrega. Cada persoa asume o seu propio cumprimento legal e fiscal: a venda habitual ou profesional pode activar obrigas de consumo, IVE, IRPF, LSSI e prevención de branqueo."] },
       { h: "6. Entregas e solicitudes", p: ["A solicitude serve para coordinar o intercambio. Escollede un lugar público e concorrido, comprobade o obxecto antes de aceptalo e acordade por escrito a devolución se é un préstamo.", "Non hai envíos por correo xestionados por Circular Campus. Marca o obxecto como entregado só cando a entrega real rematase."] },
       { h: "7. Usos prohibidos", p: ["Prohíbese publicar datos de contacto en aberto, suplantar identidades, acosar, estafar, vender como profesional, eludir a validación de imaxes, introducir URL externas ou intentar usar a plataforma como moedeiro, escrow ou sistema de comisións.", "Prohíbese subir contido ilegal, perigoso, discriminatorio ou que vulnere dereitos de terceiros."] },
       { h: "8. Responsabilidade", p: ["Circular Campus ofrece unha ferramenta técnica de publicación e solicitude, pero non verifica obxectos, non participa nos acordos e non responde polo seu cumprimento, estado, prezo, pago, devolución ou danos.", "O prototipo pode ter erros, reiniciarse ou perder datos nun aloxamento gratuíto efémero. Non o uses como único repositorio de información importante."] },
@@ -527,7 +531,7 @@ const campusLabel = (c) => t("campus_" + c);
 const handLabel = (c) => t("hand_" + c);
 const statusLabel = (s) => t("status_" + s);
 const reqLabel = (s) => t("req_" + s);
-const categoryImage = (c) => `/static/img/items/${CATEGORIES.includes(c) ? c : "placeholder"}.svg`;
+const categoryImage = (c) => `/static/img/items/${CATEGORIES.includes(c) ? c : "placeholder"}.jpg`;
 const itemImage = (it) => it.image_url || categoryImage(it.category);
 
 function legalText(s = "") {
@@ -878,7 +882,7 @@ async function renderHome(app) {
             <button class="btn btn-ghost" type="button" id="go-publish">${esc(t("publish_cta"))}</button>
           </form>
         </div>
-        <img class="hero-art" src="/static/img/hero-reuse.svg" alt="" data-fallback data-fallback-src="/static/img/circular-campus-mark-white.png">
+        <img class="hero-art" src="/static/img/hero-reuse.jpg" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
       </div>
       <div class="notice payment-banner" role="note">
         <span class="notice-icon" aria-hidden="true">€</span>
@@ -977,7 +981,7 @@ function renderPublish(app) {
           <input type="file" id="img-file" accept="image/*">
           <div style="margin-top:8px"><button type="button" class="btn btn-ghost btn-sm" id="upload-btn">${esc(t("upload"))}</button></div>
           <small>${esc(t("f_image_hint"))}</small>
-          <img id="img-preview" class="hidden upload-preview" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.svg">
+          <img id="img-preview" class="hidden upload-preview" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
         </div>
         <div class="consent-box">
           <label class="check-row"><input type="checkbox" name="private_seller" required><span>${esc(t("f_private"))}</span></label>
@@ -1063,7 +1067,7 @@ function renderRules(app) {
         <div class="info-card"><h3>${esc(t("rules_" + n + "_t"))}</h3><p class="muted">${esc(t("rules_" + n + "_b"))}</p></div>`).join("")}
     </div>
     <div class="two-col" style="margin-top:18px">
-      <div class="info-card"><span class="eyebrow">${esc(CONFIG.paymentOption)}</span><h3>${esc(t("rules_payment_title"))}</h3><p>${esc(t("rules_payment_body"))}</p></div>
+      <div class="info-card"><span class="eyebrow">${esc(t("payment_eyebrow"))}</span><h3>${esc(t("rules_payment_title"))}</h3><p>${esc(t("rules_payment_body"))}</p></div>
       <div class="info-card"><span class="eyebrow">RGPD · LOPDGDD</span><h3>${esc(t("rules_data_title"))}</h3><p>${esc(t("rules_data_body"))}</p></div>
     </div>`);
 }
@@ -1081,6 +1085,7 @@ function renderAbout(app) {
         <ul class="clean-list">
           <li>${esc(t("about_pillar_1"))}</li><li>${esc(t("about_pillar_2"))}</li><li>${esc(t("about_pillar_3"))}</li>
         </ul>
+        <p class="team-list"><strong>${esc(t("credit_label"))}</strong>${TEAM_NAMES.map(esc).join(" · ")}</p>
       </div>
       <figure class="team-photo">
         <img src="/static/img/equipo-ctc.jpg" alt="${esc(t("photo_caption"))}" loading="lazy" data-fallback data-fallback-src="/static/img/ctc-congress.png">
