@@ -12,3 +12,4 @@ static/uploads/*
 .DS_Store
 *.log
 .pytest_cache/
+design/out/
