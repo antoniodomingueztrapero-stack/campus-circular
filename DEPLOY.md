@@ -14,7 +14,7 @@ real y revisa el apartado legal de [README.md](README.md).
 
 ---
 
-## Opción A de pagos, sin PSP
+## Pagos
 
 No hay pasarela de pago, comisión, monedero, depósito en garantía ni reembolso
 gestionado por la plataforma. El precio de «Vender» es orientativo y cualquier
@@ -24,13 +24,13 @@ normas y en las condiciones de uso.
 
 ---
 
-## Opción 1 — Vista previa en vivo
+## Vista previa en vivo
 
-La web puede abrirse desde el botón **LIVE PREVIEW** de esta conversación.
-Copia ese enlace y compártelo para probarla. Sirve mientras dure el entorno de
-la conversación; para un enlace estable, usa la Opción 2.
+La web puede abrirse desde el botón de vista previa del entorno de desarrollo.
+Copia ese enlace y compártelo para probarla. Está disponible mientras el
+servicio siga activo; para un enlace estable, usa Render.
 
-## Opción 2 — Enlace permanente gratis con Render
+## Enlace permanente gratis con Render
 
 Render ofrece un plan gratuito con URL pública como
 `https://campus-circular.onrender.com`. Solo necesitas una cuenta de GitHub.
@@ -58,10 +58,10 @@ Notas del plan gratuito:
 - La base SQLite en `/tmp` se reinicia si Render reinicia el servicio. Para
   datos reales, añade persistencia, copias de seguridad y una revisión de
   protección de datos; no basta con el almacenamiento efímero.
-- No configure secretos ni claves de PSP: la Opción A no integra pagos.
+- No configures secretos ni claves de pago: no se integran pagos.
 - No uses marcas institucionales ni presentes la web como servicio oficial.
 
-## Opción 3 — Ejecutarla en local
+## Ejecutarla en local
 
 ```bash
 cd campus-circular
@@ -99,8 +99,8 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 
 ## Verificación rápida
 
-- `/api/health` responde con `ok: true`, `product: Circular Campus`,
-  `payment_option: A` y la versión legal.
+- `/api/health` responde con `ok: true`, `product: Circular Campus` y la versión
+  legal.
 - No existe ninguna credencial compartida: un correo no registrado no puede
   entrar.
 - `/aviso-legal`, `/privacidad` y `/condiciones` cargan directamente y están
@@ -113,4 +113,12 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 
 ---
 
-Circular Campus · una idea de **Antonio Domínguez Trapero** · CTC Congress
+## Equipo
+
+Pavlo Kovalenko · Karen Itzel Sandoval Ramos · Okechukwu Patrick Okeh ·
+Fernando Heriberto Cardenas Rubi · Alba Grille Louro · Filip Juran ·
+Greypher Alisander Garcia Alvarado · Jacob Schaal · Antonio Domínguez Trapero
+
+---
+
+Circular Campus · CTC Congress

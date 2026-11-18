@@ -4,13 +4,13 @@ Circular Campus — prototipo independiente de reutilización e intercambio.
 Backend: Flask + SQLite (stdlib, sin driver adicional).
 Frontend: SPA estática servida desde templates/ + static/, en ES / EN / GL.
 
-Decisiones de producto y cumplimiento:
+Criterios de funcionamiento:
 - Proyecto independiente: no usa marcas institucionales ni se presenta como un
   servicio oficial de ninguna universidad. Los campus son etiquetas geográficas.
-- Opción A en pagos: la plataforma no procesa pagos, no cobra comisiones, no
-  custodia fondos, no garantiza objetos ni media en disputas. «Vender» publica
-  únicamente un precio orientativo; cualquier contraprestación se acuerda
-  directamente entre particulares, fuera de Circular Campus.
+- Pagos fuera de la plataforma: no se procesan pagos, no se cobran comisiones,
+  no se custodian fondos, no se garantizan objetos ni se media en disputas.
+  «Vender» publica únicamente un precio orientativo; cualquier contraprestación
+  se acuerda directamente entre particulares, fuera de Circular Campus.
 - Privacidad desde el diseño: consentimiento explícito en el registro, aviso
   legal / privacidad / condiciones en tres idiomas, mínimos datos de perfil,
   sin analítica ni recursos de terceros, exportación y supresión de cuenta.
@@ -49,7 +49,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 SERVICE_NAME = "Circular Campus"
 LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-17")
-LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "17 de noviembre de 2026")
+LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-17")
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "privacidad@circular-campus.example")
 CONTROLLER_NAME = os.environ.get(
     "CONTROLLER_NAME", "Equipo Circular Campus (proyecto académico independiente)"
@@ -105,7 +105,6 @@ def boot_config(view="home"):
         "legalVersion": LEGAL_VERSION,
         "legalUpdated": LEGAL_UPDATED,
         "sessionDays": SESSION_DAYS,
-        "paymentOption": "A",
     }
 
 
@@ -380,51 +379,51 @@ SEED_ITEMS = [
     {"owner": 0, "title": "Libro de Derecho Civil — edición 2023",
      "description": "Libro de texto usado un curso. Subrayados leves en los primeros capítulos, resto limpio. Incluyo apuntes de clase en PDF. Se entrega en mano.",
      "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/libros.svg"},
+     "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/libro-derecho.jpg"},
     {"owner": 0, "title": "Calculadora científica",
      "description": "Calculadora en perfecto estado, con funda y tapa. Puedo prestarla por un cuatrimestre; acordamos por escrito la fecha de devolución.",
      "category": "estudio", "condition": "como_nuevo", "exchange_type": "prestar", "price": 0,
-     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/estudio.svg"},
+     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/calculadora.jpg"},
     {"owner": 0, "title": "Chaqueta de invierno talla M",
      "description": "Chaqueta en buen estado, sin manchas ni roturas. Busco intercambiarla por otra talla o regalarla a quien la necesite.",
      "category": "ropa", "condition": "bueno", "exchange_type": "intercambiar", "price": 0,
-     "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/ropa.svg"},
+     "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/chaqueta.jpg"},
     {"owner": 0, "title": "Escritorio pequeño para piso compartido",
      "description": "Escritorio de 110 x 55 cm, estable y sin daños. Hay que desmontarlo; puedo ayudar con el desmontaje en el punto de entrega.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/muebles.svg"},
+     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/escritorio.jpg"},
     {"owner": 0, "title": "Estantería pequeña de 3 baldas",
      "description": "Estantería de madera clara para libros y apuntes. En buen estado, sin arañazos visibles. Se entrega desmontada.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "pontevedra", "handover_point": "biblioteca", "image_url": "/static/img/items/muebles.svg"},
+     "campus": "pontevedra", "handover_point": "biblioteca", "image_url": "/static/img/items/estanteria.jpg"},
     {"owner": 0, "title": "Auriculares inalámbricos",
      "description": "Auriculares con estuche de carga y batería en buen estado. Precio orientativo; el pago, si procede, se acuerda directamente y fuera de la plataforma.",
      "category": "electronica", "condition": "como_nuevo", "exchange_type": "vender", "price": 15,
-     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/electronica.svg"},
+     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/auriculares.jpg"},
     {"owner": 0, "title": "Juego de ollas y sartenes",
      "description": "Set de cocina para piso compartido: dos ollas, dos sartenes y tapas. Usados pero en buen estado. Préstamo temporal con devolución acordada.",
      "category": "cocina", "condition": "bueno", "exchange_type": "prestar", "price": 0,
-     "campus": "ourense", "handover_point": "cafeteria", "image_url": "/static/img/items/cocina.svg"},
+     "campus": "ourense", "handover_point": "cafeteria", "image_url": "/static/img/items/ollas.jpg"},
     {"owner": 0, "title": "Freidora de aire 4 L",
      "description": "Freidora de aire en buen estado, funciona sin problemas y se entrega con manual. La regalo porque en mi piso nuevo ya hay una.",
      "category": "electrodomesticos", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/electrodomesticos.svg"},
+     "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/freidora.jpg"},
     {"owner": 0, "title": "Apuntes completos de Ingeniería",
      "description": "Carpeta con apuntes, exámenes resueltos y prácticas de primeros cursos. En papel; puedo enviar fotos si hace falta antes de quedar.",
      "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/libros.svg"},
+     "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/apuntes.jpg"},
     {"owner": 0, "title": "Mochila 25 L con compartimento para portátil",
      "description": "Mochila resistente, como nueva y sin roturas. La intercambio por una más pequeña o la regalo.",
      "category": "ropa", "condition": "como_nuevo", "exchange_type": "intercambiar", "price": 0,
-     "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/ropa.svg"},
+     "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/mochila.jpg"},
     {"owner": 0, "title": "Lámpara de escritorio LED",
      "description": "Lámpara con luz regulable, ideal para estudiar. En buen estado. Se entrega en un lugar público y acordado.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/muebles.svg"},
+     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/lampara.jpg"},
     {"owner": 0, "title": "Teclado inalámbrico silencioso",
      "description": "Teclado perfecto para biblioteca y aulas, funciona con pilas AA. Precio simbólico orientativo; Circular Campus no gestiona el cobro.",
      "category": "electronica", "condition": "bueno", "exchange_type": "vender", "price": 10,
-     "campus": "pontevedra", "handover_point": "punto", "image_url": "/static/img/items/electronica.svg"},
+     "campus": "pontevedra", "handover_point": "punto", "image_url": "/static/img/items/teclado.jpg"},
 ]
 
 
@@ -540,7 +539,6 @@ def health():
         "ok": True,
         "service": "circular-campus",
         "product": SERVICE_NAME,
-        "payment_option": "A",
         "legal_version": LEGAL_VERSION,
         "time": now_iso(),
     })

@@ -16,54 +16,36 @@ con su propio correo.
 
 ---
 
-## Decisión de pagos: Opción A (sin PSP)
+## Pagos
 
-**Decisión explícita: no se ha integrado ninguna pasarela de pago.** El usuario
-planteó que solo tendría sentido si fuera *totalmente gratis* para él. Tras
-revisar tarifas oficiales, no existe un PSP con coste cero una vez se produce
-un cobro:
+Circular Campus no procesa pagos, no cobra comisiones, no custodia fondos, no
+ofrece depósito en garantía, no emite reembolsos, no garantiza objetos ni media
+en disputas.
 
-| Proveedor | Coste relevante | Consecuencia |
-|---|---|---|
-| [Stripe España](https://stripe.com/es/pricing) | Sin cuota mensual ni de alta, pero `1,5 % + 0,25 €` por tarjeta EEE estándar, con recargos internacionales, FX, disputas y payouts | El alta puede ser gratuita; cada pago exitoso no lo es |
-| [PayPal España](https://www.paypal.com/es/webapps/mpp/merchant-fees) | `2,90 % + 0,35 €` en transacciones comerciales nacionales estándar, además de tarifas fijas e internacionales | Coste por operación |
-| Redsys / Bizum | Requieren contrato bancario de TPV y pueden implicar comisiones por operación o mantenimiento | No hay garantía de coste cero |
-
-*Tarifas consultadas en noviembre de 2026; pueden cambiar. Consulta siempre la
-fuente oficial antes de tomar una decisión.*
-
-Por tanto, Circular Campus:
-
-- **no procesa pagos, no cobra comisiones, no custodia fondos, no ofrece
-  depósito en garantía, no emite reembolsos, no garantiza objetos ni media en
-  disputas**;
-- mantiene «Vender» solo como **precio orientativo** y motivo de contacto;
-- deja cualquier contraprestación para un acuerdo **directo entre particulares,
-  fuera de la plataforma**, por ejemplo en efectivo o pago persona a persona en
-  la entrega;
-- excluye vendedores profesionales y actividad comercial habitual;
-- solo contemplaría una pasarela futura con un **proveedor de servicios de pago
-  regulado**, cuentas conectadas y verificación KYC; nunca con un monedero
-  propio, fondos retenidos ni comisiones ocultas.
-
-Esta decisión aparece también en la portada, en el formulario de publicación,
-en la ficha de objeto, en las normas, en las condiciones de uso y en el pie.
+- «Vender» muestra únicamente un **precio orientativo** y sirve para iniciar un
+  contacto.
+- Cualquier contraprestación se acuerda **directamente entre particulares, fuera
+  de la plataforma**, por ejemplo en efectivo o mediante un pago directo persona
+  a persona en la entrega.
+- No se admiten vendedores profesionales ni actividad comercial habitual.
+- El aviso aparece en la portada, al publicar, en la ficha del objeto, en las
+  normas, en las condiciones de uso y en el pie de página.
 
 ---
 
 ## Privacidad y datos
 
-La web aplica minimización desde el diseño y cumple el enfoque de información
-por capas del RGPD y la LOPDGDD:
+La web aplica minimización desde el diseño y el enfoque de información por capas
+del RGPD y la LOPDGDD:
 
-- **Consentimiento explícito**: casilla sin marcar en el registro, con enlaces
-  a la [política de privacidad](/privacidad) y a las
-  [condiciones](/condiciones); se guardan fecha y versión del consentimiento.
-- **Aviso legal, privacidad y condiciones** en ES / EN / GL, accesibles desde
-  el pie y por URL directa: `/aviso-legal`, `/privacidad`, `/condiciones`.
+- **Consentimiento explícito**: casilla sin marcar en el registro, con enlaces a
+  la [política de privacidad](/privacidad) y a las [condiciones](/condiciones);
+  se guardan fecha y versión del consentimiento.
+- **Aviso legal, privacidad y condiciones** en ES / EN / GL, accesibles desde el
+  pie y por URL directa: `/aviso-legal`, `/privacidad`, `/condiciones`.
 - **Datos mínimos**: nombre visible, email, contraseña con hash, campus,
-  publicaciones, favoritos, solicitudes y token de sesión. Se eliminó el campo
-  de titulación y no se guarda IP asociada a la cuenta.
+  publicaciones, favoritos, solicitudes y token de sesión. No se guarda IP
+  asociada a la cuenta.
 - **Sin email en perfiles públicos**: la ficha de objeto solo muestra nombre,
   campus y una insignia informativa de dominio académico. Esa insignia **no
   verifica matrícula, identidad ni pertenencia institucional**.
@@ -78,9 +60,9 @@ por capas del RGPD y la LOPDGDD:
   sesión. En el despliegue gratuito, la base SQLite en `/tmp` puede ser
   efímera; un reinicio puede borrar datos, lo cual **no sustituye** una
   supresión formal ni una copia de seguridad.
-- **Cero rastreadores**: sin analítica, píxeles, cookies publicitarias,
-  fuentes externas, CDN de imágenes ni URL de imagen de terceros. Las
-  ilustraciones son SVG locales y las fotos se suben al propio servicio.
+- **Cero rastreadores**: sin analítica, píxeles, cookies publicitarias, fuentes
+  externas ni CDN de imágenes. Las imágenes de ejemplo y de categoría son
+  locales y las fotos se suben al propio servicio.
 - **Cabeceras de seguridad**: CSP local, `nosniff`, `Referrer-Policy`,
   `Permissions-Policy` y `Cache-Control: no-store` en rutas de cuenta/auth.
 
@@ -101,7 +83,7 @@ asesoramiento jurídico, fiscal o de consumo.
 | Frontend | HTML + CSS + JavaScript vanilla, SPA sin build |
 | i18n | ES / EN / GL en `static/js/app.js` y documentos legales |
 | Auth | Token Bearer en `localStorage`, sesiones en BD, contraseñas con `werkzeug` |
-| Imágenes | Recursos locales en `static/img/` y subidas en `static/uploads/` |
+| Imágenes | Fotografías locales en `static/img/` y subidas en `static/uploads/` |
 | Seguridad | Validación en servidor, CSP, magic bytes, rutas locales, minimización |
 
 Sin dependencias de frontend que compilar: `pip install -r requirements.txt`
@@ -116,7 +98,7 @@ campus-circular/
 ├── static/
 │   ├── css/style.css       # Diseño responsive y estilos de documentos legales
 │   ├── js/app.js           # SPA, i18n, vistas, modales y cliente API
-│   ├── img/                # Marca revisada, CTC Congress, foto y SVG locales
+│   ├── img/                # Marca revisada, CTC Congress, equipo y fotografías locales
 │   └── uploads/            # Imágenes subidas (ignoradas en Git)
 ├── requirements.txt
 ├── render.yaml
@@ -154,7 +136,7 @@ de base de datos configurado y vuelve a arrancar.
 | `CONTACT_EMAIL` | `privacidad@circular-campus.example` | **Sustituir por un correo real antes de producción** |
 | `CONTROLLER_NAME` | `Equipo Circular Campus (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
 | `LEGAL_VERSION` | `2026-11-17` | Versión del consentimiento; cambiarla fuerza renovación |
-| `LEGAL_UPDATED` | `17 de noviembre de 2026` | Fecha visible en los documentos |
+| `LEGAL_UPDATED` | `2026-11-17` | Fecha visible en los documentos |
 
 No se necesita `SECRET_KEY`: la app no usa cookies de sesión de Flask, sino
 tokens Bearer aleatorios almacenados en el navegador.
@@ -164,7 +146,8 @@ tokens Bearer aleatorios almacenados en el navegador.
 - **Explorar**: búsqueda, filtros por categoría, campus, estado, tipo y orden.
 - **Publicar**: título, descripción honesta, categoría, estado, tipo, campus,
   punto de entrega, foto local y confirmación obligatoria de particular.
-- **Precio orientativo**: visible solo en «Vender», con aviso de Opción A.
+- **Precio orientativo**: visible solo en «Vender», con un aviso claro de que
+  no hay pagos gestionados por la plataforma.
 - **Solicitar**: mensaje breve; la otra persona acepta, rechaza o marca entrega.
 - **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos y panel de
   datos con exportación y supresión.
@@ -181,7 +164,7 @@ tokens Bearer aleatorios almacenados en el navegador.
 
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
-| GET | `/api/health` | — | Estado, producto, opción de pago y versión legal |
+| GET | `/api/health` | — | Estado, producto y versión legal |
 | GET | `/api/stats` | — | Contadores reales y categorías |
 | GET | `/api/items` | — | Listar objetos y filtros |
 | GET | `/api/items/:id` | — | Detalle con propietario mínimo, sin email |
@@ -207,7 +190,7 @@ tokens Bearer aleatorios almacenados en el navegador.
 Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 `/mi-area`, `/aviso-legal`, `/privacidad`, `/condiciones`.
 
-## Decisiones de ingeniería
+## Criterios de ingeniería
 
 - **SQLite + stdlib**: cero fricción para clase, sandbox y vista previa;
   migrable a Postgres cambiando `get_db()` y las consultas.
@@ -226,11 +209,10 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 ## Limitaciones honestas
 
 - No hay verificación real de matrícula, identidad ni titularidad de objetos.
-- No hay moderación, reportes ni chat en tiempo real todavía.
+- No hay moderación ni reportes todavía.
 - El plan gratuito de Render puede reiniciar el servicio y perder la base
   efímera; no es adecuado para datos reales sin persistencia y copias.
-- No se inventan kilos, euros ahorrados ni porcentajes de impacto: solo se
-  cuentan objetos, disponibilidad, entregas marcadas y cuentas.
+- Solo se cuentan objetos, disponibilidad, entregas marcadas y cuentas.
 - Antes de uso real con datos personales o actividad económica, completa la
   identificación del responsable, el correo de contacto y una revisión
   jurídica/fiscal/LSSI específica.
@@ -242,4 +224,12 @@ Consulta [DEPLOY.md](DEPLOY.md). El Blueprint usa `healthCheckPath: /api/health`
 
 ---
 
-Circular Campus · una idea de **Antonio Domínguez Trapero** · CTC Congress
+## Equipo
+
+Pavlo Kovalenko · Karen Itzel Sandoval Ramos · Okechukwu Patrick Okeh ·
+Fernando Heriberto Cardenas Rubi · Alba Grille Louro · Filip Juran ·
+Greypher Alisander Garcia Alvarado · Jacob Schaal · Antonio Domínguez Trapero
+
+---
+
+Circular Campus · CTC Congress
