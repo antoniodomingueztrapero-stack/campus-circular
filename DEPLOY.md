@@ -1,8 +1,8 @@
 # Cómo compartir Circular Campus
 
 Circular Campus es un prototipo independiente presentado en CTC Congress.
-**No subas la base de datos**: `campus_circular.db` ya está en `.gitignore` y
-el despliegue de Render usa una base efímera en `/tmp`.
+**No subas la base de datos ni su URL**: `campus_circular.db` está en `.gitignore`
+y `DATABASE_URL` es un secreto que solo se configura en el panel del proveedor.
 
 No hay credenciales compartidas. Cada persona se registra con su propio correo
 válido y publica sus objetos. Los objetos de ejemplo pertenecen a
@@ -30,34 +30,43 @@ La web puede abrirse desde el botón de vista previa del entorno de desarrollo.
 Copia ese enlace y compártelo para probarla. Está disponible mientras el
 servicio siga activo; para un enlace estable, usa Render.
 
-## Enlace permanente gratis con Render
+## Despliegue gratis: Render + PostgreSQL externo
 
-Render ofrece un plan gratuito con URL pública como
-`https://campus-circular.onrender.com`. Solo necesitas una cuenta de GitHub.
+La web se puede servir en el plan gratuito de Render y guardar los datos en un
+proveedor PostgreSQL que ofrezca un nivel gratuito (por ejemplo, Neon, si su
+plan gratuito está disponible para tu cuenta). No necesitas contratar un disco
+persistente de Render. Los límites, pausas y condiciones dependen del proveedor
+externo; revisa allí sus condiciones actuales.
 
-1. Sube el repositorio `campus-circular` a GitHub **sin la base de datos**
-   (ya está ignorada).
-2. Entra en <https://render.com> → **New → Blueprint** o **Web Service** →
-   conecta el repositorio y la rama correcta.
-3. Render lee `render.yaml`:
-   - Build: `pip install -r requirements.txt`
-   - Start: `python3 app.py`
-   - Health check: `/api/health`
-   - `DATABASE=/tmp/campus_circular.db`
-4. En **Environment**, sustituye antes de producción:
-   - `CONTACT_EMAIL`: correo real de privacidad/contacto.
-   - `CONTROLLER_NAME`: identificación real del responsable editorial.
-   - `LEGAL_VERSION` y `LEGAL_UPDATED`: si actualizas los textos legales.
-   - `SEED_DEMO=0` si no quieres objetos de ejemplo en un despliegue nuevo.
-5. Pulsa **Create** y, cuando el health check esté en verde, comparte la URL.
+1. Crea una base PostgreSQL en el proveedor que elijas. Copia su cadena de
+   conexión **con SSL activado** (`postgresql://...`). No la pongas en Git ni
+   la envíes por mensajes: es una credencial.
+2. Sube el repositorio `campus-circular` a GitHub sin ningún archivo de base de
+   datos y conecta esa rama en Render (**New → Blueprint**).
+3. El Blueprint configura la web como gratuita y pide `DATABASE_URL` como
+   variable secreta. Pega ahí la cadena PostgreSQL del proveedor y guarda.
+   También puedes establecerla en **Environment** del servicio existente.
+4. Render ejecuta `pip install -r requirements.txt`, arranca `python3 app.py`
+   y comprueba `/api/health`. Al iniciar, la app crea/migra sus tablas en
+   PostgreSQL automáticamente. `APP_ENV=production` hace que el servicio falle
+   de forma segura si falta `DATABASE_URL`, en vez de recurrir a SQLite efímero.
+5. Configura `CONTACT_EMAIL`, `CONTROLLER_NAME` y, si corresponde, las versiones
+   legales. Cambia `SEED_DEMO=0` si no quieres objetos de demostración.
+6. Espera a que el health check esté en verde y prueba crear una cuenta; luego
+   cierra sesión y vuelve a entrar para comprobar el guardado.
 
-Notas del plan gratuito:
+Notas importantes:
 
-- La primera visita tras un periodo de inactividad puede tardar en «despertar»
-  el servicio. Es normal.
-- La base SQLite en `/tmp` se reinicia si Render reinicia el servicio. Para
-  datos reales, añade persistencia, copias de seguridad y una revisión de
-  protección de datos; no basta con el almacenamiento efímero.
+- Render puede dormir en el plan gratuito; la base de datos externa conserva
+  sus datos según las condiciones y cuotas de su proveedor. Ningún nivel gratis
+  garantiza servicio permanente, copias de seguridad ni disponibilidad.
+- Mantén privada la URL de conexión y usa la cadena con TLS/SSL del proveedor.
+  Nunca la pegues en código, commits, capturas públicas ni en este chat.
+- La app crea un esquema vacío; **no importa automáticamente** cuentas antiguas
+  de SQLite. Una cuenta que ya desapareció del almacenamiento temporal no puede
+  recuperarse desde la app.
+- Revisa las cuotas y la política de pausa/expiración del proveedor elegido y
+  configura copias exportables si los datos son importantes.
 - No configures secretos ni claves de pago: no se integran pagos.
 - No uses marcas institucionales ni presentes la web como servicio oficial.
 
