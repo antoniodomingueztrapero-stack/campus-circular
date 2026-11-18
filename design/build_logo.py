@@ -22,16 +22,13 @@ import os
 
 # ---------------------------------------------------------------- ajustes ---
 CX = CY = 512.0                 # centro del lienzo (viewBox 0 0 1024 1024)
-R_OUT, R_IN = 432.0, 362.0      # banda exterior / interior del anillo
-N_LINES = 8                     # líneas concéntricas (par: una por brazo de flecha)
-STROKE = 4.2                    # grosor de línea
-GAP_BACK = 15.0                 # grados entre la punta y el corte de la banda
-GAP_FRONT = 18.0                # grados entre la punta y el arranque de la otra C
+R_OUT, R_IN = 432.0, 352.0      # banda exterior / interior del anillo
+N_LINES = 9                     # líneas concéntricas dentro de cada flecha
+STROKE = 4.6                    # grosor de línea
+GAP_FRONT = 8.0                 # hueco entre la punta y el arranque de la otra C
+TIP = 27.0                      # largo de la punta (grados)
+TIP_EASE = 1.55                 # cómo de rápido convergen las líneas en la punta
 
-ARROW_BARB = 11.0               # cuánto sobresalen las púas por fuera de la banda (px)
-ARROW_NOTCH = 5.0               # profundidad de la muesca trasera (grados)
-ARROW_LEVELS = 3                # nº de contornos concéntricos de la flecha
-STROKE_EFFECTIVE = 10.0         # separación entre contornos de la flecha (px)
 
 GREEN = "#1B6B3A"               # verde del logo actual (anillo)
 GREEN_PLANT = "#3C8F52"         # verde de la planta
@@ -105,114 +102,41 @@ def local(x, y, theta_tip, sign):
     return pt(th, R_MID + y)
 
 
-def arrow_polygon(theta_tip, sign):
-    """Contorno de la flecha: punta, dos púas y muesca trasera (en V).
+def stroke_d(start, tip, r):
+    """Una línea concéntrica: arco exacto + remate que converge en la punta.
 
-    T punta · A púa superior · N muesca · C púa inferior. La muesca muerde hacia
-    dentro de la banda, así las líneas del anillo pueden acabar justo en ella.
+    Las líneas siguen el anillo y, en el último tramo, se juntan hasta acabar en
+    punta sobre el eje de la banda: la flecha nace del propio trazo.
     """
-    half = (R_OUT - R_IN) / 2.0
-    length = R_MID * math.radians(GAP_BACK)
-    notch = R_MID * math.radians(ARROW_NOTCH)
-    T = local(0.0, 0.0, theta_tip, sign)
-    A = local(length, half + ARROW_BARB, theta_tip, sign)
-    N = local(length + notch, 0.0, theta_tip, sign)
-    C = local(length, -half - ARROW_BARB, theta_tip, sign)
-    return [T, A, N, C]
-
-
-def _chevrons(theta_tip, sign):
-    """V's paralelas (chevrones) que rellenan la flecha, recortadas por su contorno."""
-    half = (R_OUT - R_IN) / 2.0
-    length = R_MID * math.radians(GAP_BACK)
-    hb = half + ARROW_BARB
-    theta = math.atan2(hb, length)
-    d = (R_OUT - R_IN) / (N_LINES - 1)          # misma separación que las líneas
-    stag = d / math.sin(theta)
-    paths = []
-    i = 1
-    while i * stag < length * 1.45:
-        x = i * stag
-        V = local(x, 0.0, theta_tip, sign)
-        step_len = 40.0
-        U1 = local(x + step_len * math.cos(theta), step_len * math.sin(theta), theta_tip, sign)
-        L1 = local(x + step_len * math.cos(theta), -step_len * math.sin(theta), theta_tip, sign)
-        du = (U1[0] - V[0], U1[1] - V[1])
-        dl = (L1[0] - V[0], L1[1] - V[1])
-        nu = math.hypot(*du) or 1.0
-        nl = math.hypot(*dl) or 1.0
-        U = (V[0] + du[0] / nu * 900.0, V[1] + du[1] / nu * 900.0)
-        Lo = (V[0] + dl[0] / nl * 900.0, V[1] + dl[1] / nl * 900.0)
-        paths.append(poly_path([U, V, Lo]))
-        i += 1
-    return paths
-
-
-def arrow_paths(theta_tip, sign):
-    """Contorno de la flecha + chevrones interiores (se recortan con clipPath)."""
-    poly = arrow_polygon(theta_tip, sign)
-    return poly_path(poly, close=True), _chevrons(theta_tip, sign)
-
-
-def _circle_segment_hit(p0, p1, r, cx=CX, cy=CY):
-    """Ángulo del primer corte entre el círculo de radio r y el segmento p0-p1."""
-    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
-    fx, fy = p0[0] - cx, p0[1] - cy
-    a = dx * dx + dy * dy
-    b = 2 * (fx * dx + fy * dy)
-    c = fx * fx + fy * fy - r * r
-    disc = b * b - 4 * a * c
-    if a == 0 or disc < 0:
-        return None
-    sq = math.sqrt(disc)
-    hits = [t for t in ((-b - sq) / (2 * a), (-b + sq) / (2 * a)) if 0.0 <= t <= 1.0]
-    if not hits:
-        return None
-    t = min(hits)
-    px, py = p0[0] + dx * t, p0[1] + dy * t
-    return math.degrees(math.atan2(px - cx, cy - py))
-
-
-def _band_end(theta_tip, sign, r):
-    """Ángulo donde la línea de radio r debe terminar, sobre la muesca."""
-    half = (R_OUT - R_IN) / 2.0
-    y = r - R_MID
-    poly = arrow_polygon(theta_tip, sign)
-    T, A, N, C = poly
-    if y > 1e-6:
-        ang = _circle_segment_hit(A, N, r)
-    elif y < -1e-6:
-        ang = _circle_segment_hit(N, C, r)
-    else:
-        ang = _circle_segment_hit(A, N, r)
-    if ang is None:
-        ang = theta_tip + sign * GAP_BACK
-    # llevar el ángulo al sentido de giro correcto
-    while sign > 0 and ang < theta_tip:
-        ang += 360.0
-    while sign < 0 and ang > theta_tip:
-        ang -= 360.0
-    return ang
+    taper_start = tip - TIP
+    p0 = pt(start, r)
+    p1 = pt(taper_start, r)
+    d = [
+        f"M {f(p0[0])} {f(p0[1])}",
+        f"A {f(r)} {f(r)} 0 0 1 {f(p1[0])} {f(p1[1])}",
+    ]
+    pts = [p1]
+    n = 18
+    for i in range(1, n + 1):
+        t = i / n
+        th = taper_start + TIP * t
+        k = t ** TIP_EASE
+        rr = R_MID + (r - R_MID) * (1.0 - k)
+        pts.append(pt(th, rr))
+    tail = catmull_path(pts)
+    d.append(tail.split(" ", 3)[3])
+    return " ".join(d)
 
 
 def ring_paths(n_lines=None):
+    """Dos C enfrentadas: la derecha acaba en punta abajo, la izquierda arriba."""
     n_lines = n_lines or N_LINES
     paths = []
     step = (R_OUT - R_IN) / (n_lines - 1)
     for i in range(n_lines):
         r = R_IN + i * step
-        # C derecha: baja hasta la punta de abajo
-        end_bottom = _band_end(180.0, -1.0, r)
-        paths.append(arc_d(GAP_FRONT, end_bottom, r))
-        # C izquierda: sube hasta la punta de arriba
-        end_top = _band_end(0.0, -1.0, r)
-        paths.append(arc_d(180.0 + GAP_FRONT, end_top, r))
-    return paths
-
-
-def arrow_group(n_lines=None):
-    paths = arrow_paths(0.0, -1.0)      # punta arriba, apuntando a la derecha
-    paths += arrow_paths(180.0, -1.0)   # punta abajo, apuntando a la izquierda
+        paths.append(stroke_d(GAP_FRONT, 180.0, r))
+        paths.append(stroke_d(180.0 + GAP_FRONT, 360.0, r))
     return paths
 
 
@@ -220,19 +144,19 @@ def arrow_group(n_lines=None):
 # Árbol del escudo: tres lóbulos redondos recortados en media luna + tronco
 # troncocónico, unidos con unión suave (metaballs) para que salgan los enlaces
 # curvos del escudo.
-LOBE_TOP = ((0.0, -120.0), 59.0)
+LOBE_TOP = ((0.0, -124.0), 59.0)
 LOBE_L = ((-89.0, -2.0), 57.0)
 LOBE_R = ((89.0, -2.0), 57.0)
-STEM = ((0.0, 158.0), (0.0, -30.0), 13.0)   # (a, b, radio arriba)
+STEM = ((0.0, 158.0), (0.0, -80.0), 13.0)   # (a, b, radio arriba)
 STEM_FLARE = 1.55                           # ensanchamiento del tronco en la base
-FILLET = 34.0                               # k de la unión suave
+FILLET = 40.0                               # k de la unión suave
 
 # recortes en media luna: (dirección en la que se desplaza el círculo, radio relativo)
 CUT_TOP = ((0.0, 1.0), 0.78)                # el hueco se abre hacia el tronco
 CUT_L = ((1.0, 0.0), 0.78)
 CUT_R = ((-1.0, 0.0), 0.78)
 CUT_DEPTH = 0.30                            # cuánto se desplaza el círculo que recorta
-PLANT_SCALE = 1.06
+PLANT_SCALE = 1.12
 
 
 def _circle_sdf(p, c, r):
@@ -463,17 +387,6 @@ def build_svg(ring=GREEN, plant=GREEN_PLANT, wave=BLUE, bg=None, size=1024,
     )
     for d in ring_paths(n_lines):
         parts.append('<path d="%s"/>' % d)
-    parts.append("</g>")
-    parts.append('<g fill="none" stroke="%s" stroke-width="%s" stroke-linecap="round" '
-                 'stroke-linejoin="round">' % (ring, f(stroke if stroke else STROKE)))
-    for idx, (tip, sgn) in enumerate(((0.0, -1.0), (180.0, -1.0))):
-        outline, chevs = arrow_paths(tip, sgn)
-        parts.append('<clipPath id="a%d"><path d="%s"/></clipPath>' % (idx, outline))
-        parts.append('<g clip-path="url(#a%d)">' % idx)
-        parts.append('<path d="%s"/>' % outline)
-        for d in chevs:
-            parts.append('<path d="%s"/>' % d)
-        parts.append("</g>")
     parts.append("</g>")
     parts.append('<path fill="%s" fill-rule="evenodd" d="%s"/>' % (plant, plant_path))
     parts.append('<path fill="%s" d="%s"/>' % (wave, wave_path))

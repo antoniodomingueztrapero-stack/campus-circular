@@ -11,12 +11,11 @@ pérdida a cualquier tamaño.
   como **dos «C» enfrentadas** (Circular Campus).
 - **Trazo**: cada C se dibuja con **líneas finas concéntricas**, guiño al lenguaje
   gráfico del *Instituto de Lingua* de la Universidade de Vigo.
-- **Flechas**: cada C termina en una flecha **angulosa**, no en una punta
-  redondeada. La flecha es un contorno con **púas y muesca trasera** repetido en
-  **chevrones concéntricos** (como en la referencia que pasó el usuario) y las
-  líneas del anillo **mueren exactamente en la muesca**, sin costura visible.
-  Las dos flechas giran en sentido horario: arriba apunta a la derecha y abajo a
-  la izquierda.
+- **Flechas**: cada C termina en punta. La punta **no es un añadido**: son las
+  propias líneas concéntricas del anillo, que en el último tramo (últimos 27°)
+  se juntan y **acaban en punta sobre el eje de la banda**. Las dos flechas giran
+  en sentido horario: la de arriba apunta a la derecha y la de abajo a la
+  izquierda.
 - **Centro**: el **árbol del escudo antiguo de la UVigo**: tres lóbulos redondos
   con el hueco abierto hacia el tronco y tronco ensanchado en la base.
 - **Base**: la **onda del escudo en azul institucional UVigo** (`#0067B1`).
@@ -60,11 +59,8 @@ Los PNG se exportaron con [`@resvg/resvg-js`](https://www.npmjs.com/package/@res
 |---|---|
 | `R_OUT`, `R_IN` | radio exterior / interior de la banda de líneas |
 | `N_LINES`, `STROKE` | número de líneas y grosor |
-| `GAP_BACK` | largo de la flecha (grados entre la punta y el corte de la banda) |
 | `GAP_FRONT` | hueco entre la punta y el arranque de la otra C |
-| `ARROW_BARB` | cuánto sobresalen las púas por fuera de la banda |
-| `ARROW_NOTCH` | profundidad de la muesca trasera |
-| `STROKE_EFFECTIVE` | separación entre los chevrones interiores |
+| `TIP`, `TIP_EASE` | largo de la punta (grados) y cómo de rápido convergen las líneas |
 | `LOBE_*`, `STEM`, `FILLET` | geometría del árbol (metaballs con unión suave) |
 | `CUT_TOP`, `CUT_L`, `CUT_R`, `CUT_DEPTH` | hueco de cada lóbulo |
 | `WAVE_*` | onda azul |
