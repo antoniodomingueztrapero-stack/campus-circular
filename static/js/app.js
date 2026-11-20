@@ -44,6 +44,7 @@ const I18N = {
   es: {
     skip_content: "Saltar al contenido", close: "Cerrar", brand_tag: "Proyecto independiente · CTC Congress",
     nav_home: "Explorar", nav_publish: "Publicar", nav_points: "Puntos de entrega", nav_rules: "Normas y confianza", nav_about: "El proyecto",
+    nav_primary: "Principal", brand_home: "Circular Campus — inicio", account_menu: "Menú de cuenta", photo_preview: "Vista previa de la foto del objeto",
     footer_tag: "Reutilización e intercambio de materiales de segunda vida.",
     footer_independent: "Proyecto independiente. No es un servicio oficial de ninguna universidad.",
     footer_explore: "Explorar", footer_legal: "Información legal", footer_legal_notice: "Aviso legal",
@@ -51,12 +52,16 @@ const I18N = {
     footer_payment_mini: "Sin pagos dentro de la plataforma",
     footer_note: "Prototipo sin ánimo de lucro · sin analítica · sin recursos de terceros · las imágenes de ejemplo son locales.",
     credit_label: "Equipo del proyecto", payment_eyebrow: "Pagos", noscript: "Circular Campus necesita JavaScript para mostrar el catálogo y gestionar la cuenta.",
-    title_home: "Explorar", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas y confianza",
+    title_home: "Explorar", catalog_title: "Catálogo de segunda vida", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas y confianza",
     title_about: "El proyecto", title_my: "Mi área", title_legal: "Aviso legal", title_privacy: "Privacidad y datos", title_terms: "Condiciones de uso",
-    hero_eyebrow: "Reutilizar es sencillo", hero_title: "Lo que ya no usas puede seguir teniendo una buena historia.",
-    hero_lead: "Circular Campus es un prototipo independiente para publicar, encontrar y dar una segunda vida a libros, ropa, muebles y material de estudio. Publica, busca y acuerda la entrega en un lugar público.",
-    hero_search_ph: "Buscar libros, ropa, muebles…", hero_search_btn: "Buscar", publish_cta: "Publicar un objeto",
+    hero_eyebrow: "Reutilización e intercambio", hero_title: "Segunda vida en el campus.",
+    hero_lead: "Encuentra o publica libros, ropa, muebles y material de estudio de segunda mano. Acuerda la entrega en un lugar público.",
+    hero_search_label: "Buscar en el catálogo", hero_image_alt: "Auriculares, un teclado, un libro abierto y una mochila.",
+    hero_search_ph: "Libros, ropa, muebles…", hero_search_btn: "Buscar", publish_cta: "Publicar un objeto",
     stat_items: "objetos publicados", stat_available: "disponibles ahora", stat_delivered: "entregas marcadas", stat_users: "cuentas creadas",
+    stats_title: "Circular Campus en cifras", stats_unavailable: "Las cifras no están disponibles en este momento.",
+    potential_title: "Potencial de los anuncios activos", potential_kg: "kg que podrían reutilizarse", potential_savings: "ahorro potencial",
+    potential_note: "Estimación ilustrativa: 2 kg y 15 € por objeto disponible. No representa entregas realizadas.",
     payment_banner_title: "Sin pasarela de pago",
     payment_banner_body: "Circular Campus no procesa pagos, no cobra comisiones, no custodia dinero ni garantiza objetos. «Vender» muestra solo un precio orientativo: cualquier pago se acuerda directamente entre particulares, fuera de la plataforma.",
     all: "Todo", search: "Buscar", filters: "Filtros", campus: "Campus", condition: "Estado", type: "Tipo", sort: "Ordenar",
@@ -158,9 +163,10 @@ const I18N = {
     terms_title: "Condiciones de uso", terms_lead: "Reglas para participar como particular en un prototipo de reutilización sin pagos gestionados por la plataforma.",
     hero_chip_1: "Sin pagos ni comisiones", hero_chip_2: "Datos mínimos", hero_chip_3: "Proyecto independiente",
     type_badge_regalar: "Regalar", type_badge_prestar: "Prestar", type_badge_intercambiar: "Intercambiar", type_badge_vender: "Vender",
-    nav_my: "Mi área", nav_points_short: "Puntos", nav_rules_short: "Normas",
+    nav_my: "Mi área", nav_my_short: "Mi área", nav_publish_short: "Publicar", nav_points_short: "Puntos", nav_rules_short: "Normas",
     filters_btn: "Filtros", filters_title: "Filtros y orden", filters_subtitle: "Ajusta campus, estado, tipo y orden de los resultados.",
-    filters_apply: "Ver resultados", filters_clear: "Limpiar todo", sort_by: "Ordenar por",
+    filters_apply: "Ver resultados", filters_clear: "Limpiar todo", sort_by: "Ordenar por", filter_remove: "Quitar filtro: {value}",
+    photo_unavailable: "Foto no disponible",
     loading_items: "Cargando objetos…", retry: "Reintentar", catalog_eyebrow: "Catálogo",
     results_found: "objetos encontrados", results_one: "objeto encontrado",
     empty_catalog_t: "Aún no hay objetos publicados", empty_catalog_b: "Sé la primera persona en dar una segunda vida a algo que ya no usas.",
@@ -321,6 +327,7 @@ const I18N = {
   en: {
     skip_content: "Skip to content", close: "Close", brand_tag: "Independent project · CTC Congress",
     nav_home: "Browse", nav_publish: "List an item", nav_points: "Handover points", nav_rules: "Rules & trust", nav_about: "The project",
+    nav_primary: "Main", brand_home: "Circular Campus — home", account_menu: "Account menu", photo_preview: "Preview of the item photo",
     footer_tag: "Reuse and exchange of second-life materials.",
     footer_independent: "Independent project. Not an official service of any university.",
     footer_explore: "Explore", footer_legal: "Legal information", footer_legal_notice: "Legal notice",
@@ -328,12 +335,16 @@ const I18N = {
     footer_payment_mini: "No payments inside the platform",
     footer_note: "Non-profit prototype · no analytics · no third-party resources · sample images are local.",
     credit_label: "Project team", payment_eyebrow: "Payments", noscript: "Circular Campus needs JavaScript to show the catalogue and manage your account.",
-    title_home: "Browse", title_publish: "List an item", title_points: "Handover points", title_rules: "Rules & trust",
+    title_home: "Browse", catalog_title: "Second-life catalogue", title_publish: "List an item", title_points: "Handover points", title_rules: "Rules & trust",
     title_about: "The project", title_my: "My area", title_legal: "Legal notice", title_privacy: "Privacy & data", title_terms: "Terms of use",
-    hero_eyebrow: "Reuse made simple", hero_title: "What you no longer use can still have a good story.",
-    hero_lead: "Circular Campus is an independent prototype for listing, finding and giving a second life to books, clothing, furniture and study materials. List, search and arrange handover in a public place.",
-    hero_search_ph: "Search books, clothing, furniture…", hero_search_btn: "Search", publish_cta: "List an item",
+    hero_eyebrow: "Reuse and exchange", hero_title: "A second life on campus.",
+    hero_lead: "Find or list second-hand books, clothing, furniture and study materials. Arrange handover in a public place.",
+    hero_search_label: "Search the catalogue", hero_image_alt: "Headphones, a keyboard, an open book and a backpack.",
+    hero_search_ph: "Books, clothes, furniture…", hero_search_btn: "Search", publish_cta: "List an item",
     stat_items: "items listed", stat_available: "available now", stat_delivered: "handovers marked", stat_users: "accounts created",
+    stats_title: "Circular Campus in numbers", stats_unavailable: "Figures are currently unavailable.",
+    potential_title: "Potential of active listings", potential_kg: "kg that could be reused", potential_savings: "potential savings",
+    potential_note: "Illustrative estimate: 2 kg and €15 per available item. These figures do not represent completed handovers.",
     payment_banner_title: "No payment gateway",
     payment_banner_body: "Circular Campus does not process payments, charge fees, hold funds or guarantee items. “Sell” shows an indicative price only: any payment is agreed directly between private individuals, outside the platform.",
     all: "All", search: "Search", filters: "Filters", campus: "Campus", condition: "Condition", type: "Type", sort: "Sort",
@@ -435,9 +446,10 @@ const I18N = {
     terms_title: "Terms of use", terms_lead: "Rules for taking part as a private individual in a reuse prototype with no platform-managed payments.",
     hero_chip_1: "No payments or fees", hero_chip_2: "Minimal data", hero_chip_3: "Independent project",
     type_badge_regalar: "Give away", type_badge_prestar: "Lend", type_badge_intercambiar: "Exchange", type_badge_vender: "Sell",
-    nav_my: "My area", nav_points_short: "Points", nav_rules_short: "Rules",
+    nav_my: "My area", nav_my_short: "My area", nav_publish_short: "List item", nav_points_short: "Points", nav_rules_short: "Rules",
     filters_btn: "Filters", filters_title: "Filters & sorting", filters_subtitle: "Adjust campus, condition, type and result order.",
-    filters_apply: "Show results", filters_clear: "Clear all", sort_by: "Sort by",
+    filters_apply: "Show results", filters_clear: "Clear all", sort_by: "Sort by", filter_remove: "Remove filter: {value}",
+    photo_unavailable: "Photo unavailable",
     loading_items: "Loading items…", retry: "Try again", catalog_eyebrow: "Catalogue",
     results_found: "items found", results_one: "item found",
     empty_catalog_t: "No items listed yet", empty_catalog_b: "Be the first to give a second life to something you no longer use.",
@@ -598,6 +610,7 @@ const I18N = {
   gl: {
     skip_content: "Saltar ao contido", close: "Pechar", brand_tag: "Proxecto independente · CTC Congress",
     nav_home: "Explorar", nav_publish: "Publicar", nav_points: "Puntos de entrega", nav_rules: "Normas e confianza", nav_about: "O proxecto",
+    nav_primary: "Principal", brand_home: "Circular Campus — inicio", account_menu: "Menú de conta", photo_preview: "Vista previa da foto do obxecto",
     footer_tag: "Reutilización e intercambio de materiais de segunda vida.",
     footer_independent: "Proxecto independente. Non é un servizo oficial de ningunha universidade.",
     footer_explore: "Explorar", footer_legal: "Información legal", footer_legal_notice: "Aviso legal",
@@ -605,12 +618,16 @@ const I18N = {
     footer_payment_mini: "Sen pagos dentro da plataforma",
     footer_note: "Prototipo sen ánimo de lucro · sen analítica · sen recursos de terceiros · as imaxes de exemplo son locais.",
     credit_label: "Equipo do proxecto", payment_eyebrow: "Pagos", noscript: "Circular Campus necesita JavaScript para amosar o catálogo e xestionar a conta.",
-    title_home: "Explorar", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas e confianza",
+    title_home: "Explorar", catalog_title: "Catálogo de segunda vida", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas e confianza",
     title_about: "O proxecto", title_my: "A miña área", title_legal: "Aviso legal", title_privacy: "Privacidade e datos", title_terms: "Condicións de uso",
-    hero_eyebrow: "Reutilizar é sinxelo", hero_title: "O que xa non usas pode seguir tendo unha boa historia.",
-    hero_lead: "Circular Campus é un prototipo independente para publicar, atopar e darlle unha segunda vida a libros, roupa, mobles e material de estudo. Publica, busca e acorda a entrega nun lugar público.",
-    hero_search_ph: "Buscar libros, roupa, mobles…", hero_search_btn: "Buscar", publish_cta: "Publicar un obxecto",
+    hero_eyebrow: "Reutilización e intercambio", hero_title: "Segunda vida no campus.",
+    hero_lead: "Atopa ou publica libros, roupa, mobles e material de estudo de segunda man. Acorda a entrega nun lugar público.",
+    hero_search_label: "Buscar no catálogo", hero_image_alt: "Auriculares, un teclado, un libro aberto e unha mochila.",
+    hero_search_ph: "Libros, roupa, mobles…", hero_search_btn: "Buscar", publish_cta: "Publicar un obxecto",
     stat_items: "obxectos publicados", stat_available: "dispoñibles agora", stat_delivered: "entregas marcadas", stat_users: "contas creadas",
+    stats_title: "Circular Campus en cifras", stats_unavailable: "As cifras non están dispoñibles neste momento.",
+    potential_title: "Potencial dos anuncios activos", potential_kg: "kg que se poderían reutilizar", potential_savings: "aforro potencial",
+    potential_note: "Estimación ilustrativa: 2 kg e 15 € por obxecto dispoñible. Non representa entregas realizadas.",
     payment_banner_title: "Sen pasarela de pago",
     payment_banner_body: "Circular Campus non procesa pagos, non cobra comisións, non custodia cartos nin garante obxectos. «Vender» amosa só un prezo orientativo: calquera pago acórdase directamente entre particulares, fóra da plataforma.",
     all: "Todo", search: "Buscar", filters: "Filtros", campus: "Campus", condition: "Estado", type: "Tipo", sort: "Ordenar",
@@ -712,9 +729,10 @@ const I18N = {
     terms_title: "Condicións de uso", terms_lead: "Regras para participar como particular nun prototipo de reutilización sen pagos xestionados pola plataforma.",
     hero_chip_1: "Sen pagos nin comisións", hero_chip_2: "Datos mínimos", hero_chip_3: "Proxecto independente",
     type_badge_regalar: "Regalar", type_badge_prestar: "Prestar", type_badge_intercambiar: "Intercambiar", type_badge_vender: "Vender",
-    nav_my: "A miña área", nav_points_short: "Puntos", nav_rules_short: "Normas",
+    nav_my: "A miña área", nav_my_short: "Miña área", nav_publish_short: "Publicar", nav_points_short: "Puntos", nav_rules_short: "Normas",
     filters_btn: "Filtros", filters_title: "Filtros e orde", filters_subtitle: "Axusta campus, estado, tipo e orde dos resultados.",
-    filters_apply: "Ver resultados", filters_clear: "Limpar todo", sort_by: "Ordenar por",
+    filters_apply: "Ver resultados", filters_clear: "Limpar todo", sort_by: "Ordenar por", filter_remove: "Quitar filtro: {value}",
+    photo_unavailable: "Foto non dispoñible",
     loading_items: "Cargando obxectos…", retry: "Reintentar", catalog_eyebrow: "Catálogo",
     results_found: "obxectos atopados", results_one: "obxecto atopado",
     empty_catalog_t: "Aínda non hai obxectos publicados", empty_catalog_b: "Sé a primeira persoa en darlle unha segunda vida a algo que xa non usas.",
@@ -1055,6 +1073,11 @@ function responsiveImage(src, opts = {}) {
   const source = `<source type="image/webp" srcset="${esc(variants.webp)}" sizes="${esc(sizes)}">`;
   return `<picture>${source}<img src="${esc(variants.src || src)}" ${dims}${attrs.join(" ")}${extra}></picture>`;
 }
+function itemPhoto(it, opts) {
+  return `${it.image_url ? responsiveImage(it.image_url, opts) : ""}
+    <span class="item-photo-note${it.image_url ? " hidden" : ""}">${icon("camera")}${esc(t("photo_unavailable"))}</span>`;
+}
+
 const POINT_ICONS = { biblioteca: "inbox", conserjeria: "info", cafeteria: "clock", entrada: "pin", punto: "tag", acordado: "shield" };
 const MY_TABS = [
   { id: "items", label: "my_items" },
@@ -1189,7 +1212,18 @@ function errorMessage(err) {
   return (err && err.message) || t("toast_error");
 }
 
-/* ---------------- Toasts ---------------- */
+/* ---------------- Capas flotantes y avisos ---------------- */
+function retireSurface(el) {
+  // CSS controla la salida. Sin transición (movimiento reducido, navegador
+  // sin soporte o cierre antes del primer fotograma), se retira al instante.
+  if (!("inert" in el)) { el.remove(); return; }
+  el.inert = true;
+  el.classList.add("is-leaving");
+  const exit = el.getAnimations?.().find(a => a.transitionProperty === "opacity");
+  if (!exit) { el.remove(); return; }
+  exit.finished.then(() => el.remove(), () => el.remove());
+}
+
 function toast(message, type = "success") {
   const root = $("#toast-root");
   if (!root || !message) return;
@@ -1200,26 +1234,39 @@ function toast(message, type = "success") {
   el.className = `toast toast-${kind}`;
   el.innerHTML = `<span class="toast-icon">${icon(TOAST_ICONS[kind])}</span>
     <span class="toast-msg"></span>
-    <button type="button" class="toast-close" aria-label="${esc(t("close_toast"))}">${icon("close")}</button>
-    <span class="toast-progress" style="animation-duration:${TOAST_DURATION}ms" aria-hidden="true"></span>`;
+    <button type="button" class="toast-close" aria-label="${esc(t("close_toast"))}">${icon("close")}</button>`;
   el.querySelector(".toast-msg").textContent = message;
+  let timer;
+  let hovering = false;
+  let focusFrom = null;
   const dismiss = () => {
-    if (!el.isConnected || el.classList.contains("is-leaving")) return;
-    el.classList.add("is-leaving");
-    setTimeout(() => el.remove(), 220);
+    clearTimeout(timer);
+    if (!el.isConnected || el.inert) return;
+    const hadFocus = el.contains(document.activeElement);
+    retireSurface(el);
+    if (hadFocus) restoreSurfaceFocus(focusFrom);
+  };
+  const schedule = (focused = el.contains(document.activeElement)) => {
+    clearTimeout(timer);
+    if (!hovering && !focused && el.isConnected && !el.inert) timer = setTimeout(dismiss, TOAST_DURATION);
   };
   el.querySelector(".toast-close").onclick = dismiss;
+  el.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") { hovering = true; schedule(); } });
+  el.addEventListener("pointerleave", () => { hovering = false; schedule(); });
+  el.addEventListener("focusin", e => {
+    if (!el.contains(e.relatedTarget)) focusFrom = e.relatedTarget;
+    schedule(true);
+  });
+  el.addEventListener("focusout", e => schedule(el.contains(e.relatedTarget)));
   root.appendChild(el);
-  const timer = setTimeout(dismiss, TOAST_DURATION);
-  el.addEventListener("mouseenter", () => clearTimeout(timer), { once: true });
-  return el;
+  schedule();
 }
 
 /* ---------------- Estados vacíos / esqueletos ---------------- */
-function emptyState({ iconName = "leaf", title = "", text = "", actions = [] }) {
+function emptyState({ iconName = "leaf", title = "", text = "", actions = [], alert = false, heading = "h3" }) {
   return `<div class="empty">
     <span class="empty-icon" aria-hidden="true">${icon(iconName)}</span>
-    <h3>${esc(title)}</h3>
+    <${heading}${alert ? ' role="alert"' : ""}>${esc(title)}</${heading}>
     ${text ? `<p>${esc(text)}</p>` : ""}
     ${actions.length ? `<div class="empty-actions">${actions.map(a =>
       `<button type="button" class="btn ${a.variant || "btn-primary"}" data-empty="${esc(a.id)}">${a.icon ? icon(a.icon) : ""}${esc(a.label)}</button>`
@@ -1239,10 +1286,11 @@ function skeletonCards(n = 6) {
     <div class="skeleton-card" aria-hidden="true">
       <div class="skeleton sk-media"></div>
       <div class="sk-body">
-        <div class="skeleton sk-line w-90"></div>
-        <div class="skeleton sk-line w-45"></div>
-        <div class="sk-row"><div class="skeleton sk-pill"></div><div class="skeleton sk-pill short"></div></div>
+        <div class="sk-row"><div class="skeleton sk-line w-45"></div><div class="skeleton sk-line w-25"></div></div>
+        <div class="skeleton sk-card-title"></div>
         <div class="skeleton sk-line w-70"></div>
+        <div class="skeleton sk-line w-60"></div>
+        <div class="sk-row sk-card-foot"><div class="skeleton sk-line w-25"></div><div class="skeleton sk-line w-25"></div></div>
       </div>
     </div>`).join("");
 }
@@ -1260,12 +1308,9 @@ function skeletonRows(n = 3) {
 }
 
 function statSkeleton() {
-  return Array.from({ length: 4 }, () => `
-    <div class="stat-card" aria-hidden="true">
-      <div class="skeleton sk-stat-icon"></div>
-      <div class="sk-stat-body"><div class="skeleton sk-line sk-num"></div>
-      <div class="skeleton sk-line sk-stat-label"></div></div>
-    </div>`).join("");
+  return `<div class="home-figures stats-row" aria-hidden="true">${Array.from({ length: 4 }, () => `
+    <div><div class="skeleton sk-num"></div><div class="skeleton sk-stat-label"></div></div>`).join("")}
+  </div>`;
 }
 
 /* ---------------- Enlaces y mejoras de DOM ---------------- */
@@ -1277,6 +1322,12 @@ function bindRouteLinks(root = document) {
 function bindImageFallbacks(root = document) {
   $$("img[data-fallback]", root).forEach(img => {
     img.addEventListener("error", () => {
+      const note = img.closest(".card-media, .detail-media")?.querySelector(".item-photo-note");
+      if (note) {
+        img.classList.add("hidden");
+        note.classList.remove("hidden");
+        return;
+      }
       if (img.dataset.fallbackApplied) return;
       img.dataset.fallbackApplied = "1";
       // Dentro de <picture> el <source> tiene prioridad: hay que quitarlo o el
@@ -1303,7 +1354,7 @@ function bindFavButtons(root = document) {
         toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
         b.classList.toggle("active", d.is_favorite);
         b.setAttribute("aria-pressed", String(d.is_favorite));
-        b.setAttribute("aria-label", d.is_favorite ? t("detail_faved") : t("detail_fav"));
+        b.setAttribute("aria-label", favoriteLabel(d.is_favorite, b.dataset.itemTitle));
         b.disabled = false;
         if (state.view === "my" && state.myTab === "favorites" && !d.is_favorite) {
           const card = b.closest(".card");
@@ -1337,12 +1388,16 @@ function setApp(app, html) {
 }
 
 /* ---------------- Auth UI ---------------- */
-function closeUserMenu() {
+function closeUserMenu(restoreFocus = false) {
   const menu = $("#user-menu");
   const chip = $("#user-chip");
   if (menu && !menu.classList.contains("hidden")) {
+    const restore = restoreFocus && menu.contains(document.activeElement);
     menu.classList.add("hidden");
-    if (chip) chip.setAttribute("aria-expanded", "false");
+    if (chip) {
+      chip.setAttribute("aria-expanded", "false");
+      if (restore) chip.focus();
+    }
   }
 }
 
@@ -1363,39 +1418,56 @@ function renderAuthArea() {
     $("#btn-register").onclick = () => openAuth("register");
   } else {
     const initials = esc((state.user.name || "?").trim().charAt(0).toUpperCase() || "?");
-    const firstName = esc((state.user.name || "").trim().split(/\s+/)[0] || t("my_area"));
+    const firstName = (state.user.name || "").trim().split(/\s+/)[0] || t("my_area");
+    const menuLabel = [firstName, state.demo ? t("demo_badge") : "", t("account_menu")].filter(Boolean).join(" — ");
     area.innerHTML = `
       <div class="dropdown">
-        <button type="button" class="user-chip" id="user-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
+        <button type="button" class="user-chip" id="user-chip" aria-label="${esc(menuLabel)}" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
           <span class="avatar" aria-hidden="true">${initials}</span>
-          <span class="user-name">${firstName}</span>
+          <span class="user-name">${esc(firstName)}</span>
           ${state.demo ? `<span class="demo-badge">${esc(t("demo_badge"))}</span>` : ""}
           ${icon("chevron")}
         </button>
         <div class="dropdown-menu hidden" id="user-menu" role="menu" aria-labelledby="user-chip">
-          <button type="button" role="menuitem" id="menu-my">${icon("grid")}${esc(t("my_area"))}</button>
-          <button type="button" role="menuitem" id="menu-publish">${icon("plus")}${esc(t("nav_publish"))}</button>
-          <button type="button" role="menuitem" id="menu-password">${icon("shield")}${esc(t("menu_password"))}</button>
-          <button type="button" role="menuitem" id="menu-privacy">${icon("shield")}${esc(t("footer_privacy"))}</button>
+          <button type="button" role="menuitem" tabindex="-1" id="menu-my">${icon("grid")}${esc(t("my_area"))}</button>
+          <button type="button" role="menuitem" tabindex="-1" id="menu-publish">${icon("plus")}${esc(t("nav_publish"))}</button>
+          <button type="button" role="menuitem" tabindex="-1" id="menu-password">${icon("shield")}${esc(t("menu_password"))}</button>
+          <button type="button" role="menuitem" tabindex="-1" id="menu-privacy">${icon("shield")}${esc(t("footer_privacy"))}</button>
           <div class="menu-sep" role="separator"></div>
-          <button type="button" role="menuitem" id="menu-logout" class="danger">${icon("logout")}${esc(t("logout"))}</button>
+          <button type="button" role="menuitem" tabindex="-1" id="menu-logout" class="danger">${icon("logout")}${esc(t("logout"))}</button>
         </div>
       </div>`;
     const chip = $("#user-chip");
     const menu = $("#user-menu");
-    const setOpen = (open) => {
-      menu.classList.toggle("hidden", !open);
-      chip.setAttribute("aria-expanded", String(open));
+    const items = $$('[role="menuitem"]', menu);
+    const openMenu = (last = false) => {
+      menu.classList.remove("hidden");
+      chip.setAttribute("aria-expanded", "true");
+      items[last ? items.length - 1 : 0].focus();
     };
     chip.onclick = (e) => {
       e.stopPropagation();
-      setOpen(menu.classList.contains("hidden"));
+      if (menu.classList.contains("hidden")) openMenu();
+      else closeUserMenu(true);
     };
-    $("#menu-my").onclick = () => { setOpen(false); navigate("my"); };
-    $("#menu-publish").onclick = () => { setOpen(false); navigate("publish"); };
-    $("#menu-password").onclick = () => { setOpen(false); openPasswordChange(); };
-    $("#menu-privacy").onclick = () => { setOpen(false); navigate("privacy"); };
-    $("#menu-logout").onclick = () => { setOpen(false); logout(); };
+    chip.onkeydown = (e) => {
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      e.preventDefault();
+      openMenu(e.key === "ArrowUp");
+    };
+    menu.onkeydown = (e) => {
+      const index = items.indexOf(document.activeElement);
+      if (e.key === "Tab") { closeUserMenu(true); return; }
+      const next = { ArrowDown: (index + 1) % items.length, ArrowUp: (index + items.length - 1) % items.length, Home: 0, End: items.length - 1 }[e.key];
+      if (next === undefined) return;
+      e.preventDefault();
+      items[next].focus();
+    };
+    $("#menu-my").onclick = () => { closeUserMenu(true); navigate("my"); };
+    $("#menu-publish").onclick = () => { closeUserMenu(true); navigate("publish"); };
+    $("#menu-password").onclick = () => { closeUserMenu(true); openPasswordChange(); };
+    $("#menu-privacy").onclick = () => { closeUserMenu(true); navigate("privacy"); };
+    $("#menu-logout").onclick = () => { closeUserMenu(true); logout(); };
   }
 }
 
@@ -1429,9 +1501,13 @@ function trapFocus(e) {
   }
 }
 
+function setPageInert(inert) {
+  $$(".skip-link, .topbar, .tabbar, #app, .footer").forEach(el => { el.inert = inert; });
+}
+
 function openModal(html, opts = {}) {
   const dismissible = opts.dismissible !== false;
-  lastFocused = document.activeElement;
+  if (!$("#backdrop:not([inert])")) lastFocused = document.activeElement;
   const root = $("#modal-root");
   const labelAttr = opts.labelledBy
     ? `aria-labelledby="${esc(opts.labelledBy)}"`
@@ -1451,22 +1527,27 @@ function openModal(html, opts = {}) {
   document.body.classList.add("is-locked");
   enhance(modal);
   const target = $("[data-autofocus]", modal) || modal;
-  requestAnimationFrame(() => {
-    try { target.focus({ preventScroll: true }); } catch (e) {}
-  });
+  target.focus({ preventScroll: true });
+  setPageInert(true);
   return modal;
+}
+
+function restoreSurfaceFocus(previous) {
+  const dialog = $("#backdrop:not([inert]) .modal");
+  const canRestore = previous?.isConnected && !previous.closest("[inert]") && (!dialog || dialog.contains(previous));
+  (canRestore ? previous : dialog || $("#app"))?.focus({ preventScroll: true });
 }
 
 function closeModal() {
   if (state.pendingConsent) return;
-  const root = $("#modal-root");
-  if (!root || !root.firstElementChild) return;
-  root.innerHTML = "";
-  document.body.classList.remove("is-locked");
-  if (lastFocused && lastFocused.isConnected) {
-    try { lastFocused.focus({ preventScroll: true }); } catch (e) {}
-  }
+  const backdrop = $("#backdrop:not([inert])");
+  if (!backdrop) return;
+  const previous = lastFocused;
   lastFocused = null;
+  document.body.classList.remove("is-locked");
+  retireSurface(backdrop);
+  setPageInert(false);
+  restoreSurfaceFocus(previous);
 }
 function closeBtn() {
   return state.pendingConsent ? "" : `<button type="button" class="close" data-close aria-label="${esc(t("close"))}">${icon("close")}</button>`;
@@ -1563,7 +1644,8 @@ function openAuth(mode = "login") {
       closeModal();
       renderAuthArea();
       toast(isLogin ? t("toast_login") : t("toast_register"));
-      render();
+      if (!state.user.consent_ok) openConsentUpdate();
+      else render();
     } catch (err) {
       setBusy(submit, false);
       toast(errorMessage(err), "error");
@@ -1573,17 +1655,30 @@ function openAuth(mode = "login") {
 
 function openConsentUpdate() {
   state.pendingConsent = true;
-  openModal(`
+  const modal = openModal(`
     <div class="modal-head">
       <h2 id="consent-title">${esc(t("consent_update_title"))}</h2>
       <p>${legalText(t("consent_update_body"))}</p>
     </div>
+    ${["privacy", "terms"].map(kind => `<details class="disclosure" id="consent-${kind}">
+      <summary><span>${esc(t(kind + "_title"))}</span>${icon("chevron")}</summary>
+      <div class="disclosure-body">${legalSections(kind, "h3")}</div>
+    </details>`).join("")}
     <form id="consent-update-form" aria-labelledby="consent-title">
       <div class="consent-box">
         <label class="check-row"><input type="checkbox" name="consent" required><span>${legalText(t("consent_update_check"))}</span></label>
       </div>
       <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${esc(t("consent_update_btn"))}</button>
     </form>`, { dismissible: false, labelledBy: "consent-title" });
+  // Keep the revised documents readable without leaving the mandatory dialog.
+  $$("[data-route='privacy'], [data-route='terms']", modal).forEach(link => {
+    link.onclick = (e) => {
+      e.preventDefault();
+      const doc = $("#consent-" + link.dataset.route, modal);
+      doc.open = true;
+      $("summary", doc).focus();
+    };
+  });
   $("#consent-update-form").onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -1614,8 +1709,10 @@ function navigate(view, opts = {}) {
     try { history.pushState({ view }, "", path); } catch (e) { location.hash = path; }
   }
   closeUserMenu();
+  closeModal();
   try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) {}
   render();
+  $("#app").focus({ preventScroll: true });
 }
 window.navigate = navigate;
 
@@ -1630,6 +1727,7 @@ async function render() {
     b.classList.toggle("active", active);
     b.setAttribute("aria-pressed", String(active));
   });
+  $$("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
   $$("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
   $$("[data-nav]").forEach(el => {
     el.onclick = (e) => { e.preventDefault(); navigate(el.dataset.nav); };
@@ -1639,7 +1737,12 @@ async function render() {
     if (active) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
   });
-  $$("a[data-route]").forEach(a => a.classList.toggle("active", a.dataset.route === state.view));
+  $$("a[data-route]", $(".footer")).forEach(a => {
+    const active = a.dataset.route === state.view;
+    a.classList.toggle("active", active);
+    if (active) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
   bindRouteLinks(document);
 
   if (state.view === "publish") return renderPublish(app);
@@ -1707,11 +1810,14 @@ function loadMoreHtml(page) {
 async function loadMoreItems(btn) {
   if (btn.dataset.busy) return;
   btn.dataset.busy = "1";
+  const hadFocus = document.activeElement === btn;
   setBusy(btn, true, t("loading_items"));
   try {
     const page = await fetchItemsPage(state.items.length);
+    if (!btn.isConnected) return;
     state.items = state.items.concat(page.items);
     const grid = $("#catalog-results .grid-items");
+    const firstNewIndex = grid?.childElementCount;
     if (grid && page.items.length) {
       grid.insertAdjacentHTML("beforeend", page.items.map(itemCard).join(""));
       enhance(grid);
@@ -1724,9 +1830,14 @@ async function loadMoreItems(btn) {
       wrapper.remove();
     }
     setCatalogCount(state.items.length, page.total);
+    if (hadFocus && document.activeElement === document.body) {
+      const next = grid?.children[firstNewIndex]?.querySelector(".fav-btn");
+      (next || (btn.isConnected ? btn : $("#catalog-title")))?.focus();
+    }
   } catch (err) {
     btn.dataset.busy = "";
     setBusy(btn, false);
+    if (hadFocus && document.activeElement === document.body) btn.focus();
     toast(errorMessage(err), "error");
   }
 }
@@ -1780,25 +1891,22 @@ function starsHtml(average, count, opts = {}) {
   return `<span class="stars" role="img" aria-label="${esc(label)}">${stars}${opts.withCount === false ? "" : text}</span>`;
 }
 
+function homeFigures(cells, extra = "") {
+  return `<dl class="home-figures${extra ? ` ${extra}` : ""}">
+    ${cells.map(([label, value]) => `<div><dt>${esc(t(label))}</dt><dd>${esc(String(value))}</dd></div>`).join("")}
+  </dl>`;
+}
+
 function impactBand(stats) {
-  const imp = (stats && stats.impact) || { reused: 0, kg: 0, savings: 0 };
-  const cells = [
-    { icon: "refresh", value: fmtNum(imp.reused, 0), label: t("impact_reused") },
-    { icon: "leaf", value: `${fmtNum(imp.kg, 1)} kg`, label: t("impact_kg") },
-    { icon: "tag", value: `${fmtNum(imp.savings, 0)} €`, label: t("impact_savings") }
-  ];
+  const imp = stats.impact || {};
   return `<section class="impact-band" aria-labelledby="impact-title">
-    <div class="impact-head">
-      <h2 id="impact-title">${icon("leaf")}${esc(t("impact_title"))}</h2>
-      <p>${esc(t("impact_lead"))}</p>
-    </div>
-    <div class="impact-grid">
-      ${cells.map(c => `<div class="impact-cell">
-        <span class="impact-icon" aria-hidden="true">${icon(c.icon)}</span>
-        <div><strong>${esc(c.value)}</strong><span>${esc(c.label)}</span></div>
-      </div>`).join("")}
-    </div>
-    <p class="impact-note">${icon("info")}<span>${esc(t("impact_note"))}</span></p>
+    <h3 id="impact-title">${esc(t("impact_title"))}</h3>
+    ${homeFigures([
+      ["impact_reused", fmtNum(imp.reused, 0)],
+      ["impact_kg", `${fmtNum(imp.kg, 1)} kg`],
+      ["impact_savings", `${fmtNum(imp.savings, 0)} €`]
+    ])}
+    <p class="figure-note">${esc(t("impact_lead"))} ${esc(t("impact_note"))}</p>
   </section>`;
 }
 
@@ -1942,16 +2050,17 @@ function openQuickGuide() {
 
 function activeFilterChips() {
   const f = state.filters;
-  const items = [];
-  if (f.q) items.push(`<span class="active-filter">«${esc(f.q)}»<button type="button" data-remove-filter="q" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
-  if (f.campus) items.push(`<span class="active-filter">${esc(campusLabel(f.campus))}<button type="button" data-remove-filter="campus" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
-  if (f.condition) items.push(`<span class="active-filter">${esc(condLabel(f.condition))}<button type="button" data-remove-filter="condition" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
-  if (f.type) items.push(`<span class="active-filter">${esc(typeLabel(f.type))}<button type="button" data-remove-filter="type" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
-  if (f.faculty) items.push(`<span class="active-filter">${esc(facLabel(f.faculty))}<button type="button" data-remove-filter="faculty" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
-  if (items.length > 1 || f.q) {
-    items.push(`<button type="button" class="clear-link" id="clear-all-filters">${esc(t("filters_clear"))}</button>`);
-  }
-  return items.join("");
+  const labels = [
+    ["q", f.q && `«${f.q}»`],
+    ["category", f.category && catLabel(f.category)],
+    ["campus", f.campus && campusLabel(f.campus)],
+    ["condition", f.condition && condLabel(f.condition)],
+    ["type", f.type && typeLabel(f.type)],
+    ["faculty", f.faculty && facLabel(f.faculty)]
+  ].filter(([, label]) => label);
+  if (!labels.length) return "";
+  return `${labels.map(([key, label]) => `<span class="active-filter"><span>${esc(label)}</span><button type="button" data-remove-filter="${key}" aria-label="${esc(t("filter_remove").replace("{value}", label))}">${icon("close")}</button></span>`).join("")}
+    <button type="button" class="clear-link" id="clear-all-filters">${esc(t("filters_clear"))}</button>`;
 }
 
 function syncFilterUI() {
@@ -1974,15 +2083,22 @@ function syncFilterUI() {
   const box = $("#active-filters");
   if (box) {
     box.innerHTML = activeFilterChips();
-    $$("[data-remove-filter]", box).forEach(btn => {
+    const removeButtons = $$("[data-remove-filter]", box);
+    removeButtons.forEach((btn, index) => {
       btn.onclick = () => {
         state.filters[btn.dataset.removeFilter] = "";
-        if (btn.dataset.removeFilter === "q") { const q = $("#q"); if (q) q.value = ""; }
+        syncHeroSearch();
         refreshCatalog();
+        const remaining = $$("[data-remove-filter]", box);
+        (remaining[index] || remaining[index - 1] || $("#open-filters"))?.focus({ preventScroll: true });
       };
     });
     const clear = $("#clear-all-filters", box);
-    if (clear) clear.onclick = () => { clearFilters(); refreshCatalog(); };
+    if (clear) clear.onclick = () => {
+      clearFilters();
+      refreshCatalog();
+      $("#open-filters")?.focus({ preventScroll: true });
+    };
   }
 }
 
@@ -2010,6 +2126,7 @@ async function refreshCatalog(opts = {}) {
     if (request !== catalogRequest || !$("#catalog-results")) return;
     box.innerHTML = emptyState({
       iconName: "alert",
+      alert: true,
       title: t("toast_error"),
       text: errorMessage(err),
       actions: [{ id: "retry", label: t("retry"), icon: "refresh", variant: "btn-ghost" }]
@@ -2057,6 +2174,11 @@ async function refreshCatalog(opts = {}) {
   if (countEl) setCatalogCount(items.length, page.total);
 }
 
+function favoriteLabel(saved, title) {
+  const action = t(saved ? "detail_faved" : "detail_fav");
+  return title ? `${action}: ${title}` : action;
+}
+
 function itemCard(it) {
   const isSale = it.exchange_type === "vender";
   const price = isSale ? `€${Number(it.price || 0).toFixed(0)}` : esc(t("free"));
@@ -2065,66 +2187,58 @@ function itemCard(it) {
   return `
   <article class="card">
     <div class="card-media">
-      <button type="button" class="card-media-open" data-view="${it.id}" aria-label="${esc(openLabel)}">
-        ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, sizes: "(max-width: 480px) 92vw, (max-width: 720px) 45vw, 300px" })}
-      </button>
-      <div class="card-badges">
-        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
-        <span class="badge badge-cond">${esc(condLabel(it.condition))}</span>
-        <span class="badge badge-type${isSale ? " is-sale" : ""}">${esc(typeBadge(it.exchange_type))}</span>
-      </div>
-      <button type="button" class="fav-btn${saved ? " active" : ""}" data-fav="${it.id}" aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}: ${esc(it.title)}">${icon("heart")}</button>
+      ${itemPhoto(it, { alt: it.title, sizes: "(max-width: 519px) calc(100vw - 2.5rem), (max-width: 803px) 46vw, (max-width: 1067px) 31vw, 280px" })}
+      <button type="button" class="fav-btn${saved ? " active" : ""}" data-fav="${it.id}" data-item-title="${esc(it.title)}" aria-pressed="${saved}" aria-label="${esc(favoriteLabel(saved, it.title))}">${icon("heart")}</button>
     </div>
     <div class="card-body">
-      <h3 class="card-title">${esc(it.title)}</h3>
       <div class="card-meta">
-        <span class="pill">${esc(catLabel(it.category))}</span>
-        <span class="card-location">${icon("pin")}${esc(campusLabel(it.campus))}${it.faculty ? ` · ${esc(facLabel(it.faculty))}` : ""}</span>
+        <span class="card-category">${esc(catLabel(it.category))}</span>
+        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
       </div>
-      <p class="card-location">${icon("tag")}${esc(handLabel(it.handover_point))}</p>
-      ${it.description ? `<p class="card-desc">${esc(it.description)}</p>` : ""}
+      <h3 class="card-title"><button type="button" class="card-open" data-view="${it.id}" aria-label="${esc(openLabel)}"><span>${esc(it.title)}</span>${icon("arrow")}</button></h3>
+      <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}${it.faculty ? ` · ${esc(facLabel(it.faculty))}` : ""}</span></p>
+      <p class="card-location">${icon("tag")}<span>${esc(handLabel(it.handover_point))} · ${esc(condLabel(it.condition))}</span></p>
       <div class="card-foot">
         <div>
           <span class="price${isSale ? "" : " is-free"}">${price}</span>
           ${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}
         </div>
-        <button type="button" class="card-cta" data-view="${it.id}">${esc(t("view_item"))}${icon("arrow")}</button>
+        <span class="card-operation">${esc(typeBadge(it.exchange_type))}</span>
       </div>
     </div>
   </article>`;
 }
 
 function congressMetrics(stats) {
-  const s = stats || {};
-  const active = Number(s.available) || 0;
+  const active = Number(stats.available) || 0;
   // Orientative estimates for active listings, not verified completed exchanges.
-  const kg = active * 2;
-  const euros = active * 15;
-  const labels = state.lang === "en" ? ["active listings", "potential kg reused", "potential student savings"]
-    : state.lang === "gl" ? ["anuncios dispoñibles", "kg potenciais reutilizados", "aforro potencial"]
-    : ["artículos disponibles", "kg potenciales reutilizados", "ahorro potencial"];
-  return `<div class="congress-metrics" role="group" aria-label="${esc(t("impact_title"))}">
-    ${[active, `${kg} kg`, `${euros} €`].map((v, i) => `<div><strong>${esc(String(v))}</strong><span>${esc(labels[i])}</span></div>`).join("")}
-  </div><p class="congress-estimate">${esc(state.lang === "en" ? "Illustrative estimate: 2 kg and €15 per active listing; not completed exchanges." : state.lang === "gl" ? "Estimación ilustrativa: 2 kg e 15 € por anuncio dispoñible; non son intercambios completados." : "Estimación ilustrativa: 2 kg y 15 € por artículo disponible; no son intercambios completados.")}</p>`;
+  return `<section class="impact-band" aria-labelledby="potential-title">
+    <h3 id="potential-title">${esc(t("potential_title"))}</h3>
+    ${homeFigures([
+      ["stat_available", active],
+      ["potential_kg", `${active * 2} kg`],
+      ["potential_savings", `${active * 15} €`]
+    ])}
+    <p class="figure-note">${esc(t("potential_note"))}</p>
+  </section>`;
 }
 
-function statsCards(stats) {
-  const s = stats || { total_items: 0, available: 0, delivered: 0, users: 0 };
-  const cells = [
-    { icon: "leaf", value: s.total_items, label: t("stat_items") },
-    { icon: "check-circle", value: s.available, label: t("stat_available") },
-    { icon: "shield", value: s.delivered, label: t("stat_delivered") },
-    { icon: "user", value: s.users, label: t("stat_users") }
-  ];
-  return cells.map(c => `
-    <div class="stat-card">
-      <span class="stat-icon" aria-hidden="true">${icon(c.icon)}</span>
-      <div><strong>${Number(c.value) || 0}</strong><span>${esc(c.label)}</span></div>
-    </div>`).join("");
+function homeStats(stats) {
+  return `${homeFigures([
+    ["stat_items", fmtNum(stats.total_items, 0)],
+    ["stat_available", fmtNum(stats.available, 0)],
+    ["stat_delivered", fmtNum(stats.delivered, 0)],
+    ["stat_users", fmtNum(stats.users, 0)]
+  ], "stats-row")}
+  <div class="home-impact">${impactBand(stats)}${congressMetrics(stats)}</div>`;
 }
 
 function option(value, label, selected) {
   return `<option value="${esc(value)}"${selected ? " selected" : ""}>${esc(label)}</option>`;
+}
+
+function catalogSortOptions(selected) {
+  return ["recent", "price_asc", "price_desc"].map(value => option(value, t(`sort_${value}`), selected === value)).join("");
 }
 
 function openFilters() {
@@ -2167,9 +2281,7 @@ function openFilters() {
       <div class="field">
         <label for="fl-sort">${esc(t("sort_by"))}</label>
         <select id="fl-sort" name="sort">
-          ${option("recent", t("sort_recent"), f.sort === "recent")}
-          ${option("price_asc", t("sort_price_asc"), f.sort === "price_asc")}
-          ${option("price_desc", t("sort_price_desc"), f.sort === "price_desc")}
+          ${catalogSortOptions(f.sort)}
         </select>
       </div>
       <div class="modal-foot">
@@ -2205,11 +2317,13 @@ function openFilters() {
   form.addEventListener("change", applyLive);
   form.onsubmit = (e) => {
     e.preventDefault();
+    clearTimeout(pending);
     readForm();
     closeModal();
     refreshCatalog({ quiet: true });
   };
   $("#filters-reset").onclick = () => {
+    clearTimeout(pending);
     clearFilters();
     closeModal();
     refreshCatalog({ quiet: true });
@@ -2226,11 +2340,10 @@ async function renderHome(app) {
           <span class="eyebrow">${icon("leaf")}${esc(t("hero_eyebrow"))}</span>
           <h1 id="hero-title">${esc(t("hero_title"))}</h1>
           <p class="lead">${esc(t("hero_lead"))}</p>
-          <div class="hero-ctas"><a class="btn btn-primary" href="#catalog-results">${esc(t("browse_catalog"))}${icon("arrow")}</a><button class="btn btn-ghost" type="button" id="hero-publish">${icon("plus")}${esc(t("publish_cta"))}</button></div>
-          <form class="searchbar" id="hero-search" role="search" aria-label="${esc(t("search"))}">
+          <form class="searchbar" id="hero-search" role="search" aria-labelledby="hero-search-label">
+            <label class="search-label" id="hero-search-label" for="q">${esc(t("hero_search_label"))}</label>
             <div class="search-input">
               ${icon("search")}
-              <label class="sr-only" for="q">${esc(t("search"))}</label>
               <input id="q" type="search" placeholder="${esc(t("hero_search_ph"))}" value="${esc(f.q)}" autocomplete="off">
             </div>
             <label class="sr-only" for="campus-sel">${esc(t("campus"))}</label>
@@ -2238,63 +2351,76 @@ async function renderHome(app) {
               ${option("", `${t("campus")}: ${t("all")}`, !f.campus)}
               ${CAMPUSES.map(c => option(c, campusLabel(c), f.campus === c)).join("")}
             </select>
-            <button class="btn btn-primary" type="submit">${esc(t("hero_search_btn"))}</button>
-            <button class="btn btn-ghost" type="button" id="go-publish">${icon("plus")}${esc(t("publish_cta"))}</button>
+            <button class="btn btn-primary" type="submit">${esc(t("hero_search_btn"))}${icon("arrow")}</button>
           </form>
-          <ul class="hero-badges">
-            <li>${icon("shield")}${esc(t("hero_chip_1"))}</li>
-            <li>${icon("user")}${esc(t("hero_chip_2"))}</li>
-            <li>${icon("leaf")}${esc(t("hero_chip_3"))}</li>
-          </ul>
+          <div class="hero-ctas">
+            <a class="btn btn-link" href="#catalog-title">${esc(t("browse_catalog"))}</a>
+            <a class="btn btn-link" id="hero-publish" href="/publicar" data-route="publish">${icon("plus")}${esc(t("publish_cta"))}</a>
+          </div>
         </div>
-        ${responsiveImage("/static/img/hero-reuse.jpg", { cls: "hero-art", priority: true, lazy: false, fallback: "/static/img/items/placeholder.jpg", sizes: "(max-width: 960px) 92vw, 460px" })}
+        <div class="hero-visual">
+          ${responsiveImage("/static/img/hero-reuse.jpg", { cls: "hero-art", alt: t("hero_image_alt"), priority: true, lazy: false, fallback: "/static/img/items/placeholder.jpg", sizes: "(max-width: 720px) calc(100vw - 2rem), (max-width: 1180px) 44vw, 530px" })}
+        </div>
       </div>
-      <div id="congress-metrics">${state.stats ? congressMetrics(state.stats) : ""}</div>
-      <div class="stats-row" id="hero-stats">${state.stats ? statsCards(state.stats) : statSkeleton()}</div>
-      <div id="impact-band">${state.stats ? impactBand(state.stats) : ""}</div>
+      <ul class="hero-badges">
+        <li>${icon("shield")}${esc(t("hero_chip_1"))}</li>
+        <li>${icon("user")}${esc(t("hero_chip_2"))}</li>
+        <li>${icon("leaf")}${esc(t("hero_chip_3"))}</li>
+      </ul>
     </section>
 
-    <div class="catalog-toolbar">
-      <div class="chips-scroll" id="cat-filters" role="group" aria-label="${esc(t("filters"))}">${categoryChips()}</div>
-      <div class="chips-scroll operation-scroll" id="operation-filters" role="group" aria-label="${esc(t("type"))}">${operationChips()}</div>
-      <div class="toolbar-actions">
-        <button type="button" class="filter-btn" id="open-filters" aria-haspopup="dialog">
-          ${icon("sliders")}${esc(t("filters_btn"))}<span class="filter-dot hidden" id="filter-dot" aria-hidden="true"></span>
-        </button>
+    <section class="catalog" aria-labelledby="catalog-title">
+      <div class="section-title">
+        <h2 id="catalog-title" tabindex="-1">${esc(t("catalog_title"))}</h2>
       </div>
-    </div>
-    <div class="catalog-meta">
-      <p class="results-count" id="results-count" role="status" aria-live="polite">${esc(t("loading_items"))}</p>
-      <div class="active-filters" id="active-filters"></div>
-    </div>
-
-    <div id="catalog-results"><div class="grid grid-items">${skeletonCards(6)}</div></div>
-
-    <div class="two-col mt-8">
-      <div class="info-card">
-        <h3>${esc(t("how_title"))}</h3>
-        <div class="steps">
-          ${[1, 2, 3].map(n => `<div class="step">
-            <span class="step-num" aria-hidden="true">${n}</span>
-            <div><strong>${esc(t("how_" + n + "_t"))}</strong><p>${esc(t("how_" + n + "_b"))}</p></div>
-          </div>`).join("")}
+      <div class="catalog-toolbar">
+        <div class="chips-scroll" id="cat-filters" role="group" aria-label="${esc(t("f_category"))}">${categoryChips()}</div>
+        <div class="chips-scroll operation-scroll" id="operation-filters" role="group" aria-label="${esc(t("f_type"))}">${operationChips()}</div>
+        <div class="toolbar-actions">
+          <button type="button" class="filter-btn" id="open-filters" aria-haspopup="dialog">
+            ${icon("sliders")}${esc(t("filters_btn"))}<span class="filter-dot hidden" id="filter-dot"></span>
+          </button>
         </div>
       </div>
-      <div class="info-card">
-        <h3>${esc(t("trust_title"))}</h3>
+      <div class="active-filters" id="active-filters"></div>
+      <div class="catalog-meta">
+        <p class="results-count" id="results-count" role="status" aria-live="polite">${esc(t("loading_items"))}</p>
+        <div class="catalog-sort">
+          <label for="f-sort">${esc(t("sort_by"))}</label>
+          <select id="f-sort">${catalogSortOptions(f.sort)}</select>
+        </div>
+      </div>
+      <div id="catalog-results"><div class="grid grid-items">${skeletonCards(6)}</div></div>
+    </section>
+
+    <div class="home-guide">
+      <section class="home-guide-steps" aria-labelledby="home-how-title">
+        <h2 id="home-how-title">${esc(t("how_title"))}</h2>
+        <ol class="home-steps" role="list">
+          ${[1, 2, 3].map(n => `<li class="home-step">
+            <h3>${esc(t("how_" + n + "_t"))}</h3><p>${esc(t("how_" + n + "_b"))}</p>
+          </li>`).join("")}
+        </ol>
+      </section>
+      <section class="home-guide-trust" aria-labelledby="home-trust-title">
+        <h2 id="home-trust-title">${esc(t("trust_title"))}</h2>
         <ul class="clean-list">
           <li>${icon("check")}${esc(t("trust_1"))}</li>
           <li>${icon("check")}${esc(t("trust_2"))}</li>
           <li>${icon("check")}${esc(t("trust_3"))}</li>
         </ul>
         <p class="legal-inline">${legalText(t("about_p3"))}</p>
-      </div>
+        <div class="notice payment-banner" role="note">
+          <span class="notice-icon" aria-hidden="true">€</span>
+          <div><strong>${esc(t("payment_banner_title"))}</strong><p>${esc(t("payment_banner_body"))}</p></div>
+        </div>
+      </section>
     </div>
 
-    <div class="notice payment-banner" role="note">
-      <span class="notice-icon" aria-hidden="true">€</span>
-      <div><strong>${esc(t("payment_banner_title"))}</strong><p>${esc(t("payment_banner_body"))}</p></div>
-    </div>`);
+    <section class="catalog-summary" aria-labelledby="stats-title">
+      <h2 id="stats-title">${esc(t("stats_title"))}</h2>
+      <div id="home-stats" aria-busy="${!state.stats}">${state.stats ? homeStats(state.stats) : statSkeleton()}</div>
+    </section>`);
 
   const readHero = () => {
     const q = $("#q");
@@ -2318,17 +2444,11 @@ async function renderHome(app) {
     clearTimeout(searchTimer);
     readHero();
     refreshCatalog();
-    const toolbar = $(".catalog-toolbar");
-    if (toolbar) {
-      const top = toolbar.getBoundingClientRect().top + window.scrollY - 12;
-      if (window.scrollY < top - 80) window.scrollTo({ top, behavior: "smooth" });
-    }
-    const q = $("#q");
-    if (q && window.innerWidth < 720) q.blur();
+    const resultsHeading = $("#catalog-title");
+    resultsHeading.focus({ preventScroll: true });
+    resultsHeading.scrollIntoView({ block: "start" });
   };
   $("#campus-sel").onchange = () => { readHero(); refreshCatalog(); };
-  $("#go-publish").onclick = () => navigate("publish");
-  $("#hero-publish").onclick = () => navigate("publish");
   $$("#cat-filters .chip").forEach(b => {
     b.onclick = () => {
       state.filters.category = b.dataset.cat || "";
@@ -2338,18 +2458,20 @@ async function renderHome(app) {
   $$("#operation-filters .chip").forEach(b => {
     b.onclick = () => { state.filters.type = b.dataset.operation; refreshCatalog({ quiet: true }); };
   });
+  $("#f-sort").onchange = (e) => {
+    state.filters.sort = e.currentTarget.value;
+    refreshCatalog({ quiet: true });
+  };
   $("#open-filters").onclick = openFilters;
 
   syncFilterUI();
   refreshCatalog();
   if (!state.stats) {
+    const summary = $("#home-stats", app);
     fetchStats().then(stats => {
-      const box = $("#hero-stats");
-      if (box && stats) box.innerHTML = statsCards(stats);
-      const metrics = $("#congress-metrics");
-      if (metrics && stats) metrics.innerHTML = congressMetrics(stats);
-      const impact = $("#impact-band");
-      if (impact && stats) impact.innerHTML = impactBand(stats);
+      if (!summary.isConnected) return;
+      summary.innerHTML = stats ? homeStats(stats) : `<p class="figure-note">${esc(t("stats_unavailable"))}</p>`;
+      summary.setAttribute("aria-busy", "false");
     });
   }
 }
@@ -2364,7 +2486,7 @@ function renderPublish(app) {
       </div>
       ${emptyState({
         iconName: "camera",
-        title: t("need_login_publish"),
+        title: t("need_login_publish"), heading: "h2",
         text: t("publish_intro"),
         actions: [{ id: "login", label: t("login"), icon: "user" }]
       })}`);
@@ -2381,24 +2503,24 @@ function renderPublish(app) {
     <form class="form-shell" id="publish-form">
       <div class="form-section">
         <div class="section-head">
-          <h3>${esc(t("form_quick"))}</h3>
+          <h2>${esc(t("form_quick"))}</h2>
           <span class="time-chip">${icon("clock")}${esc(t("form_quick_hint"))}</span>
         </div>
         <div class="field">
-          <span class="field-label">${esc(t("f_image"))} <span class="req-mark" aria-hidden="true">*</span><span class="sr-only">${esc(t("required_word"))}</span></span>
+          <span class="field-label" id="photo-label">${esc(t("f_image"))} <span class="req-mark" aria-hidden="true">*</span><span class="sr-only">${esc(t("required_word"))}</span></span>
           <label class="upload-zone" id="upload-zone" for="img-file">
             ${icon("camera")}
-            <strong>${esc(t("photo_drop_t"))}</strong>
-            <span>${esc(t("photo_drop_b"))}</span>
-            <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp">
+            <strong id="photo-action">${esc(t("photo_drop_t"))}</strong>
+            <span id="photo-format">${esc(t("photo_drop_b"))}</span>
+            <input type="file" id="img-file" aria-labelledby="photo-label photo-action" aria-describedby="photo-help photo-format" accept="image/jpeg,image/png,image/webp">
           </label>
           <input type="hidden" id="img-url" value="">
           <div class="upload-preview-wrap" id="preview-wrap">
-            <img id="img-preview" class="upload-preview" alt="">
+            <img id="img-preview" class="upload-preview" alt="${esc(t("photo_preview"))}">
             <button type="button" class="upload-remove" id="img-remove">${icon("trash")}${esc(t("photo_remove"))}</button>
           </div>
           <div class="upload-status hidden" id="upload-status" role="status" aria-live="polite"></div>
-          <small>${esc(t("image_required_hint"))}</small>
+          <small id="photo-help">${esc(t("image_required_hint"))}</small>
         </div>
         <div class="field">
           <label for="p-title">${esc(t("f_title"))} <span class="req-mark" aria-hidden="true">*</span></label>
@@ -2553,6 +2675,7 @@ function renderPublish(app) {
     fileInput.value = "";
     previewWrap.classList.remove("is-visible");
     preview.removeAttribute("src");
+    fileInput.focus();
     status.classList.add("hidden");
   };
   $("#pub-cancel").onclick = () => navigate("home");
@@ -2571,7 +2694,8 @@ function renderPublish(app) {
       const zone = $("#upload-zone");
       if (zone) {
         zone.classList.add("is-missing");
-        zone.scrollIntoView({ block: "center", behavior: "smooth" });
+        fileInput.focus({ preventScroll: true });
+        zone.scrollIntoView({ block: "center" });
         setTimeout(() => zone.classList.remove("is-missing"), 1400);
       }
       return;
@@ -2604,7 +2728,7 @@ function renderPoints(app) {
       ${HANDOVERS.map(p => `
         <article class="point-card">
           <span class="point-icon" aria-hidden="true">${icon(POINT_ICONS[p] || "pin")}</span>
-          <h3>${esc(t("points_" + p + "_t"))}</h3>
+          <h2>${esc(t("points_" + p + "_t"))}</h2>
           <p>${esc(t("points_" + p + "_b"))}</p>
           <p class="card-meta mt-auto">${CAMPUSES.map(c => `<span class="pill grey">${esc(campusLabel(c))}</span>`).join("")}</p>
         </article>`).join("")}
@@ -2624,7 +2748,7 @@ function renderRules(app) {
         <article class="info-card rule-card">
           <span class="rule-icon" aria-hidden="true">${n}</span>
           <div>
-            <h3>${esc(t("rules_" + n + "_t"))}</h3>
+            <h2>${esc(t("rules_" + n + "_t"))}</h2>
             <p>${esc(t("rules_" + n + "_b"))}</p>
           </div>
         </article>`).join("")}
@@ -2632,12 +2756,12 @@ function renderRules(app) {
     <div class="two-col mt-4">
       <div class="info-card">
         <span class="eyebrow">${esc(t("payment_eyebrow"))}</span>
-        <h3>${esc(t("rules_payment_title"))}</h3>
+        <h2>${esc(t("rules_payment_title"))}</h2>
         <p>${esc(t("rules_payment_body"))}</p>
       </div>
       <div class="info-card">
         <span class="eyebrow">${esc(t("account_rights"))}</span>
-        <h3>${esc(t("rules_data_title"))}</h3>
+        <h2>${esc(t("rules_data_title"))}</h2>
         <p>${esc(t("rules_data_body"))}</p>
       </div>
     </div>`);
@@ -2656,7 +2780,7 @@ function renderAbout(app) {
         <p>${esc(t("about_p1"))}</p>
         <p>${esc(t("about_p2"))}</p>
         <p>${esc(t("about_p3"))}</p>
-        <h3 class="mt-5">${esc(t("about_pillars_title"))}</h3>
+        <h2 class="mt-5">${esc(t("about_pillars_title"))}</h2>
         <ul class="clean-list">
           <li>${icon("shield")}${esc(t("about_pillar_1"))}</li>
           <li>${icon("user")}${esc(t("about_pillar_2"))}</li>
@@ -2856,15 +2980,18 @@ function openDeleteAccount() {
 }
 
 /* ---------------- Documentos legales ---------------- */
-function renderLegalPage(app, kind) {
+function legalSections(kind, heading = "h2") {
   const docs = LEGAL_DOCS[state.lang] || LEGAL_DOCS.es;
   const sections = docs[kind] || [];
-  const rendered = sections.map(sec => `
+  return sections.map(sec => `
     <section class="legal-section">
-      <h2>${esc(sec.h)}</h2>
+      <${heading}>${esc(sec.h)}</${heading}>
       ${(sec.p || []).map(p => `<p>${legalText(p)}</p>`).join("")}
       ${sec.ul ? `<ul>${sec.ul.map(li => `<li>${legalText(li)}</li>`).join("")}</ul>` : ""}
     </section>`).join("");
+}
+
+function renderLegalPage(app, kind) {
   setApp(app, `
     <article class="legal-doc">
       <header class="legal-head">
@@ -2877,7 +3004,7 @@ function renderLegalPage(app, kind) {
         </div>
         <button class="btn btn-ghost btn-sm" type="button" data-print>${icon("download")}${esc(t("legal_print"))}</button>
       </header>
-      ${rendered}
+      ${legalSections(kind)}
       ${kind === "privacy" ? accountToolsHtml() : ""}
       <p class="legal-back"><a href="/" data-route="home">${icon("arrow", "icon-sm")} ${esc(t("back_home"))}</a></p>
     </article>`);
@@ -2893,7 +3020,7 @@ function renderMy(app) {
       </div>
       ${emptyState({
         iconName: "user",
-        title: t("need_login"),
+        title: t("need_login"), heading: "h2",
         text: t("account_data_body"),
         actions: [
           { id: "login", label: t("login"), icon: "user" },
@@ -2923,7 +3050,7 @@ function renderMy(app) {
       <div class="trust-panel"><div class="skeleton sk-line w-45"></div><div class="skeleton sk-line w-70 mt-3"></div><div class="skeleton sk-line w-60 mt-3"></div></div>
     </div>
     <div class="segment" role="tablist" aria-label="${esc(t("my_area_subtitle"))}">
-      ${MY_TABS.map(x => `<button type="button" role="tab" id="tab-${x.id}" aria-selected="${tab === x.id}" aria-controls="my-panel" data-tab="${x.id}">${esc(t(x.label))}</button>`).join("")}
+      ${MY_TABS.map(x => `<button type="button" role="tab" id="tab-${x.id}" aria-selected="${tab === x.id}" tabindex="${tab === x.id ? 0 : -1}" aria-controls="my-panel" data-tab="${x.id}">${esc(t(x.label))}</button>`).join("")}
     </div>
     <div id="my-panel" role="tabpanel" aria-labelledby="tab-${tab}" class="mt-4">
       ${skeletonRows(3)}
@@ -2932,8 +3059,16 @@ function renderMy(app) {
 
   const editProfile = $("#edit-profile");
   if (editProfile) editProfile.onclick = openProfileEdit;
-  $$(".segment [data-tab]").forEach(b => {
+  const tabs = $$("[role=tab]", app);
+  tabs.forEach((b, index) => {
     b.onclick = () => { state.myTab = b.dataset.tab; state.myTabFocus = true; render(); };
+    b.onkeydown = (e) => {
+      const next = { ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index + tabs.length - 1) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+      if (next === undefined) return;
+      e.preventDefault();
+      tabs.forEach((tab, i) => { tab.tabIndex = i === next ? 0 : -1; });
+      tabs[next].focus();
+    };
   });
   if (state.myTabFocus) {
     state.myTabFocus = false;
@@ -3045,7 +3180,7 @@ function openItemEditor(item) {
       closeModal();
       toast(t("edit_saved"));
       state.stats = null;
-      if (state.view === "my") loadMyTab(state.myTab);
+      if (state.view === "my") loadMyTab(state.myTab, `[data-edit="${item.id}"]`);
       else render();
     } catch (err) {
       setBusy(submit, false);
@@ -3095,7 +3230,7 @@ function requestCard(r, mode) {
     <div class="list-card-body">
       <div class="list-card-top">
         <h3 class="list-card-title">${esc(r.item_title)}${owner}</h3>
-        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
+        <span class="status-pill status-${esc(r.status)}" data-request-status="${r.id}" tabindex="-1">${esc(reqLabel(r.status))}</span>
       </div>
       ${r.handover_point ? `<p class="list-card-meta">${icon("pin")}${esc(t("req_handover"))}: ${esc(handLabel(r.handover_point))}</p>` : ""}
       ${r.message ? `<p class="list-card-message">${esc(r.message)}</p>` : ""}
@@ -3113,9 +3248,11 @@ function requestCard(r, mode) {
   </article>`;
 }
 
-async function loadMyTab(tab) {
+async function loadMyTab(tab, focusSelector) {
   const panel = $("#my-panel");
   if (!panel) return;
+  const canReturnFocus = () => focusSelector && (document.activeElement === document.body || panel.contains(document.activeElement));
+  const keepFocus = canReturnFocus();
   panel.innerHTML = skeletonRows(3);
   let html = "";
   try {
@@ -3175,6 +3312,7 @@ async function loadMyTab(tab) {
     retry: () => loadMyTab(state.myTab)
   });
   bindMyActions(panel);
+  if (keepFocus && canReturnFocus()) $(focusSelector, panel)?.focus();
 }
 
 function bindMyActions(panel) {
@@ -3211,7 +3349,9 @@ function bindMyActions(panel) {
       await api(`/api/requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
       toast(okMsg);
       state.stats = null;
-      render();
+      if (!panel.isConnected) return;
+      loadMyTab(state.myTab, `[data-request-status="${id}"]`);
+      loadTrustPanel();
     } catch (err) {
       btn.disabled = false;
       toast(errorMessage(err), "error");
@@ -3262,18 +3402,21 @@ async function openItem(id) {
     <div class="skeleton sk-media-detail" aria-hidden="true"></div>
     <div class="skeleton sk-line w-70 sk-title" aria-hidden="true"></div>
     <div class="skeleton sk-line w-45 sk-subtitle" aria-hidden="true"></div>`,
-    { sheet: true, label: t("view_item") });
+    { sheet: true, wide: true, label: t("view_item") });
+  modal.classList.add("item-detail");
 
+  const isOpen = () => modal.isConnected && !modal.closest(".modal-backdrop").inert;
   let it;
   try {
     const data = await api(`/api/items/${id}`);
     it = data.item;
   } catch (e) {
+    if (!isOpen()) return;
     closeModal();
     toast(errorMessage(e), "error");
     return;
   }
-  if (!modal.isConnected) return;
+  if (!isOpen()) return;
 
   state.lastItem = it;
   const owner = it.owner || {};
@@ -3287,52 +3430,61 @@ async function openItem(id) {
   modal.setAttribute("aria-labelledby", "detail-title");
   modal.innerHTML = `
     ${closeBtn()}
-    <div class="detail-media">
-      ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, lazy: false, sizes: "(max-width: 720px) 100vw, 640px" })}
-      <button type="button" class="fav-btn${saved ? " active" : ""}" data-detail-fav aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}">${icon("heart")}</button>
-      <div class="card-badges badges-start">
-        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
+    <span class="sheet-handle" aria-hidden="true"></span>
+    <div class="detail-intro">
+      <div class="detail-media">
+        ${itemPhoto(it, { alt: it.title, lazy: false, sizes: "(max-width: 720px) calc(100vw - 2rem), 460px" })}
       </div>
-    </div>
-    <h2 class="detail-title" id="detail-title">${esc(it.title)}</h2>
-    <div class="detail-badges">
-      <span class="pill">${esc(catLabel(it.category))}</span>
-      <span class="pill grey">${esc(condLabel(it.condition))}</span>
-      <span class="pill grey">${esc(typeLabel(it.exchange_type))}</span>
-      <span class="pill grey">${esc(campusLabel(it.campus))}</span>
-      ${it.faculty ? `<span class="pill grey">${icon("grid")}${esc(facLabel(it.faculty))}</span>` : ""}
-    </div>
-    <div class="detail-price-row">
-      <div><span class="price">${price}</span>${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}</div>
-      <span class="card-location">${icon("pin")}${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))}</span>
-    </div>
-    <section class="detail-section">
-      <h3>${esc(t("detail_description"))}</h3>
-      <p class="detail-desc">${it.description ? esc(it.description) : `<span class="muted">${esc(t("detail_no_desc"))}</span>`}</p>
-      <p class="impact-line">${icon("leaf")}<span>${esc(t("impact_item").replace("{kg}", fmtNum((it.impact || {}).kg, 1)).replace("{eur}", fmtNum((it.impact || {}).savings, 0)))}</span></p>
-    </section>
-    <section class="detail-section">
-      <h3>${esc(t("owner"))}</h3>
-      <div class="owner-card">
-        <span class="avatar" aria-hidden="true">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
-        <div class="owner-body">
-          <p class="owner-name">${esc(owner.name || "—")}
-            <span class="identity-badge${owner.university_verified ? " academic" : ""}">${icon(owner.university_verified ? "check" : "user")}${esc(owner.university_verified ? t("verified_badge") : t("personal_email"))}</span>
-          </p>
-          <p class="owner-trust">${starsHtml((owner.rating || {}).average, (owner.rating || {}).count)}</p>
-          <p class="owner-stats">
-            <span>${icon("refresh")}${(owner.exchanges || {}).completed || 0} ${esc(t("exchanges_short"))}</span>
-            <span>${icon("leaf")}${fmtNum((owner.impact || {}).kg, 1)} kg</span>
-            <span class="level-pill">${esc(t("level_label"))}: ${esc(levelLabel((owner.level || {}).key || "semilla"))}</span>
-          </p>
-          <small>${esc(t("identity_note"))}</small>
+      <div class="detail-summary">
+        <div class="detail-kicker"><span class="card-category">${esc(catLabel(it.category))}</span><span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span></div>
+        <h2 class="detail-title" id="detail-title">${esc(it.title)}</h2>
+        <p class="detail-meta">${esc(typeLabel(it.exchange_type))} · ${esc(condLabel(it.condition))}</p>
+        <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}${it.faculty ? ` · ${esc(facLabel(it.faculty))}` : ""}</span></p>
+        <div class="detail-price-row">
+          <div><span class="price">${price}</span>${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}</div>
+          <p class="card-location">${icon("tag")}<span>${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))}</span></p>
+        </div>
+        ${!available && !isOwn ? `<p class="detail-unavailable">${esc(t("detail_unavailable"))}</p>` : ""}
+        <div class="detail-actions">
+          ${isOwn
+            ? `<button type="button" class="btn btn-primary" id="detail-edit">${icon("sliders")}${esc(t("edit_item"))}</button>
+               <button type="button" class="btn btn-ghost" id="detail-manage">${icon("grid")}${esc(t("detail_manage"))}</button>`
+            : `<button type="button" class="btn btn-primary" id="detail-request"${available ? "" : " disabled"}>${icon("inbox")}${esc(t("detail_request"))}</button>`}
+          <button type="button" class="btn btn-ghost" id="detail-fav-btn" aria-pressed="${saved}">
+            ${icon("heart")}<span id="detail-fav-label">${esc(saved ? t("detail_faved") : t("detail_fav"))}</span>
+          </button>
         </div>
       </div>
-      <details class="disclosure">
-        <summary>${icon("star")}<span>${esc(t("ratings_received"))}</span>${icon("chevron")}</summary>
-        <div class="disclosure-body">${ratingList(owner.rating)}</div>
-      </details>
-    </section>
+    </div>
+    <div class="detail-content">
+      <section class="detail-section">
+        <h3>${esc(t("detail_description"))}</h3>
+        <p class="detail-desc">${it.description ? esc(it.description) : `<span class="muted">${esc(t("detail_no_desc"))}</span>`}</p>
+        <p class="impact-line">${icon("leaf")}<span>${esc(t("impact_item").replace("{kg}", fmtNum((it.impact || {}).kg, 1)).replace("{eur}", fmtNum((it.impact || {}).savings, 0)))}</span></p>
+      </section>
+      <section class="detail-section">
+        <h3>${esc(t("owner"))}</h3>
+        <div class="owner-card">
+          <span class="avatar" aria-hidden="true">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
+          <div class="owner-body">
+            <p class="owner-name">${esc(owner.name || "—")}
+              <span class="identity-badge${owner.university_verified ? " academic" : ""}">${icon(owner.university_verified ? "check" : "user")}${esc(owner.university_verified ? t("verified_badge") : t("personal_email"))}</span>
+            </p>
+            <p class="owner-trust">${starsHtml((owner.rating || {}).average, (owner.rating || {}).count)}</p>
+            <p class="owner-stats">
+              <span>${icon("refresh")}${(owner.exchanges || {}).completed || 0} ${esc(t("exchanges_short"))}</span>
+              <span>${icon("leaf")}${fmtNum((owner.impact || {}).kg, 1)} kg</span>
+              <span class="level-pill">${esc(t("level_label"))}: ${esc(levelLabel((owner.level || {}).key || "semilla"))}</span>
+            </p>
+            <small>${esc(t("identity_note"))}</small>
+          </div>
+        </div>
+        <details class="disclosure">
+          <summary>${icon("star")}<span>${esc(t("ratings_received"))}</span>${icon("chevron")}</summary>
+          <div class="disclosure-body">${ratingList(owner.rating)}</div>
+        </details>
+      </section>
+    </div>
     <details class="disclosure">
       <summary>${icon("shield")}<span>${esc(t("detail_handover_h"))}</span>${icon("chevron")}</summary>
       <div class="disclosure-body">
@@ -3344,16 +3496,6 @@ async function openItem(id) {
       <summary>${icon("tag")}<span>${esc(t("detail_payment_h"))}</span>${icon("chevron")}</summary>
       <div class="disclosure-body"><p>${esc(t("detail_payment_notice"))}</p></div>
     </details>` : ""}
-    ${!available && !isOwn ? `<p class="danger-text mt-4">${esc(t("detail_unavailable"))}</p>` : ""}
-    <div class="detail-actions">
-      ${isOwn
-        ? `<button type="button" class="btn btn-primary" id="detail-edit">${icon("sliders")}${esc(t("edit_item"))}</button>
-           <button type="button" class="btn btn-ghost" id="detail-manage">${icon("grid")}${esc(t("detail_manage"))}</button>`
-        : `<button type="button" class="btn btn-primary" id="detail-request"${available ? "" : " disabled"}>${icon("inbox")}${esc(t("detail_request"))}</button>`}
-      <button type="button" class="btn btn-ghost" id="detail-fav-btn" aria-pressed="${saved}">
-        ${icon("heart")}<span id="detail-fav-label">${esc(saved ? t("detail_faved") : t("detail_fav"))}</span>
-      </button>
-    </div>
     ${isOwn ? "" : `<button type="button" class="report-link" id="detail-report">${icon("alert")}${esc(t("report_open"))}</button>`}
     ${isOwn && it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}`;
   enhance(modal);
@@ -3364,12 +3506,12 @@ async function openItem(id) {
     try {
       const d = await api(`/api/items/${id}/favorite`, { method: "POST" });
       toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
-      $$("[data-detail-fav]", modal).forEach(b => {
+      btn.setAttribute("aria-pressed", String(d.is_favorite));
+      $$("[data-fav]").filter(b => Number(b.dataset.fav) === id).forEach(b => {
         b.classList.toggle("active", d.is_favorite);
         b.setAttribute("aria-pressed", String(d.is_favorite));
+        b.setAttribute("aria-label", favoriteLabel(d.is_favorite, b.dataset.itemTitle));
       });
-      const favTop = $("[data-detail-fav]", modal);
-      if (favTop) favTop.setAttribute("aria-label", d.is_favorite ? t("detail_faved") : t("detail_fav"));
       const label = $("#detail-fav-label", modal);
       if (label) label.textContent = d.is_favorite ? t("detail_faved") : t("detail_fav");
     } catch (e) {
@@ -3378,8 +3520,6 @@ async function openItem(id) {
       btn.disabled = false;
     }
   };
-  const favTop = $("[data-detail-fav]", modal);
-  if (favTop) favTop.onclick = () => toggleFav(favTop);
   const favBtn = $("#detail-fav-btn", modal);
   if (favBtn) favBtn.onclick = () => toggleFav(favBtn);
 
@@ -3498,24 +3638,15 @@ async function init() {
     };
   });
 
-  let scrollTick = false;
-  window.addEventListener("scroll", () => {
-    if (scrollTick) return;
-    scrollTick = true;
-    requestAnimationFrame(() => {
-      document.body.classList.toggle("is-scrolled", window.scrollY > 6);
-      scrollTick = false;
-    });
-  }, { passive: true });
-
   window.addEventListener("popstate", (e) => {
+    closeModal();
     state.view = (e.state && e.state.view) || PATH_VIEWS[location.pathname] || "home";
-    render();
+    if (!state.pendingConsent) render();
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    closeUserMenu();
+    closeUserMenu(true);
     if (!state.pendingConsent) closeModal();
   });
 
@@ -3539,8 +3670,9 @@ async function init() {
       return;
     }
     renderAuthArea();
-    render();
+    // Las vistas privadas no deben pedir datos hasta que el consentimiento sea válido.
     if (!state.user.consent_ok) openConsentUpdate();
+    else render();
   } catch (e) {
     state.token = null;
     localStorage.removeItem("cc_token");
