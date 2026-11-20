@@ -124,6 +124,7 @@ Ver commit asociado. Resumen de archivos:
 | Flujo real de contraseña | 403 con la actual mal, 400 con clave débil, 200 + 1 sesión cerrada, login antiguo 401, login nuevo 200, sesión actual viva |
 | Flujo e2e UI (publicar → solicitar → entregar → valorar) | OK, 0 errores de consola |
 | Accesibilidad jsdom | 0 problemas |
+| CSS calculado con `<picture>` | miniatura de Mi área 76 px y foto del equipo 100 %: los selectores hijos se repitieron (`> picture > img`) para que el envoltorio no cambie tamaños |
 
 ### Peso descargado (medido, no estimado)
 

@@ -1518,6 +1518,9 @@ body.is-scrolled .topbar { box-shadow: 0 6px 20px rgba(20, 37, 27, 0.08); }
   margin-bottom: var(--s3);
 }
 .list-card > img,
+/* Las fotos con variantes llegan dentro de <picture>: el selector hijo hay que
+   repetirlo o la miniatura perdería su tamaño. */
+.list-card > picture > img,
 .list-card .list-thumb {
   width: 76px;
   height: 76px;
@@ -1943,7 +1946,7 @@ body.is-scrolled .topbar { box-shadow: 0 6px 20px rgba(20, 37, 27, 0.08); }
   .detail-actions .btn { flex: 1 1 100%; }
   .detail-media { aspect-ratio: 4 / 3; max-height: 300px; border-radius: var(--r-md); }
   .list-card { padding: 11px; gap: 10px; }
-  .list-card > img, .list-card .list-thumb { width: 64px; height: 64px; flex-basis: 64px; }
+  .list-card > img, .list-card > picture > img, .list-card .list-thumb { width: 64px; height: 64px; flex-basis: 64px; }
   .list-card-actions .btn { flex: 1 1 auto; }
   .form-shell { padding: 1.1rem 1rem; border-radius: var(--r-lg); }
   .page-head { margin-top: var(--s5); }
