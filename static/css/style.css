@@ -2387,6 +2387,10 @@ h1, h2, h3, .card-title, .list-card-title, .detail-title, .owner-name,
   overflow-wrap: anywhere;
 }
 .page-head-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s3); }
+/* Las imágenes optimizadas llegan dentro de <picture>. Con `display: contents`
+   el <img> sigue siendo el hijo real a efectos de rejilla: no se toca ningún
+   layout existente. */
+picture { display: contents; }
 @media (max-width: 400px) {
   .page-head-actions .btn { width: 100%; }
 }

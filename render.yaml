@@ -47,3 +47,6 @@ services:
       # Render está detrás de un proxy: 1 salto de confianza para X-Forwarded-*.
       - key: TRUST_PROXY
         value: "1"
+      # La app no debe poder embeberse en webs de terceros en producción.
+      - key: ALLOW_EMBED
+        value: "0"

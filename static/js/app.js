@@ -289,6 +289,19 @@ const I18N = {
     profile_campus_hint: "Se usa para filtrar y para proponer puntos de entrega.",
     profile_save: "Guardar cambios",
     profile_saved: "Perfil actualizado.",
+    menu_password: "Cambiar contraseña",
+    password_title: "Cambiar contraseña",
+    password_lead: "Al cambiarla se cerrarán las demás sesiones abiertas con la contraseña anterior; esta seguirá activa.",
+    password_current: "Contraseña actual",
+    password_new: "Contraseña nueva",
+    password_repeat: "Repite la contraseña nueva",
+    password_save: "Guardar contraseña",
+    password_changed: "Contraseña actualizada. Las demás sesiones se han cerrado.",
+    password_mismatch: "Las dos contraseñas nuevas no coinciden.",
+    password_hint: "Mínimo 8 caracteres y que no sea una contraseña común.",
+    password_weak: "Esa contraseña es demasiado común. Prueba con una frase larga.",
+    password_bad_current: "La contraseña actual no es correcta.",
+    password_same: "La contraseña nueva debe ser distinta de la actual.",
     lang_name: "Español",
   },
   en: {
@@ -539,6 +552,19 @@ const I18N = {
     profile_campus_hint: "Used for filters and to suggest handover points.",
     profile_save: "Save changes",
     profile_saved: "Profile updated.",
+    menu_password: "Change password",
+    password_title: "Change password",
+    password_lead: "Changing it closes the other sessions opened with the old password; this one stays active.",
+    password_current: "Current password",
+    password_new: "New password",
+    password_repeat: "Repeat the new password",
+    password_save: "Save password",
+    password_changed: "Password updated. The other sessions have been closed.",
+    password_mismatch: "The two new passwords do not match.",
+    password_hint: "At least 8 characters and not a common password.",
+    password_weak: "That password is too common. Try a longer phrase.",
+    password_bad_current: "The current password is not correct.",
+    password_same: "The new password must be different from the current one.",
     lang_name: "English",
   },
   gl: {
@@ -789,6 +815,19 @@ const I18N = {
     profile_campus_hint: "Úsase para filtrar e para propoñer puntos de entrega.",
     profile_save: "Gardar cambios",
     profile_saved: "Perfil actualizado.",
+    menu_password: "Cambiar contrasinal",
+    password_title: "Cambiar contrasinal",
+    password_lead: "Ao cambialo pecharanse as demais sesións abertas co contrasinal anterior; esta seguirá activa.",
+    password_current: "Contrasinal actual",
+    password_new: "Contrasinal novo",
+    password_repeat: "Repite o contrasinal novo",
+    password_save: "Gardar contrasinal",
+    password_changed: "Contrasinal actualizado. As demais sesións pecháronse.",
+    password_mismatch: "Os dous contrasinais novos non coinciden.",
+    password_hint: "Mínimo 8 caracteres e que non sexa un contrasinal común.",
+    password_weak: "Ese contrasinal é demasiado común. Proba cunha frase longa.",
+    password_bad_current: "O contrasinal actual non é correcto.",
+    password_same: "O contrasinal novo debe ser distinto do actual.",
     lang_name: "Galego",
   }
 };
@@ -942,6 +981,36 @@ const statusLabel = (s) => t("status_" + s);
 const reqLabel = (s) => t("req_" + s);
 const categoryImage = (c) => `/static/img/items/${CATEGORIES.includes(c) ? c : "placeholder"}.jpg`;
 const itemImage = (it) => it.image_url || categoryImage(it.category);
+
+/* Manifiesto de variantes generado por tools/optimize_images.py. Se inyecta en
+   el boot para no añadir peticiones: { "<url>": { webp, src, width, height } }. */
+const IMG_MANIFEST = BOOT.imgManifest || {};
+
+/* <picture> con WebP y srcset cuando el asset tiene variantes; si no, <img> de
+   siempre. `sizes` debe reflejar el ancho real de pintado. */
+function responsiveImage(src, opts = {}) {
+  const {
+    alt = "", sizes = "(max-width: 720px) 92vw, 300px", cls = "",
+    lazy = true, priority = false, fallback = "", category = "",
+  } = opts;
+  const attrs = [];
+  if (cls) attrs.push(`class="${esc(cls)}"`);
+  attrs.push(`alt="${esc(alt)}"`);
+  if (lazy) attrs.push('loading="lazy"');
+  attrs.push('decoding="async"');
+  if (priority) attrs.push('fetchpriority="high"');
+  let extra = " data-fallback";
+  if (fallback) extra += ` data-fallback-src="${esc(fallback)}"`;
+  if (category) extra += ` data-category="${esc(category)}"`;
+  const variants = IMG_MANIFEST[src];
+  if (!variants || !variants.webp) {
+    return `<img src="${esc(src)}" ${attrs.join(" ")}${extra}>`;
+  }
+  const dims = variants.width && variants.height
+    ? `width="${variants.width}" height="${variants.height}" ` : "";
+  const source = `<source type="image/webp" srcset="${esc(variants.webp)}" sizes="${esc(sizes)}">`;
+  return `<picture>${source}<img src="${esc(variants.src || src)}" ${dims}${attrs.join(" ")}${extra}></picture>`;
+}
 const POINT_ICONS = { biblioteca: "inbox", conserjeria: "info", cafeteria: "clock", entrada: "pin", punto: "tag", acordado: "shield" };
 const MY_TABS = [
   { id: "items", label: "my_items" },
@@ -1066,6 +1135,9 @@ const ERROR_KEYS = {
   not_found: "toast_not_found",
   invalid_credentials: "toast_invalid_credentials",
   invalid_password: "toast_invalid_password",
+  weak_password: "password_weak",
+  invalid_current_password: "password_bad_current",
+  same_password: "password_same",
 };
 function errorMessage(err) {
   const code = err && err.data && err.data.error;
@@ -1163,6 +1235,10 @@ function bindImageFallbacks(root = document) {
     img.addEventListener("error", () => {
       if (img.dataset.fallbackApplied) return;
       img.dataset.fallbackApplied = "1";
+      // Dentro de <picture> el <source> tiene prioridad: hay que quitarlo o el
+      // navegador seguiría intentando la variante que acaba de fallar.
+      const picture = img.closest("picture");
+      if (picture) $$("source", picture).forEach(s => s.remove());
       img.src = img.dataset.fallbackSrc || categoryImage(img.dataset.category || "otros");
     });
   });
@@ -1254,6 +1330,7 @@ function renderAuthArea() {
         <div class="dropdown-menu hidden" id="user-menu" role="menu" aria-labelledby="user-chip">
           <button type="button" role="menuitem" id="menu-my">${icon("grid")}${esc(t("my_area"))}</button>
           <button type="button" role="menuitem" id="menu-publish">${icon("plus")}${esc(t("nav_publish"))}</button>
+          <button type="button" role="menuitem" id="menu-password">${icon("shield")}${esc(t("menu_password"))}</button>
           <button type="button" role="menuitem" id="menu-privacy">${icon("shield")}${esc(t("footer_privacy"))}</button>
           <div class="menu-sep" role="separator"></div>
           <button type="button" role="menuitem" id="menu-logout" class="danger">${icon("logout")}${esc(t("logout"))}</button>
@@ -1271,6 +1348,7 @@ function renderAuthArea() {
     };
     $("#menu-my").onclick = () => { setOpen(false); navigate("my"); };
     $("#menu-publish").onclick = () => { setOpen(false); navigate("publish"); };
+    $("#menu-password").onclick = () => { setOpen(false); openPasswordChange(); };
     $("#menu-privacy").onclick = () => { setOpen(false); navigate("privacy"); };
     $("#menu-logout").onclick = () => { setOpen(false); logout(); };
   }
@@ -1890,7 +1968,7 @@ function itemCard(it) {
   <article class="card">
     <div class="card-media">
       <button type="button" class="card-media-open" data-view="${it.id}" aria-label="${esc(openLabel)}">
-        <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" loading="lazy" decoding="async" data-fallback data-category="${esc(it.category)}">
+        ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, sizes: "(max-width: 480px) 92vw, (max-width: 720px) 45vw, 300px" })}
       </button>
       <div class="card-badges">
         ${it.status && it.status !== "disponible" ? `<span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>` : ""}
@@ -2037,7 +2115,7 @@ async function renderHome(app) {
             <li>${icon("leaf")}${esc(t("hero_chip_3"))}</li>
           </ul>
         </div>
-        <img class="hero-art" src="/static/img/hero-reuse.jpg" alt="" width="880" height="660" fetchpriority="high" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
+        ${responsiveImage("/static/img/hero-reuse.jpg", { cls: "hero-art", priority: true, lazy: false, fallback: "/static/img/items/placeholder.jpg", sizes: "(max-width: 960px) 92vw, 460px" })}
       </div>
       <div class="stats-row" id="hero-stats">${state.stats ? statsCards(state.stats) : statSkeleton()}</div>
       <div id="impact-band">${state.stats ? impactBand(state.stats) : ""}</div>
@@ -2447,7 +2525,7 @@ function renderAbout(app) {
         <p class="team-list"><strong>${esc(t("credit_label"))}</strong>${TEAM_NAMES.map(esc).join(" · ")}</p>
       </div>
       <figure class="team-photo">
-        <img src="/static/img/equipo-ctc.jpg" alt="${esc(t("photo_caption"))}" loading="lazy" data-fallback data-fallback-src="/static/img/ctc-congress.png">
+        ${responsiveImage("/static/img/equipo-ctc.jpg", { alt: t("photo_caption"), fallback: "/static/img/ctc-congress.png", sizes: "(max-width: 960px) 92vw, 420px" })}
         <figcaption>
           <span>${esc(t("photo_caption"))}</span>
           <span class="muted">${esc(t("photo_privacy"))} <a href="/privacidad" data-route="privacy">${esc(t("footer_privacy"))}</a></span>
@@ -2457,6 +2535,57 @@ function renderAbout(app) {
 }
 
 /* ---------------- Panel de datos ---------------- */
+function openPasswordChange() {
+  if (!state.user) return;
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="password-title">${esc(t("password_title"))}</h2>
+      <p>${esc(t("password_lead"))}</p>
+    </div>
+    <form id="password-form" aria-labelledby="password-title">
+      <div class="field">
+        <label for="password-current">${esc(t("password_current"))}</label>
+        <input id="password-current" name="current_password" type="password" required autocomplete="current-password" data-autofocus>
+      </div>
+      <div class="field">
+        <label for="password-new">${esc(t("password_new"))}</label>
+        <input id="password-new" name="new_password" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+        <small>${esc(t("password_hint"))}</small>
+      </div>
+      <div class="field">
+        <label for="password-repeat">${esc(t("password_repeat"))}</label>
+        <input id="password-repeat" name="repeat_password" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("check")}${esc(t("password_save"))}</button>
+    </form>`, { labelledBy: "password-title", sheet: true });
+  $("#password-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const next = String(fd.get("new_password") || "");
+    if (next !== String(fd.get("repeat_password") || "")) {
+      toast(t("password_mismatch"), "error");
+      return;
+    }
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("saving"));
+    try {
+      await api("/api/account/password", {
+        method: "POST",
+        body: JSON.stringify({
+          current_password: String(fd.get("current_password") || ""),
+          new_password: next,
+        }),
+      });
+      closeModal();
+      toast(t("password_changed"));
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
+}
+
 function openProfileEdit() {
   if (!state.user) return;
   const current = state.user;
@@ -2599,7 +2728,7 @@ function renderLegalPage(app, kind) {
   setApp(app, `
     <article class="legal-doc">
       <header class="legal-head">
-        <img src="/static/img/circular-campus-lockup.png" alt="" data-fallback data-fallback-src="/static/img/circular-campus-mark-white.png">
+        ${responsiveImage("/static/img/circular-campus-lockup.png", { fallback: "/static/img/circular-campus-mark-white.png", sizes: "260px" })}
         <div>
           <span class="eyebrow">${icon("shield")}${esc(t("legal_kicker"))} · ${esc(CONFIG.service)}</span>
           <h1>${esc(t(kind + "_title"))}</h1>
@@ -2694,7 +2823,7 @@ async function loadTrustPanel() {
 
 function myItemCard(it) {
   return `<article class="list-card">
-    <img src="${esc(itemImage(it))}" alt="" loading="lazy" data-fallback data-category="${esc(it.category)}">
+    ${responsiveImage(itemImage(it), { category: it.category, sizes: "64px" })}
     <div class="list-card-body">
       <div class="list-card-top">
         <h3 class="list-card-title">${esc(it.title)}</h3>
@@ -2719,7 +2848,7 @@ function requestCard(r, mode) {
   const isReceived = mode === "received";
   const owner = isReceived ? `<span class="list-card-meta"> · ${esc(r.counterpart_name || r.requester_name || "")}</span>` : "";
   return `<article class="list-card">
-    <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" loading="lazy" data-fallback data-category="otros">
+    ${responsiveImage(r.item_image || categoryImage("otros"), { category: "otros", sizes: "64px" })}
     <div class="list-card-body">
       <div class="list-card-top">
         <h3 class="list-card-title">${esc(r.item_title)}${owner}</h3>
@@ -2904,7 +3033,7 @@ async function openItem(id) {
   modal.innerHTML = `
     ${closeBtn()}
     <div class="detail-media">
-      <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" data-fallback data-category="${esc(it.category)}">
+      ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, lazy: false, sizes: "(max-width: 720px) 100vw, 640px" })}
       <button type="button" class="fav-btn${saved ? " active" : ""}" data-detail-fav aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}">${icon("heart")}</button>
       <div class="card-badges badges-start">
         <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>

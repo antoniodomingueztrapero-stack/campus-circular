@@ -161,6 +161,7 @@ el repositorio.
 | `RATE_LIMIT_ENABLED` | `1` | `0` desactiva los límites de peticiones (solo para depurar) |
 | `TRUST_PROXY` | `1` | Saltos de proxy de confianza para `X-Forwarded-For`/`-Proto`; `0` sin proxy delante |
 | `REPORT_HIDE_THRESHOLD` | `3` | Reportes de cuentas distintas que retiran una publicación |
+| `ALLOW_EMBED` | `0` en producción, `1` en desarrollo | Permite embeber la app en un iframe ajeno; con `0` la CSP fija `frame-ancestors 'self'` |
 
 No se necesita `SECRET_KEY`: la app no usa cookies de sesión de Flask, sino
 tokens Bearer aleatorios almacenados en el navegador. Tampoco se necesitan
@@ -192,7 +193,8 @@ credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
 - **Impacto estimado**: objetos reutilizados, kilos de residuos evitados y
   ahorro económico estimados por categoría, en la portada y en Mi área.
 - **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos, panel de
-  confianza y datos de la cuenta con exportación y supresión.
+  confianza y datos de la cuenta, con edición de perfil (nombre y campus),
+  cambio de contraseña, exportación y supresión.
 - **Puntos de entrega**: etiquetas orientativas; no son puntos oficiales.
 - **Legal**: aviso legal, privacidad y condiciones en tres idiomas, con
   impresión/guardado en PDF desde el navegador.
@@ -320,6 +322,11 @@ existencia. No hay rol de administrador.
   no revelar por tiempo qué correos están registrados.
 - Las respuestas de `/api/auth/*` y `/api/account/*` llevan `Cache-Control:
   no-store`. Contraseñas con `werkzeug` (scrypt) y entre 8 y 1024 bytes.
+- Además de la longitud se rechazan las contraseñas de una lista negra de
+  claves filtradas, las de un solo carácter repetido y la igual al nombre del
+  correo. La regla es la misma al registrarse y al cambiarla.
+- `POST /api/account/password` exige la contraseña actual, aplica la misma
+  política y **cierra el resto de sesiones** de la cuenta conservando la actual.
 
 ### Límites de peticiones
 
@@ -334,6 +341,7 @@ Ventana deslizante en memoria (`429` + `Retry-After`), por IP y por cuenta:
 | Subir foto | 25 / hora por cuenta |
 | Enviar solicitud | 20 / hora por cuenta |
 | Reportar | 10 / hora por cuenta |
+| Cambiar contraseña | 5 / hora por cuenta |
 
 Los contadores viven en el proceso: con el despliegue de un worker son exactos.
 Para escalar a varios procesos hace falta un almacén compartido (Redis) y hay
@@ -393,6 +401,8 @@ eliminarlo desde **Mi área**.
 | POST | `/api/auth/logout` | ✓ | Cerrar sesión actual |
 | GET | `/api/auth/me` | — | Usuario actual y versión legal |
 | POST | `/api/account/consent` | ✓ | Renovar consentimiento |
+| PATCH | `/api/account/profile` | ✓ | Cambiar nombre y campus (el email no se edita) |
+| POST | `/api/account/password` | ✓ + contraseña actual | Cambiar contraseña y cerrar las demás sesiones |
 | GET | `/api/account/export` | ✓ | Exportar datos propios en JSON |
 | DELETE | `/api/account/delete` | ✓ + contraseña | Suprimir cuenta y datos asociados |
 | POST | `/api/items/:id/request` | ✓ | Solicitar objeto |
@@ -406,7 +416,27 @@ eliminarlo desde **Mi área**.
 | GET | `/api/users/:id` | — | Perfil público mínimo con valoraciones y badges |
 
 Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
-`/mi-area`, `/aviso-legal`, `/privacidad`, `/condiciones`.
+`/mi-area`, `/aviso-legal`, `/privacidad`, `/condiciones`. Para buscadores se
+publican además `/robots.txt` y `/sitemap.xml`.
+
+### Imágenes y rendimiento
+
+`tools/optimize_images.py` genera, a partir de las fotos de `static/img`:
+
+| Variante | Uso | Peso típico |
+|---|---|---|
+| `-320.webp` | miniatura de Mi área | ~6 KB |
+| `-480.webp` | tarjeta del catálogo | ~10 KB |
+| `-720.webp` | detalle y hero | ~25 KB |
+| `-800.jpg`/`.png` | respaldo sin WebP | ~35-100 KB |
+
+El script escribe `static/img/manifest.json`, que el backend inyecta en el
+`#cc-boot`; el frontend (`responsiveImage()`) elige `<picture>` + `srcset` según
+el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
+(por ejemplo, una foto subida por un usuario). La portada baja de ~1,5 MB a
+~340 KB en un móvil 375 px @2x y ~186 KB en escritorio 1280 px. Guardas: 
+`tests/test_assets.py` falla si falta una variante o si una imagen WebP supera
+90 KB.
 
 ## Criterios de ingeniería
 

@@ -29,6 +29,7 @@ Variables de entorno opcionales:
 
 import gzip
 import hashlib
+import json
 import io
 import math
 import mimetypes
@@ -166,6 +167,7 @@ RATE_LIMITS = {
     "report": (10, 3600),      # reportes enviados por cuenta
     "message": (30, 3600),     # mensajes dentro de una solicitud
     "profile": (10, 3600),     # cambios de perfil por cuenta
+    "password": (5, 3600),     # cambios de contraseña por cuenta
 }
 MAX_JSON_BYTES = 64 * 1024
 DEFAULT_CORS_ORIGINS = "https://campus-circular.onrender.com"
@@ -195,6 +197,14 @@ if APP_ENV != "production":
     CORS_ORIGINS = CORS_ORIGINS | {
         "http://localhost:5000", "http://127.0.0.1:5000", "http://0.0.0.0:5000",
     }
+# Embeber la app en un iframe ajeno solo tiene sentido en local (preview). En
+# producción el valor por defecto es `frame-ancestors 'self'`; ALLOW_EMBED=1 lo
+# relaja de forma explícita y ALLOW_EMBED=0 lo fuerza cerrado.
+ALLOW_EMBED = (
+    os.environ.get("ALLOW_EMBED", "").strip().lower() in ("1", "true", "yes", "on")
+    if os.environ.get("ALLOW_EMBED", "").strip()
+    else APP_ENV != "production"
+)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 # Los estáticos con nombre fijo se cachean una semana; CSS y JS llevan versión
 # en la URL y se sirven con caché inmutable (ver `asset_file`).
@@ -215,6 +225,24 @@ def _asset_version() -> str:
 
 
 ASSET_VERSION = _asset_version()
+
+
+def _load_img_manifest() -> dict:
+    """Variantes responsive por imagen (lo genera tools/optimize_images.py).
+
+    Si el fichero no existe la app sigue funcionando: el frontend cae a `<img>`
+    con la URL original.
+    """
+    path = os.path.join(BASE_DIR, "static", "img", "manifest.json")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+IMG_MANIFEST = _load_img_manifest()
 
 SPA_VIEWS = {
     "/": "home",
@@ -247,6 +275,7 @@ def boot_config(view="home"):
         "sessionDays": SESSION_DAYS,
         "assetVersion": ASSET_VERSION,
         "pageSize": DEFAULT_PAGE_SIZE,
+        "imgManifest": IMG_MANIFEST,
     }
 
 
@@ -759,6 +788,39 @@ def valid_password(password: str) -> bool:
         return len(password) >= 8 and len(password.encode("utf-8")) <= 1024
     except UnicodeEncodeError:
         return False
+
+
+# Claves que aparecen en cualquier filtración: la longitud mínima no las frena.
+WEAK_PASSWORDS = frozenset({
+    "123456789", "1234567890", "12345678", "12345678910", "password",
+    "password1", "password123", "contrasena", "contraseña", "qwertyui",
+    "qwerty123", "iloveyou", "11111111", "00000000", "abc12345",
+    "admin123", "welcome1", "letmein1", "universidad", "estudiante",
+    "1234abcd", "a1234567", "passw0rd", "holahola", "campus123",
+})
+
+
+def password_problem(password: str, email: str = "") -> str:
+    """Código de error de la contraseña, o cadena vacía si es aceptable.
+
+    Se aplica igual en el registro y en el cambio de contraseña para que la
+    regla no dependa de por dónde entre el usuario.
+    """
+    if not valid_password(password):
+        return "invalid_password"
+    lowered = password.strip().lower()
+    if lowered in WEAK_PASSWORDS or len(set(password)) == 1:
+        return "weak_password"
+    local = (email or "").split("@")[0].strip().lower()
+    if len(local) >= 4 and lowered == local:
+        return "weak_password"
+    return ""
+
+
+WEAK_PASSWORD_MESSAGE = (
+    "Esa contraseña es demasiado común. Usa una frase o combinación que no "
+    "aparezca en filtraciones conocidas."
+)
 
 
 ACCENT_MAP = {
@@ -1455,13 +1517,16 @@ def security_headers(resp):
         "connect-src 'self'",
         "font-src 'self'",
         "form-action 'self'",
-        "frame-ancestors *",
+        "frame-ancestors " + ("*" if ALLOW_EMBED else "'self'"),
     ])
     resp.headers["Content-Security-Policy"] = csp
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     resp.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
     resp.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    if not ALLOW_EMBED:
+        # Respaldo para navegadores sin soporte de frame-ancestors.
+        resp.headers["X-Frame-Options"] = "SAMEORIGIN"
     resp.headers["X-Permitted-Cross-Domain-Policies"] = "none"
     if request.is_secure:
         # Render sirve por HTTPS; esto evita la primera petición en claro.
@@ -1485,6 +1550,10 @@ def security_headers(resp):
         "/auth/" in request.path or "/account/" in request.path
     ):
         resp.headers["Cache-Control"] = "no-store"
+    elif request.path.startswith("/static/img/") and resp.status_code == 200:
+        # Fotos con nombre estable: una semana de caché evita volver a bajarlas
+        # en cada visita sin complicar la invalidación.
+        resp.headers.setdefault("Cache-Control", "public, max-age=604800")
     return resp
 
 
@@ -2107,8 +2176,11 @@ def register():
         return jsonify({"error": "invalid_name"}), 400
     if len(email) > 254 or not valid_email(email):
         return jsonify({"error": "invalid_email"}), 400
-    if not valid_password(password):
+    problem = password_problem(password, email)
+    if problem == "invalid_password":
         return jsonify({"error": "invalid_password", "message": "La contraseña debe tener entre 8 y 1024 bytes."}), 400
+    if problem:
+        return jsonify({"error": "weak_password", "message": WEAK_PASSWORD_MESSAGE}), 400
     if not isinstance(campus, str) or campus not in CAMPUSES:
         return jsonify({"error": "invalid_campus"}), 400
     if not consent:
@@ -2256,6 +2328,67 @@ def update_profile(user):
     db.commit()
     row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
     return jsonify({"user": row_to_user(row)})
+
+
+@app.post("/api/account/password")
+@require_auth
+def change_password(user):
+    """Cambia la contraseña y cierra el resto de sesiones de la cuenta."""
+    limited = rate_limited("password", str(user["id"]))
+    if limited:
+        return limited
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid_request"}), 400
+    current = data.get("current_password")
+    new = data.get("new_password")
+    if not isinstance(current, str) or not isinstance(new, str):
+        return jsonify({"error": "invalid_request"}), 400
+    db = get_db()
+    row = db.execute(
+        "SELECT password_hash, email FROM users WHERE id = ?", (user["id"],)
+    ).fetchone()
+    if not row:
+        return jsonify({"error": "unauthorized"}), 401
+    if not check_password_hash(row["password_hash"], current):
+        return jsonify({
+            "error": "invalid_current_password",
+            "message": "La contraseña actual no es correcta.",
+        }), 403
+    problem = password_problem(new, row["email"])
+    if problem == "invalid_password":
+        return jsonify({
+            "error": "invalid_password",
+            "message": "La contraseña nueva debe tener al menos 8 caracteres.",
+        }), 400
+    if problem:
+        return jsonify({"error": "weak_password", "message": WEAK_PASSWORD_MESSAGE}), 400
+    if check_password_hash(row["password_hash"], new):
+        return jsonify({
+            "error": "same_password",
+            "message": "La contraseña nueva debe ser distinta de la actual.",
+        }), 400
+
+    db.execute(
+        "UPDATE users SET password_hash = ? WHERE id = ?",
+        (generate_password_hash(new), user["id"]),
+    )
+    # Se conserva la sesión desde la que se cambia y se cierran las demás: si
+    # alguien había entrado con la contraseña antigua, deja de valer.
+    auth = request.headers.get("Authorization", "")
+    token = auth[7:].strip() if auth.startswith("Bearer ") else ""
+    closed = 0
+    if token:
+        rows = db.execute(
+            "SELECT token FROM sessions WHERE user_id = ?", (user["id"],)
+        ).fetchall()
+        keep = session_token_digest(token)
+        for row_token in rows:
+            if row_token["token"] != keep:
+                db.execute("DELETE FROM sessions WHERE token = ?", (row_token["token"],))
+                closed += 1
+    db.commit()
+    return jsonify({"ok": True, "sessions_closed": closed})
 
 
 @app.get("/api/account/export")
@@ -2601,6 +2734,39 @@ def public_user(user_id):
     u["impact"] = trust["impact"]
     u["badges"] = badges_for(trust)
     return jsonify({"user": u})
+
+
+@app.get("/robots.txt")
+def robots_txt():
+    """La SPA necesita un robots.txt explícito: sin él, el fallback devolvía HTML."""
+    root = request.url_root.rstrip("/")
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /mi-area\n"
+        f"Sitemap: {root}/sitemap.xml\n"
+    )
+    resp = Response(body, mimetype="text/plain")
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
+
+
+@app.get("/sitemap.xml")
+def sitemap_xml():
+    root = request.url_root.rstrip("/")
+    urls = "".join(
+        f"<url><loc>{root}{path}</loc><changefreq>weekly</changefreq></url>"
+        for path in SPA_VIEWS
+        if path != "/mi-area"
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        f"{urls}</urlset>"
+    )
+    resp = Response(xml, mimetype="application/xml")
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
 
 
 @app.errorhandler(404)

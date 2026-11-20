@@ -47,7 +47,7 @@ externo; revisa allí sus condiciones actuales.
    variable secreta. Pega ahí la cadena PostgreSQL del proveedor y guarda.
    También puedes establecerla en **Environment** del servicio existente.
 4. Render ejecuta `pip install -r requirements.txt`, arranca con Gunicorn
-   (`gunicorn app:app --workers 2 --threads 4`, ver `Procfile` y `render.yaml`)
+   (`gunicorn app:app --workers 1 --threads 8`, ver `Procfile` y `render.yaml`)
    y comprueba `/healthz`, una sonda que no consulta la base de datos. Al
    iniciar, la app crea/migra sus tablas en PostgreSQL automáticamente.
    `APP_ENV=production` hace que el servicio falle de forma segura si falta
@@ -56,6 +56,9 @@ externo; revisa allí sus condiciones actuales.
    legales. Cambia `SEED_DEMO=0` si no quieres objetos de demostración.
    `UNIVERSITY_DOMAINS` permite ajustar, separados por comas, los dominios de
    correo que muestran la insignia informativa de estudiante.
+   Deja `ALLOW_EMBED=0` salvo que necesites mostrar la app dentro de un iframe
+   ajeno (el preview del entorno de desarrollo): con 0 la CSP envía
+   `frame-ancestors 'self'` y `X-Frame-Options: SAMEORIGIN`.
    `CORS_ORIGINS` debe contener tu dominio real (`https://campus-circular.onrender.com`
    o el personalizado): es la única lista de orígenes con permiso para llamar a
    la API desde otro sitio. Deja `RATE_LIMIT_ENABLED=1` y `TRUST_PROXY=1`.
@@ -169,6 +172,12 @@ ORDER BY r.created_at DESC LIMIT 50;
   sirven con ETag, `Cache-Control: immutable` de un año y `?v=<huella>`.
 - Las fotos se reescalan a 1200 px, se convierten a WebP (calidad 82 → 45 hasta
   ≤400 KB) y pierden los metadatos EXIF/GPS antes de guardarse.
+- Las imágenes del sitio (`static/img`) tienen variantes WebP a 320/480/720 px
+  y un respaldo JPEG/PNG de 800 px, servidas con `<picture>` + `srcset`. El
+  manifiesto (`static/img/manifest.json`) se inyecta en el HTML, así que no hay
+  peticiones extra. Con esto la portada pasa de ~1,5 MB a ~340 KB en móvil y
+  ~186 KB en escritorio. Si añades fotos nuevas: `.venv/bin/python
+  tools/optimize_images.py` y commitea las variantes y el manifiesto.
 - Índices: `(status, created_at)`, `category`, `campus`, `(owner_id,
   created_at)`, `requests(requester_id|status)`, `sessions(user_id)`,
   `media(created_at)`.
