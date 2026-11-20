@@ -26,6 +26,10 @@ services:
       - key: CONTROLLER_NAME
         value: Equipo Circular Campus (proyecto académico independiente)
       - key: LEGAL_VERSION
-        value: 2026-11-17
+        value: 2026-11-20
       - key: LEGAL_UPDATED
-        value: 2026-11-17
+        value: 2026-11-20
+      # Dominios de correo institucional aceptados para la insignia informativa
+      # (separados por comas). Si se omite, se usa la lista interna del código.
+      - key: UNIVERSITY_DOMAINS
+        sync: false

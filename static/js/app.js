@@ -68,7 +68,7 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Acordad un lugar seguro y marcado como entregado cuando terminéis.",
     trust_title: "Diseñado con criterios claros", trust_1: "Consentimiento explícito, aviso legal, privacidad y condiciones en tres idiomas.",
     trust_2: "Exportación y supresión de cuenta desde Mi área; sin analítica, cookies de terceros ni rastreadores.",
-    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones, sin fondos retenidos y sin métricas de impacto.",
+    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones ni fondos retenidos. Las cifras de impacto son estimaciones transparentes por categoría.",
     login: "Iniciar sesión", register: "Crear cuenta", logout: "Cerrar sesión", my_area: "Mi área",
     my_items: "Mis objetos", my_requests: "Mis solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Circular Campus no gestiona cobros.",
@@ -181,6 +181,81 @@ const I18N = {
     publishing: "Publicando…", sending: "Enviando…", saving: "Guardando…",
     title_ph: "Ej.: Lámpara de escritorio LED",
     my_area_subtitle: "Tus publicaciones, solicitudes y datos.",
+    faculty: "Facultad",
+    fac_none: "Sin especificar",
+    fac_ingenieria: "Ingeniería",
+    fac_ciencias: "Ciencias",
+    fac_salud: "Salud",
+    fac_sociales: "Ciencias sociales",
+    fac_humanidades: "Humanidades",
+    fac_artes: "Artes",
+    f_faculty: "Facultad (opcional)",
+    hand_conserjeria: "Conserjería",
+    points_conserjeria_t: "Conserjería",
+    points_conserjeria_b: "Punto de información a la entrada, con personal y zona de paso.",
+    impact_title: "Impacto de la comunidad",
+    impact_lead: "Estimación a partir de los objetos que ya han cambiado de manos.",
+    impact_reused: "objetos reutilizados",
+    impact_kg: "kg de residuos evitados (est.)",
+    impact_savings: "€ de ahorro estimado",
+    impact_note: "Cifras orientativas por categoría: no son una medición ni una auditoría.",
+    impact_my_title: "Tu impacto",
+    impact_item: "Reutilizarlo evita unos {kg} kg de residuos y {eur} € de gasto (estimación).",
+    estimate_word: "estimación",
+    trust_panel_title: "Confianza y trayectoria",
+    verified_badge: "Estudiante verificado",
+    rating_aria: "Valoración: {n} de 5 ({c} valoraciones)",
+    rating_none: "Sin valoraciones todavía",
+    rating_none_short: "sin valoraciones",
+    ratings_received: "Valoraciones recibidas",
+    ratings_none: "Todavía no hay valoraciones de este perfil.",
+    exchanges_completed: "Intercambios completados",
+    given_label: "Entregados",
+    received_label: "Recibidos",
+    level_label: "Nivel",
+    level_semilla: "Semilla",
+    level_brote: "Brote",
+    level_arbol: "Árbol",
+    level_bosque: "Bosque",
+    level_next: "Siguiente:",
+    level_max: "Nivel máximo alcanzado",
+    exchanges_short: "intercambios",
+    badges_title: "Insignias",
+    badge_verified: "Estudiante verificado",
+    badge_first_delivery: "Primera entrega",
+    badge_five_exchanges: "Cinco intercambios",
+    badge_ten_kg: "10 kg evitados",
+    badge_rated: "Perfil valorado",
+    badge_earned: "conseguida",
+    badge_locked: "pendiente",
+    rate_title: "Valora el intercambio",
+    rate_lead: "Tu valoración ayuda a otras personas a decidir con quién intercambiar.",
+    rate_score_legend: "Tu valoración",
+    rate_comment: "Comentario (opcional)",
+    rate_comment_ph: "¿Cómo fue la entrega? Sin datos personales.",
+    rate_submit: "Enviar valoración",
+    rate_later: "Ahora no",
+    rate_cta: "Valorar",
+    rate_yours: "Tu valoración",
+    rate_note: "La valoración es pública y no se puede editar una vez enviada.",
+    rate_item_label: "Objeto",
+    toast_rated: "Gracias por valorar",
+    form_quick: "Lo esencial",
+    form_quick_hint: "Foto, título, categoría y tipo. Publicar lleva menos de un minuto.",
+    form_optional: "Detalles opcionales",
+    form_optional_hint: "Descripción, estado, campus y punto de entrega. Puedes publicar sin rellenarlos.",
+    f_desc_optional: "Descripción (opcional)",
+    detail_no_desc: "Sin descripción adicional.",
+    image_required_hint: "Obligatoria: es la foto que verá quien reciba el objeto.",
+    toast_image_required: "Añade una foto para publicar.",
+    required_word: "obligatorio",
+    status_help: "Reservado indica que ya hay un acuerdo; entregado cierra el intercambio y suma a tu impacto.",
+    req_handover: "Punto propuesto",
+    request_point: "Punto de encuentro",
+    request_point_hint: "Elige un sitio público y concurrido; podéis ajustarlo al aceptar.",
+    req_rated: "Valorado con {n}/5",
+    my_impact_error: "No se pudo cargar tu impacto.",
+    searching: "Buscando…",
     lang_name: "Español",
   },
   en: {
@@ -210,7 +285,7 @@ const I18N = {
     how_3_t: "3. Meet in public", how_3_b: "Choose a safe public place and mark the item as handed over when you are done.",
     trust_title: "Built with clear choices", trust_1: "Explicit consent, legal notice, privacy policy and terms in three languages.",
     trust_2: "Account export and deletion in My area; no analytics, third-party cookies or trackers.",
-    trust_3: "Local images, no payment gateway, no fees, no held funds and no impact metrics.",
+    trust_3: "Local images, no payment gateway, no fees or held funds. Impact figures are transparent estimates by category.",
     login: "Log in", register: "Create account", logout: "Log out", my_area: "My area",
     my_items: "My items", my_requests: "My requests", received: "Received requests", favorites: "Favorites",
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Circular Campus does not handle payments.",
@@ -323,6 +398,81 @@ const I18N = {
     publishing: "Publishing…", sending: "Sending…", saving: "Saving…",
     title_ph: "E.g. LED desk lamp",
     my_area_subtitle: "Your listings, requests and data.",
+    faculty: "Faculty",
+    fac_none: "Not specified",
+    fac_ingenieria: "Engineering",
+    fac_ciencias: "Sciences",
+    fac_salud: "Health",
+    fac_sociales: "Social sciences",
+    fac_humanidades: "Humanities",
+    fac_artes: "Arts",
+    f_faculty: "Faculty (optional)",
+    hand_conserjeria: "Reception desk",
+    points_conserjeria_t: "Reception desk",
+    points_conserjeria_b: "Information desk at the entrance, staffed and with foot traffic.",
+    impact_title: "Community impact",
+    impact_lead: "Estimate based on the items that have already changed hands.",
+    impact_reused: "items reused",
+    impact_kg: "kg of waste avoided (est.)",
+    impact_savings: "estimated savings",
+    impact_note: "Indicative figures by category: not a measurement or an audit.",
+    impact_my_title: "Your impact",
+    impact_item: "Reusing it avoids about {kg} kg of waste and {eur} € of spending (estimate).",
+    estimate_word: "estimate",
+    trust_panel_title: "Trust and track record",
+    verified_badge: "Verified student",
+    rating_aria: "Rating: {n} out of 5 ({c} reviews)",
+    rating_none: "No ratings yet",
+    rating_none_short: "no ratings",
+    ratings_received: "Reviews received",
+    ratings_none: "This profile has no reviews yet.",
+    exchanges_completed: "Completed exchanges",
+    given_label: "Given",
+    received_label: "Received",
+    level_label: "Level",
+    level_semilla: "Seed",
+    level_brote: "Sprout",
+    level_arbol: "Tree",
+    level_bosque: "Forest",
+    level_next: "Next:",
+    level_max: "Top level reached",
+    exchanges_short: "exchanges",
+    badges_title: "Badges",
+    badge_verified: "Verified student",
+    badge_first_delivery: "First handover",
+    badge_five_exchanges: "Five exchanges",
+    badge_ten_kg: "10 kg avoided",
+    badge_rated: "Reviewed profile",
+    badge_earned: "earned",
+    badge_locked: "locked",
+    rate_title: "Rate the exchange",
+    rate_lead: "Your rating helps other people decide who to exchange with.",
+    rate_score_legend: "Your rating",
+    rate_comment: "Comment (optional)",
+    rate_comment_ph: "How was the handover? No personal data.",
+    rate_submit: "Send rating",
+    rate_later: "Not now",
+    rate_cta: "Rate",
+    rate_yours: "Your rating",
+    rate_note: "Reviews are public and cannot be edited once sent.",
+    rate_item_label: "Item",
+    toast_rated: "Thanks for rating",
+    form_quick: "The essentials",
+    form_quick_hint: "Photo, title, category and type. Publishing takes under a minute.",
+    form_optional: "Optional details",
+    form_optional_hint: "Description, condition, campus and handover point. You can publish without filling them in.",
+    f_desc_optional: "Description (optional)",
+    detail_no_desc: "No further description.",
+    image_required_hint: "Required: this is the photo the receiver will see.",
+    toast_image_required: "Add a photo to publish.",
+    required_word: "required",
+    status_help: "Reserved means a deal is in place; delivered closes the exchange and adds to your impact.",
+    req_handover: "Proposed point",
+    request_point: "Handover point",
+    request_point_hint: "Choose a public, busy place; you can adjust it when accepting.",
+    req_rated: "Rated {n}/5",
+    my_impact_error: "Could not load your impact.",
+    searching: "Searching…",
     lang_name: "English",
   },
   gl: {
@@ -352,7 +502,7 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Escollede un lugar seguro e marcade como entregado ao rematar.",
     trust_title: "Deseñado con criterios claros", trust_1: "Consentimento explícito, aviso legal, privacidade e condicións en tres idiomas.",
     trust_2: "Exportación e supresión de conta na Miña área; sen analítica, cookies de terceiros nin rastrexadores.",
-    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións, sen fondos retidos e sen métricas de impacto.",
+    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións nin fondos retidos. As cifras de impacto son estimacións transparentes por categoría.",
     login: "Iniciar sesión", register: "Crear conta", logout: "Pechar sesión", my_area: "A miña área",
     my_items: "Os meus obxectos", my_requests: "As miñas solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Circular Campus non xestiona cobros.",
@@ -465,6 +615,81 @@ const I18N = {
     publishing: "Publicando…", sending: "Enviando…", saving: "Gardando…",
     title_ph: "Ex.: Lámpara de escritorio LED",
     my_area_subtitle: "As túas publicacións, solicitudes e datos.",
+    faculty: "Facultade",
+    fac_none: "Sen especificar",
+    fac_ingenieria: "Enxeñaría",
+    fac_ciencias: "Ciencias",
+    fac_salud: "Saúde",
+    fac_sociales: "Ciencias sociais",
+    fac_humanidades: "Humanidades",
+    fac_artes: "Artes",
+    f_faculty: "Facultade (opcional)",
+    hand_conserjeria: "Conserxería",
+    points_conserjeria_t: "Conserxería",
+    points_conserjeria_b: "Punto de información á entrada, con persoal e zona de paso.",
+    impact_title: "Impacto da comunidade",
+    impact_lead: "Estimación a partir dos obxectos que xa cambiaron de mans.",
+    impact_reused: "obxectos reutilizados",
+    impact_kg: "kg de residuos evitados (est.)",
+    impact_savings: "€ de aforro estimado",
+    impact_note: "Cifras orientativas por categoría: non son unha medición nin unha auditoría.",
+    impact_my_title: "O teu impacto",
+    impact_item: "Reutilizalo evita uns {kg} kg de residuos e {eur} € de gasto (estimación).",
+    estimate_word: "estimación",
+    trust_panel_title: "Confianza e traxectoria",
+    verified_badge: "Estudante verificado",
+    rating_aria: "Valoración: {n} de 5 ({c} valoracións)",
+    rating_none: "Sen valoracións aínda",
+    rating_none_short: "sen valoracións",
+    ratings_received: "Valoracións recibidas",
+    ratings_none: "Aínda non hai valoracións deste perfil.",
+    exchanges_completed: "Intercambios completados",
+    given_label: "Entregados",
+    received_label: "Recibidos",
+    level_label: "Nivel",
+    level_semilla: "Semente",
+    level_brote: "Brote",
+    level_arbol: "Árbore",
+    level_bosque: "Bosque",
+    level_next: "Seguinte:",
+    level_max: "Nivel máximo acadado",
+    exchanges_short: "intercambios",
+    badges_title: "Insignias",
+    badge_verified: "Estudante verificado",
+    badge_first_delivery: "Primeira entrega",
+    badge_five_exchanges: "Cinco intercambios",
+    badge_ten_kg: "10 kg evitados",
+    badge_rated: "Perfil valorado",
+    badge_earned: "acadada",
+    badge_locked: "pendente",
+    rate_title: "Valora o intercambio",
+    rate_lead: "A túa valoración axuda a outras persoas a decidir con quen intercambiar.",
+    rate_score_legend: "A túa valoración",
+    rate_comment: "Comentario (opcional)",
+    rate_comment_ph: "Como foi a entrega? Sen datos persoais.",
+    rate_submit: "Enviar valoración",
+    rate_later: "Agora non",
+    rate_cta: "Valorar",
+    rate_yours: "A túa valoración",
+    rate_note: "A valoración é pública e non se pode editar unha vez enviada.",
+    rate_item_label: "Obxecto",
+    toast_rated: "Grazas por valorar",
+    form_quick: "O esencial",
+    form_quick_hint: "Foto, título, categoría e tipo. Publicar leva menos dun minuto.",
+    form_optional: "Detalles opcionais",
+    form_optional_hint: "Descrición, estado, campus e punto de entrega. Podes publicar sen enchelos.",
+    f_desc_optional: "Descrición (opcional)",
+    detail_no_desc: "Sen descrición adicional.",
+    image_required_hint: "Obrigatoria: é a foto que verá quen reciba o obxecto.",
+    toast_image_required: "Engade unha foto para publicar.",
+    required_word: "obrigatorio",
+    status_help: "Reservado indica que xa hai un acordo; entregado pecha o intercambio e suma ao teu impacto.",
+    req_handover: "Punto proposto",
+    request_point: "Punto de encontro",
+    request_point_hint: "Escolle un sitio público e concorrido; podedes axustalo ao aceptar.",
+    req_rated: "Valorado con {n}/5",
+    my_impact_error: "Non se puido cargar o teu impacto.",
+    searching: "Buscando…",
     lang_name: "Galego",
   }
 };
@@ -491,7 +716,8 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["El servicio está pensado para personas adultas. No se recoge fecha de nacimiento y no se admite el registro de menores de 14 años. Si eres menor de edad, no publiques datos personales ni quedes sin acompañamiento."] },
       { h: "10. Cookies, analítica y recursos de terceros", p: ["No se usan cookies de sesión, cookies publicitarias, analítica, píxeles ni rastreadores. El idioma y el token se guardan en el almacenamiento local del navegador; puedes borrarlos desde su configuración.", "Las imágenes de ejemplo y de categoría se sirven desde este mismo dominio. Para privacidad, no se aceptan URL de imágenes externas en las publicaciones."] },
       { h: "11. Fotografías", p: ["Las fotos de objetos que subas pueden contener datos personales si muestras cartas, pantallas, etiquetas o documentos: revísalas antes de publicar.", "La fotografía de grupo de la página del proyecto forma parte de los materiales del proyecto. Las imágenes de personas son datos personales; si apareces en ella y deseas que se retire, escribe a {contact}."] },
-      { h: "12. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
+      { h: "12. Valoraciones e impacto", p: ["Tras una entrega completada, ambas partes pueden puntuar de 1 a 5 y dejar un comentario opcional. Se guardan la puntuación, el comentario, la fecha y el vínculo con el intercambio; la media aparece en el perfil público junto al nombre visible de quien valora.", "Las cifras de impacto (objetos reutilizados, kilos evitados y ahorro estimado) se calculan en el servidor a partir de estimaciones por categoría. No proceden de mediciones ni de terceros y no se usan para publicidad ni para decisiones automatizadas."] },
+      { h: "13. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
     ],
     terms: [
       { h: "1. Qué es el servicio", p: ["Circular Campus es un prototipo independiente para que personas particulares publiquen, busquen y soliciten objetos de segunda vida: regalar, prestar, intercambiar o indicar un precio orientativo.", "No es una tienda, un marketplace profesional, un servicio de mensajería, una entidad de pago ni un servicio oficial de ninguna institución."] },
@@ -503,7 +729,8 @@ const LEGAL_DOCS = {
       { h: "7. Usos prohibidos", p: ["Prohibido publicar datos de contacto en abierto, suplantar identidades, acosar, estafar, vender como profesional, eludir la validación de imágenes, introducir URL externas o intentar usar la plataforma como monedero, escrow o sistema de comisiones.", "Prohibido subir contenido ilegal, peligroso, discriminatorio o que vulnere derechos de terceros."] },
       { h: "8. Responsabilidad", p: ["Circular Campus ofrece una herramienta técnica de publicación y solicitud, pero no verifica objetos, no participa en los acuerdos y no responde por su cumplimiento, estado, precio, pago, devolución o daños.", "El prototipo puede tener errores, reiniciarse o perder datos en un alojamiento gratuito efímero. No lo uses como único repositorio de información importante."] },
       { h: "9. Datos y supresión", p: ["El tratamiento de datos se describe en {privacyLink}. Puedes descargar una copia y eliminar la cuenta desde Mi área, o escribir a {contact}.", "La supresión elimina perfil, sesiones, publicaciones, favoritos y solicitudes propias; no crea una copia de respaldo."] },
-      { h: "10. Cambios y ley aplicable", p: ["Podemos actualizar estas condiciones para reflejar cambios técnicos o legales; la versión vigente es {version}, de {updated}.", "Estas condiciones se interpretan conforme a la normativa española y europea aplicable, en particular RGPD, LOPDGDD y LSSI cuando corresponda. No constituyen asesoramiento jurídico, fiscal o de consumo."] },
+      { h: "11. Valoraciones e impacto", p: ["Solo se puede valorar un intercambio cuando la entrega figura como completada. Las valoraciones son públicas, no se editan y deben describir la entrega sin insultos, datos personales ni acusaciones no contrastadas.", "Las cifras de impacto son orientativas y no constituyen una certificación ambiental ni económica."] },
+      { h: "11. Cambios y ley aplicable", p: ["Podemos actualizar estas condiciones para reflejar cambios técnicos o legales; la versión vigente es {version}, de {updated}.", "Estas condiciones se interpretan conforme a la normativa española y europea aplicable, en particular RGPD, LOPDGDD y LSSI cuando corresponda. No constituyen asesoramiento jurídico, fiscal o de consumo."] },
     ],
   },
   en: {
@@ -526,7 +753,8 @@ const LEGAL_DOCS = {
       { h: "9. Minors", p: ["The service is intended for adults. No date of birth is collected and registration by children under 14 is not accepted. Minors should not post personal data or attend handovers unaccompanied."] },
       { h: "10. Cookies, analytics and third-party resources", p: ["No session cookies, advertising cookies, analytics, pixels or trackers are used. Language and token are stored in browser local storage and can be cleared in browser settings.", "Sample and category images are served from this same domain. For privacy, external image URLs are not accepted in listings."] },
       { h: "11. Photographs", p: ["Photos you upload may contain personal data if they show letters, screens, labels or documents: check them before publishing.", "The group photo on the project page is part of the project materials. Images of people are personal data; if you appear in it and want it removed, write to {contact}."] },
-      { h: "12. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
+      { h: "12. Ratings and impact", p: ["After a completed handover, both parties may rate from 1 to 5 and leave an optional comment. The score, comment, date and link to the exchange are stored; the average appears on the public profile next to the rater's display name.", "Impact figures (items reused, kilograms avoided and estimated savings) are calculated on the server from category estimates. They do not come from measurements or third parties and are not used for advertising or automated decisions."] },
+      { h: "13. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
     ],
     terms: [
       { h: "1. What the service is", p: ["Circular Campus is an independent prototype for private individuals to list, find and request second-life items: give away, lend, exchange or show an indicative price.", "It is not a shop, a professional marketplace, a courier service, a payment entity or an official service of any institution."] },
@@ -538,7 +766,8 @@ const LEGAL_DOCS = {
       { h: "7. Prohibited uses", p: ["Do not post open contact details, impersonate others, harass, defraud, sell professionally, bypass image validation, insert external URLs or try to use the platform as a wallet, escrow or commission system.", "Do not upload illegal, dangerous, discriminatory content or material that infringes third-party rights."] },
       { h: "8. Liability", p: ["Circular Campus provides a technical listing and request tool, but does not verify items, take part in agreements or answer for their performance, condition, price, payment, return or damages.", "The prototype may contain errors, restart or lose data on a free ephemeral host. Do not use it as the only repository for important information."] },
       { h: "9. Data and erasure", p: ["Data processing is described in {privacyLink}. You can download a copy and delete your account from My area, or write to {contact}.", "Erasure removes the profile, sessions, listings, favorites and own requests; it does not create a backup copy."] },
-      { h: "10. Changes and applicable law", p: ["These terms may be updated to reflect technical or legal changes; the current version is {version}, dated {updated}.", "They are interpreted under applicable Spanish and EU law, in particular GDPR, LOPDGDD and LSSI where relevant. They are not legal, tax or consumer advice."] },
+      { h: "11. Ratings and impact", p: ["An exchange can only be rated once the handover is marked as completed. Ratings are public, cannot be edited and must describe the handover without insults, personal data or unverified accusations.", "Impact figures are indicative and are not an environmental or economic certification."] },
+      { h: "11. Changes and applicable law", p: ["These terms may be updated to reflect technical or legal changes; the current version is {version}, dated {updated}.", "They are interpreted under applicable Spanish and EU law, in particular GDPR, LOPDGDD and LSSI where relevant. They are not legal, tax or consumer advice."] },
     ],
   },
   gl: {
@@ -561,7 +790,8 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["O servizo está pensado para persoas adultas. Non se recolle data de nacemento e non se admite o rexistro de menores de 14 anos. Se es menor, non publiques datos persoais nin quedes sen acompañamento."] },
       { h: "10. Cookies, analítica e recursos de terceiros", p: ["Non se usan cookies de sesión, cookies publicitarias, analítica, píxeles nin rastrexadores. O idioma e o token gárdanse no almacenamento local do navegador; podes borralos desde a súa configuración.", "As imaxes de exemplo e de categoría sírvense desde este mesmo dominio. Para privacidade, non se aceptan URL de imaxes externas nas publicacións."] },
       { h: "11. Fotografías", p: ["As fotos de obxectos que subas poden conter datos persoais se amosan cartas, pantallas, etiquetas ou documentos: revísaas antes de publicar.", "A fotografía de grupo da páxina do proxecto forma parte dos materiais do proxecto. As imaxes de persoas son datos persoais; se apareces nela e desexas que se retire, escribe a {contact}."] },
-      { h: "12. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
+      { h: "12. Valoracións e impacto", p: ["Tras unha entrega completada, ambas as partes poden puntuar de 1 a 5 e deixar un comentario opcional. Gárdanse a puntuación, o comentario, a data e o vínculo co intercambio; a media aparece no perfil público xunto ao nome visible de quen valora.", "As cifras de impacto (obxectos reutilizados, quilos evitados e aforro estimado) calcúlanse no servidor a partir de estimacións por categoría. Non proceden de medicións nin de terceiros e non se usan para publicidade nin para decisións automatizadas."] },
+      { h: "13. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
     ],
     terms: [
       { h: "1. Que é o servizo", p: ["Circular Campus é un prototipo independente para que persoas particulares publiquen, busquen e soliciten obxectos de segunda vida: regalar, prestar, intercambiar ou indicar un prezo orientativo.", "Non é unha tenda, un marketplace profesional, un servizo de mensaxaría, unha entidade de pago nin un servizo oficial de ningunha institución."] },
@@ -573,7 +803,8 @@ const LEGAL_DOCS = {
       { h: "7. Usos prohibidos", p: ["Prohíbese publicar datos de contacto en aberto, suplantar identidades, acosar, estafar, vender como profesional, eludir a validación de imaxes, introducir URL externas ou intentar usar a plataforma como moedeiro, escrow ou sistema de comisións.", "Prohíbese subir contido ilegal, perigoso, discriminatorio ou que vulnere dereitos de terceiros."] },
       { h: "8. Responsabilidade", p: ["Circular Campus ofrece unha ferramenta técnica de publicación e solicitude, pero non verifica obxectos, non participa nos acordos e non responde polo seu cumprimento, estado, prezo, pago, devolución ou danos.", "O prototipo pode ter erros, reiniciarse ou perder datos nun aloxamento gratuíto efémero. Non o uses como único repositorio de información importante."] },
       { h: "9. Datos e supresión", p: ["O tratamento de datos descríbese en {privacyLink}. Podes descargar unha copia e eliminar a conta na Miña área, ou escribir a {contact}.", "A supresión elimina perfil, sesións, publicacións, favoritos e solicitudes propias; non crea unha copia de respaldo."] },
-      { h: "10. Cambios e lei aplicable", p: ["Podemos actualizar estas condicións para reflectir cambios técnicos ou legais; a versión vixente é {version}, de {updated}.", "Estas condicións interprétanse conforme á normativa española e europea aplicable, en particular RGPD, LOPDGDD e LSSI cando corresponda. Non constitúen asesoramento xurídico, fiscal ou de consumo."] },
+      { h: "11. Valoracións e impacto", p: ["Só se pode valorar un intercambio cando a entrega figura como completada. As valoracións son públicas, non se editan e deben describir a entrega sen insultos, datos persoais nin acusacións non contrastadas.", "As cifras de impacto son orientativas e non constitúen unha certificación ambiental nin económica."] },
+      { h: "11. Cambios e lei aplicable", p: ["Podemos actualizar estas condicións para reflectir cambios técnicos ou legais; a versión vixente é {version}, de {updated}.", "Estas condicións interprétanse conforme á normativa española e europea aplicable, en particular RGPD, LOPDGDD e LSSI cando corresponda. Non constitúen asesoramento xurídico, fiscal ou de consumo."] },
     ],
   }
 };
@@ -582,7 +813,8 @@ const CATEGORIES = ["libros", "ropa", "muebles", "estudio", "electronica", "coci
 const CONDITIONS = ["nuevo", "como_nuevo", "bueno", "usable"];
 const TYPES = ["regalar", "prestar", "intercambiar", "vender"];
 const CAMPUSES = ["vigo", "pontevedra", "ourense"];
-const HANDOVERS = ["biblioteca", "entrada", "cafeteria", "punto", "acordado"];
+const HANDOVERS = ["biblioteca", "conserjeria", "cafeteria", "entrada", "punto", "acordado"];
+const FACULTIES = ["ingenieria", "ciencias", "salud", "sociales", "humanidades", "artes"];
 
 const initialLang = ["es", "en", "gl"].includes(localStorage.getItem("cc_lang"))
   ? localStorage.getItem("cc_lang") : "es";
@@ -592,7 +824,7 @@ const state = {
   token: localStorage.getItem("cc_token") || null,
   view: BOOT.view || PATH_VIEWS[location.pathname] || "home",
   myTab: "items",
-  filters: { q: "", category: "", campus: "", condition: "", type: "", sort: "recent" },
+  filters: { q: "", category: "", campus: "", condition: "", type: "", faculty: "", sort: "recent" },
   items: [],
   stats: null,
   pendingConsent: false,
@@ -605,11 +837,13 @@ const typeLabel = (c) => t("type_" + c);
 const typeBadge = (c) => t("type_badge_" + c);
 const campusLabel = (c) => t("campus_" + c);
 const handLabel = (c) => t("hand_" + c);
+const facLabel = (c) => t("fac_" + c);
+const levelLabel = (k) => t("level_" + k);
 const statusLabel = (s) => t("status_" + s);
 const reqLabel = (s) => t("req_" + s);
 const categoryImage = (c) => `/static/img/items/${CATEGORIES.includes(c) ? c : "placeholder"}.jpg`;
 const itemImage = (it) => it.image_url || categoryImage(it.category);
-const POINT_ICONS = { biblioteca: "inbox", entrada: "pin", cafeteria: "clock", punto: "tag", acordado: "shield" };
+const POINT_ICONS = { biblioteca: "inbox", conserjeria: "info", cafeteria: "clock", entrada: "pin", punto: "tag", acordado: "shield" };
 const MY_TABS = [
   { id: "items", label: "my_items" },
   { id: "requests", label: "my_requests" },
@@ -1132,6 +1366,7 @@ function filterParams() {
   if (f.campus) params.set("campus", f.campus);
   if (f.condition) params.set("condition", f.condition);
   if (f.type) params.set("type", f.type);
+  if (f.faculty) params.set("faculty", f.faculty);
   if (f.sort) params.set("sort", f.sort);
   return params;
 }
@@ -1143,7 +1378,7 @@ async function fetchItems() {
 
 function hasFilters() {
   const f = state.filters;
-  return Boolean(f.q || f.category || f.campus || f.condition || f.type);
+  return Boolean(f.q || f.category || f.campus || f.condition || f.type || f.faculty);
 }
 
 function clearFilters() {
@@ -1152,6 +1387,7 @@ function clearFilters() {
   state.filters.campus = "";
   state.filters.condition = "";
   state.filters.type = "";
+  state.filters.faculty = "";
   state.filters.sort = "recent";
   syncHeroSearch();
 }
@@ -1163,6 +1399,165 @@ function syncHeroSearch() {
   if (q) q.value = state.filters.q;
   if (campus) campus.value = state.filters.campus;
   if (sort) sort.value = state.filters.sort;
+}
+
+/* ---------------- Impacto y confianza ---------------- */
+function fmtNum(value, digits = 1) {
+  const n = Number(value) || 0;
+  const factor = Math.pow(10, digits);
+  const rounded = Math.round(n * factor) / factor;
+  const text = String(rounded);
+  return state.lang === "en" ? text : text.replace(".", ",");
+}
+
+function starsHtml(average, count, opts = {}) {
+  const avg = Number(average) || 0;
+  const filled = Math.round(avg);
+  const stars = [1, 2, 3, 4, 5]
+    .map(n => `<span class="star${n <= filled ? " is-on" : ""}" aria-hidden="true">${icon("star")}</span>`)
+    .join("");
+  const label = count
+    ? t("rating_aria").replace("{n}", fmtNum(avg, 1)).replace("{c}", String(count))
+    : t("rating_none");
+  const text = count
+    ? `<span class="stars-count">${fmtNum(avg, 1)} (${count})</span>`
+    : `<span class="stars-count is-empty">${esc(t("rating_none_short"))}</span>`;
+  return `<span class="stars" role="img" aria-label="${esc(label)}">${stars}${opts.withCount === false ? "" : text}</span>`;
+}
+
+function impactBand(stats) {
+  const imp = (stats && stats.impact) || { reused: 0, kg: 0, savings: 0 };
+  const cells = [
+    { icon: "refresh", value: fmtNum(imp.reused, 0), label: t("impact_reused") },
+    { icon: "leaf", value: `${fmtNum(imp.kg, 1)} kg`, label: t("impact_kg") },
+    { icon: "tag", value: `${fmtNum(imp.savings, 0)} €`, label: t("impact_savings") }
+  ];
+  return `<section class="impact-band" aria-labelledby="impact-title">
+    <div class="impact-head">
+      <h2 id="impact-title">${icon("leaf")}${esc(t("impact_title"))}</h2>
+      <p>${esc(t("impact_lead"))}</p>
+    </div>
+    <div class="impact-grid">
+      ${cells.map(c => `<div class="impact-cell">
+        <span class="impact-icon" aria-hidden="true">${icon(c.icon)}</span>
+        <div><strong>${esc(c.value)}</strong><span>${esc(c.label)}</span></div>
+      </div>`).join("")}
+    </div>
+    <p class="impact-note">${icon("info")}<span>${esc(t("impact_note"))}</span></p>
+  </section>`;
+}
+
+function impactCells(impact) {
+  const imp = impact || { reused: 0, kg: 0, savings: 0 };
+  return [
+    { icon: "refresh", value: fmtNum(imp.reused, 0), label: t("impact_reused") },
+    { icon: "leaf", value: `${fmtNum(imp.kg, 1)} kg`, label: t("impact_kg") },
+    { icon: "tag", value: `${fmtNum(imp.savings, 0)} €`, label: t("impact_savings") }
+  ].map(c => `<div class="impact-cell">
+      <span class="impact-icon" aria-hidden="true">${icon(c.icon)}</span>
+      <div><strong>${esc(c.value)}</strong><span>${esc(c.label)}</span></div>
+    </div>`).join("");
+}
+
+function trustPanel(data) {
+  const rating = data.rating || { count: 0, average: 0 };
+  const ex = data.exchanges || { completed: 0, given: 0, received: 0 };
+  const level = data.level || { key: "semilla", progress: 0, next: null, next_at: null, count: 0 };
+  const badges = data.badges || [];
+  const remaining = level.next_at ? level.next_at - level.count : 0;
+  return `<section class="trust-panel" aria-labelledby="trust-panel-title">
+    <div class="trust-head">
+      <h2 id="trust-panel-title">${esc(t("trust_panel_title"))}</h2>
+      <span class="identity-badge${data.verified ? " academic" : ""}">${icon(data.verified ? "check" : "user")}${esc(data.verified ? t("verified_badge") : t("personal_email"))}</span>
+    </div>
+    <div class="trust-top">
+      <div class="trust-rating">
+        ${starsHtml(rating.average, rating.count)}
+        <span class="trust-meta">${esc(t("exchanges_completed"))}: <strong>${ex.completed}</strong> · ${esc(t("given_label"))}: ${ex.given} · ${esc(t("received_label"))}: ${ex.received}</span>
+      </div>
+      <div class="trust-level">
+        <span class="level-pill">${icon("leaf")}${esc(t("level_label"))}: <strong>${esc(levelLabel(level.key))}</strong></span>
+        <div class="level-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${level.progress}" aria-label="${esc(t("level_label"))}">
+          <span data-level-bar></span>
+        </div>
+        <small>${level.next ? `${esc(t("level_next"))} ${esc(levelLabel(level.next))} · ${remaining} ${esc(t("exchanges_short"))}` : esc(t("level_max"))}</small>
+      </div>
+    </div>
+    <h3 class="trust-sub">${esc(t("impact_my_title"))}</h3>
+    <div class="impact-grid impact-grid-inline">${impactCells(data.impact)}</div>
+    <h3 class="trust-sub">${esc(t("badges_title"))}</h3>
+    <ul class="badge-row">
+      ${badges.map(b => `<li class="badge-chip${b.earned ? " is-earned" : ""}">
+        ${icon(b.earned ? "check-circle" : "shield")}${esc(t("badge_" + b.key))}
+        <span class="sr-only"> — ${esc(b.earned ? t("badge_earned") : t("badge_locked"))}</span>
+      </li>`).join("")}
+    </ul>
+    <p class="impact-note">${icon("info")}<span>${esc(t("impact_note"))}</span></p>
+  </section>`;
+}
+
+function ratingList(rating) {
+  const list = (rating && rating.recent) || [];
+  if (!list.length) return `<p class="muted small">${esc(t("ratings_none"))}</p>`;
+  return `<ul class="rating-list">
+    ${list.map(r => `<li class="rating-item">
+      <p class="rating-row">${starsHtml(r.score, 0, { withCount: false })}<span class="rating-score">${r.score}/5</span><span class="rating-author">${esc(r.rater_name)}</span></p>
+      ${r.comment ? `<p class="rating-comment">${esc(r.comment)}</p>` : ""}
+    </li>`).join("")}
+  </ul>`;
+}
+
+function openRate(requestId, itemTitle, onDone) {
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="rate-title">${esc(t("rate_title"))}</h2>
+      <p>${esc(t("rate_lead"))}</p>
+    </div>
+    <form id="rate-form" aria-labelledby="rate-title">
+      <p class="rate-item"><span>${esc(t("rate_item_label"))}:</span> ${esc(itemTitle)}</p>
+      <fieldset class="rate-field">
+        <legend>${esc(t("rate_score_legend"))}</legend>
+        <div class="rate-options">
+          ${[1, 2, 3, 4, 5].map(n => `<label class="rate-option">
+            <input type="radio" name="score" value="${n}"${n === 5 ? " checked" : ""}>
+            <span class="rate-option-inner">${icon("star")}<span>${n}</span></span>
+          </label>`).join("")}
+        </div>
+      </fieldset>
+      <div class="field">
+        <label for="rate-comment">${esc(t("rate_comment"))}</label>
+        <textarea id="rate-comment" name="comment" maxlength="300" placeholder="${esc(t("rate_comment_ph"))}"></textarea>
+      </div>
+      <p class="field-hint">${esc(t("rate_note"))}</p>
+      <div class="modal-foot">
+        <button class="btn btn-primary" type="submit" data-submit>${icon("star")}${esc(t("rate_submit"))}</button>
+        <button class="btn btn-ghost" type="button" data-close>${esc(t("rate_later"))}</button>
+      </div>
+    </form>`, { labelledBy: "rate-title", sheet: true });
+
+  $("#rate-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const submit = $("[data-submit]", e.target);
+    const fd = new FormData(e.target);
+    setBusy(submit, true, t("saving"));
+    try {
+      state.stats = null;
+      await api(`/api/requests/${requestId}/rate`, {
+        method: "POST",
+        body: JSON.stringify({
+          score: Number(fd.get("score")),
+          comment: String(fd.get("comment") || "")
+        })
+      });
+      closeModal();
+      toast(t("toast_rated"));
+      if (onDone) onDone();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
 }
 
 /* ---------------- Catálogo ---------------- */
@@ -1184,6 +1579,7 @@ function activeFilterChips() {
   if (f.campus) items.push(`<span class="active-filter">${esc(campusLabel(f.campus))}<button type="button" data-remove-filter="campus" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
   if (f.condition) items.push(`<span class="active-filter">${esc(condLabel(f.condition))}<button type="button" data-remove-filter="condition" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
   if (f.type) items.push(`<span class="active-filter">${esc(typeLabel(f.type))}<button type="button" data-remove-filter="type" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.faculty) items.push(`<span class="active-filter">${esc(facLabel(f.faculty))}<button type="button" data-remove-filter="faculty" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
   if (items.length > 1 || f.q) {
     items.push(`<button type="button" class="clear-link" id="clear-all-filters">${esc(t("filters_clear"))}</button>`);
   }
@@ -1196,7 +1592,7 @@ function syncFilterUI() {
     b.classList.toggle("active", active);
     b.setAttribute("aria-pressed", String(active));
   });
-  const count = ["campus", "condition", "type"].filter(k => state.filters[k]).length;
+  const count = ["campus", "condition", "type", "faculty"].filter(k => state.filters[k]).length;
   const dot = $("#filter-dot");
   if (dot) {
     dot.textContent = count ? String(count) : "";
@@ -1219,15 +1615,21 @@ function syncFilterUI() {
 
 let catalogRequest = 0;
 
-async function refreshCatalog() {
+async function refreshCatalog(opts = {}) {
   const box = $("#catalog-results");
   if (!box) return;
   const request = ++catalogRequest;
   syncFilterUI();
   const countEl = $("#results-count");
-  if (countEl) countEl.textContent = t("loading_items");
+  const quiet = Boolean(opts.quiet) && Boolean($(".grid-items", box));
+  if (countEl) countEl.textContent = quiet ? t("searching") : t("loading_items");
   box.setAttribute("aria-busy", "true");
-  box.innerHTML = `<div class="grid grid-items">${skeletonCards(6)}</div>`;
+  if (quiet) {
+    box.classList.add("is-loading");
+  } else {
+    box.classList.remove("is-loading");
+    box.innerHTML = `<div class="grid grid-items">${skeletonCards(6)}</div>`;
+  }
   let items;
   try {
     items = await fetchItems();
@@ -1241,6 +1643,7 @@ async function refreshCatalog() {
     });
     bindEmptyActions(box, { retry: () => refreshCatalog() });
     box.removeAttribute("aria-busy");
+    box.classList.remove("is-loading");
     if (countEl) countEl.textContent = "";
     return;
   }
@@ -1273,6 +1676,7 @@ async function refreshCatalog() {
     enhance(box);
   }
   box.removeAttribute("aria-busy");
+  box.classList.remove("is-loading");
   if (countEl) {
     countEl.textContent = `${items.length} ${items.length === 1 ? t("results_one") : t("results_found")}`;
   }
@@ -1290,6 +1694,7 @@ function itemCard(it) {
         <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" loading="lazy" decoding="async" data-fallback data-category="${esc(it.category)}">
       </button>
       <div class="card-badges">
+        ${it.status && it.status !== "disponible" ? `<span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>` : ""}
         <span class="badge badge-cond">${esc(condLabel(it.condition))}</span>
         <span class="badge badge-type${isSale ? " is-sale" : ""}">${esc(typeBadge(it.exchange_type))}</span>
       </div>
@@ -1302,7 +1707,7 @@ function itemCard(it) {
         <span class="card-location">${icon("pin")}${esc(campusLabel(it.campus))}</span>
       </div>
       <p class="card-location">${icon("tag")}${esc(handLabel(it.handover_point))}</p>
-      <p class="card-desc">${esc(it.description)}</p>
+      ${it.description ? `<p class="card-desc">${esc(it.description)}</p>` : ""}
       <div class="card-foot">
         <div>
           <span class="price${isSale ? "" : " is-free"}">${price}</span>
@@ -1364,6 +1769,13 @@ function openFilters() {
         </select>
       </div>
       <div class="field">
+        <label for="fl-faculty">${esc(t("faculty"))}</label>
+        <select id="fl-faculty" name="faculty">
+          ${option("", `${t("faculty")}: ${t("all")}`, !f.faculty)}
+          ${FACULTIES.map(c => option(c, facLabel(c), f.faculty === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
         <label for="fl-sort">${esc(t("sort_by"))}</label>
         <select id="fl-sort" name="sort">
           ${option("recent", t("sort_recent"), f.sort === "recent")}
@@ -1383,6 +1795,7 @@ function openFilters() {
     state.filters.campus = fd.get("campus") || "";
     state.filters.condition = fd.get("condition") || "";
     state.filters.type = fd.get("type") || "";
+    state.filters.faculty = fd.get("faculty") || "";
     state.filters.sort = fd.get("sort") || "recent";
     closeModal();
     syncHeroSearch();
@@ -1428,6 +1841,7 @@ async function renderHome(app) {
         <img class="hero-art" src="/static/img/hero-reuse.jpg" alt="" width="880" height="660" fetchpriority="high" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
       </div>
       <div class="stats-row" id="hero-stats">${state.stats ? statsCards(state.stats) : statSkeleton()}</div>
+      <div id="impact-band">${state.stats ? impactBand(state.stats) : ""}</div>
     </section>
 
     <div class="catalog-toolbar">
@@ -1478,8 +1892,19 @@ async function renderHome(app) {
     state.filters.campus = campus ? campus.value : "";
   };
 
+  let searchTimer = null;
+  const qInput = $("#q");
+  if (qInput) {
+    qInput.addEventListener("input", () => {
+      state.filters.q = qInput.value.trim();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => refreshCatalog({ quiet: true }), 320);
+    });
+  }
+
   $("#hero-search").onsubmit = (e) => {
     e.preventDefault();
+    clearTimeout(searchTimer);
     readHero();
     refreshCatalog();
     const toolbar = $(".catalog-toolbar");
@@ -1506,6 +1931,8 @@ async function renderHome(app) {
     fetchStats().then(stats => {
       const box = $("#hero-stats");
       if (box && stats) box.innerHTML = statsCards(stats);
+      const impact = $("#impact-band");
+      if (impact && stats) impact.innerHTML = impactBand(stats);
     });
   }
 }
@@ -1536,59 +1963,12 @@ function renderPublish(app) {
     </div>
     <form class="form-shell" id="publish-form">
       <div class="form-section">
-        <h3>${esc(t("form_sec_1"))}</h3>
-        <div class="field">
-          <label for="p-title">${esc(t("f_title"))}</label>
-          <input id="p-title" name="title" required minlength="3" maxlength="80" placeholder="${esc(t("title_ph"))}" autocomplete="off">
+        <div class="section-head">
+          <h3>${esc(t("form_quick"))}</h3>
+          <span class="time-chip">${icon("clock")}${esc(t("form_quick_hint"))}</span>
         </div>
         <div class="field">
-          <label for="p-desc">${esc(t("f_desc"))}</label>
-          <textarea id="p-desc" name="description" required minlength="10" maxlength="2000"></textarea>
-          <div class="field-hint"><span>${esc(t("desc_hint"))}</span><span class="counter" id="desc-counter">0/2000</span></div>
-        </div>
-        <div class="form-grid">
-          <div class="field">
-            <label for="p-category">${esc(t("f_category"))}</label>
-            <select id="p-category" name="category">${CATEGORIES.map(c => option(c, catLabel(c))).join("")}</select>
-          </div>
-          <div class="field">
-            <label for="p-condition">${esc(t("f_condition"))}</label>
-            <select id="p-condition" name="condition">${CONDITIONS.map(c => option(c, condLabel(c))).join("")}</select>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>${esc(t("form_sec_2"))}</h3>
-        <div class="form-grid">
-          <div class="field">
-            <label for="p-type">${esc(t("f_type"))}</label>
-            <select id="p-type" name="exchange_type">${TYPES.map(c => option(c, typeLabel(c))).join("")}</select>
-          </div>
-          <div class="field hidden" id="price-field">
-            <label for="p-price">${esc(t("f_price"))}</label>
-            <input id="p-price" name="price" type="number" min="0" max="10000" step="1" value="0" inputmode="numeric">
-            <small>${esc(t("f_price_hint"))}</small>
-          </div>
-          <div class="field">
-            <label for="p-campus">${esc(t("f_campus"))}</label>
-            <select id="p-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), state.user.campus === c)).join("")}</select>
-          </div>
-          <div class="field">
-            <label for="p-handover">${esc(t("f_handover"))}</label>
-            <select id="p-handover" name="handover_point">${HANDOVERS.map(c => option(c, handLabel(c))).join("")}</select>
-          </div>
-        </div>
-        <div class="notice hidden" id="payment-notice" role="note">
-          <span class="notice-icon" aria-hidden="true">€</span>
-          <div><strong>${esc(t("payment_notice_title"))}</strong><p>${esc(t("payment_notice_body"))}</p></div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>${esc(t("form_sec_3"))}</h3>
-        <div class="field">
-          <span class="field-label">${esc(t("f_image"))}</span>
+          <span class="field-label">${esc(t("f_image"))} <span class="req-mark" aria-hidden="true">*</span><span class="sr-only">${esc(t("required_word"))}</span></span>
           <label class="upload-zone" id="upload-zone" for="img-file">
             ${icon("camera")}
             <strong>${esc(t("photo_drop_t"))}</strong>
@@ -1601,8 +1981,67 @@ function renderPublish(app) {
             <button type="button" class="upload-remove" id="img-remove">${icon("trash")}${esc(t("photo_remove"))}</button>
           </div>
           <div class="upload-status hidden" id="upload-status" role="status" aria-live="polite"></div>
-          <small>${esc(t("f_image_hint"))}</small>
+          <small>${esc(t("image_required_hint"))}</small>
         </div>
+        <div class="field">
+          <label for="p-title">${esc(t("f_title"))} <span class="req-mark" aria-hidden="true">*</span></label>
+          <input id="p-title" name="title" required minlength="3" maxlength="80" placeholder="${esc(t("title_ph"))}" autocomplete="off">
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="p-category">${esc(t("f_category"))} <span class="req-mark" aria-hidden="true">*</span></label>
+            <select id="p-category" name="category">${CATEGORIES.map(c => option(c, catLabel(c))).join("")}</select>
+          </div>
+          <div class="field">
+            <label for="p-type">${esc(t("f_type"))} <span class="req-mark" aria-hidden="true">*</span></label>
+            <select id="p-type" name="exchange_type">${TYPES.map(c => option(c, typeLabel(c))).join("")}</select>
+          </div>
+          <div class="field hidden" id="price-field">
+            <label for="p-price">${esc(t("f_price"))}</label>
+            <input id="p-price" name="price" type="number" min="0" max="10000" step="1" value="0" inputmode="numeric">
+            <small>${esc(t("f_price_hint"))}</small>
+          </div>
+        </div>
+        <div class="notice hidden" id="payment-notice" role="note">
+          <span class="notice-icon" aria-hidden="true">€</span>
+          <div><strong>${esc(t("payment_notice_title"))}</strong><p>${esc(t("payment_notice_body"))}</p></div>
+        </div>
+      </div>
+
+      <details class="form-optional" id="optional-details">
+        <summary>
+          ${icon("sliders")}
+          <span class="summary-text"><strong>${esc(t("form_optional"))}</strong><small>${esc(t("form_optional_hint"))}</small></span>
+          ${icon("chevron")}
+        </summary>
+        <div class="form-section form-section-flush">
+          <div class="field">
+            <label for="p-desc">${esc(t("f_desc_optional"))}</label>
+            <textarea id="p-desc" name="description" maxlength="2000"></textarea>
+            <div class="field-hint"><span>${esc(t("desc_hint"))}</span><span class="counter" id="desc-counter">0/2000</span></div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="p-condition">${esc(t("f_condition"))}</label>
+              <select id="p-condition" name="condition">${CONDITIONS.map(c => option(c, condLabel(c), c === "bueno")).join("")}</select>
+            </div>
+            <div class="field">
+              <label for="p-campus">${esc(t("f_campus"))}</label>
+              <select id="p-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), state.user.campus === c)).join("")}</select>
+            </div>
+            <div class="field">
+              <label for="p-faculty">${esc(t("f_faculty"))}</label>
+              <select id="p-faculty" name="faculty">${option("", t("fac_none"), true)}${FACULTIES.map(c => option(c, facLabel(c))).join("")}</select>
+            </div>
+            <div class="field">
+              <label for="p-handover">${esc(t("f_handover"))}</label>
+              <select id="p-handover" name="handover_point">${HANDOVERS.map(c => option(c, handLabel(c), c === "acordado")).join("")}</select>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div class="form-section">
         <div class="consent-box">
           <label class="check-row"><input type="checkbox" name="private_seller" id="p-private" required><span>${esc(t("f_private"))}</span></label>
           <p>${esc(t("f_private_hint"))}</p>
@@ -1710,6 +2149,16 @@ function renderPublish(app) {
     payload.image_url = $("#img-url").value || "";
     payload.price = payload.exchange_type === "vender" ? Number(payload.price || 0) : 0;
     const submit = $("#publish-submit");
+    if (!payload.image_url) {
+      toast(t("toast_image_required"), "error");
+      const zone = $("#upload-zone");
+      if (zone) {
+        zone.classList.add("is-missing");
+        zone.scrollIntoView({ block: "center", behavior: "smooth" });
+        setTimeout(() => zone.classList.remove("is-missing"), 1400);
+      }
+      return;
+    }
     setBusy(submit, true, t("publishing"));
     try {
       await api("/api/items", { method: "POST", body: JSON.stringify(payload) });
@@ -1814,7 +2263,7 @@ function accountToolsHtml() {
     return `<div class="privacy-panel">
       <h3>${esc(t("account_data_title"))}</h3>
       <p>${esc(t("privacy_login_manage"))}</p>
-      <button class="btn btn-primary btn-sm" data-action="login">${icon("user")}${esc(t("login"))}</button>
+      <button type="button" class="btn btn-primary btn-sm" data-action="login">${icon("user")}${esc(t("login"))}</button>
     </div>`;
   }
   return `<div class="privacy-panel">
@@ -1824,8 +2273,8 @@ function accountToolsHtml() {
         <p>${esc(t("account_data_body"))}</p>
       </div>
       <div class="account-actions">
-        <button class="btn btn-ghost btn-sm" data-action="export">${icon("download")}${esc(t("privacy_export"))}</button>
-        <button class="btn btn-danger btn-sm" data-action="delete">${icon("trash")}${esc(t("privacy_delete"))}</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="export">${icon("download")}${esc(t("privacy_export"))}</button>
+        <button type="button" class="btn btn-danger btn-sm" data-action="delete">${icon("trash")}${esc(t("privacy_delete"))}</button>
       </div>
     </div>
     <dl class="account-meta">
@@ -1948,8 +2397,11 @@ function renderMy(app) {
       <p class="lead lead-inline">
         <span class="avatar avatar-sm" aria-hidden="true">${initials}</span>
         <span>${esc(campusLabel(state.user.campus))} · ${esc(state.user.email)}</span>
-        <span class="identity-badge${state.user.academic_email ? " academic" : ""}">${icon(state.user.academic_email ? "check" : "user")}${esc(state.user.academic_email ? t("academic_email") : t("personal_email"))}</span>
+        <span class="identity-badge${(state.user.university_verified || state.user.academic_email) ? " academic" : ""}">${icon((state.user.university_verified || state.user.academic_email) ? "check" : "user")}${esc((state.user.university_verified || state.user.academic_email) ? t("verified_badge") : t("personal_email"))}</span>
       </p>
+    </div>
+    <div id="trust-panel" class="mt-4">
+      <div class="trust-panel"><div class="skeleton sk-line w-45"></div><div class="skeleton sk-line w-70 mt-3"></div><div class="skeleton sk-line w-60 mt-3"></div></div>
     </div>
     <div class="segment" role="tablist" aria-label="${esc(t("my_area_subtitle"))}">
       ${MY_TABS.map(x => `<button type="button" role="tab" id="tab-${x.id}" aria-selected="${tab === x.id}" aria-controls="my-panel" data-tab="${x.id}">${esc(t(x.label))}</button>`).join("")}
@@ -1968,6 +2420,24 @@ function renderMy(app) {
     if (activeTab) activeTab.focus();
   }
   loadMyTab(tab);
+  loadTrustPanel();
+}
+
+async function loadTrustPanel() {
+  const box = $("#trust-panel");
+  if (!box || !state.user) return;
+  try {
+    const data = await api("/api/impact/me");
+    if (!box.isConnected) return;
+    box.innerHTML = trustPanel(data);
+    const bar = $("[data-level-bar]", box);
+    const progress = Math.max(0, Math.min(100, Number((data.level || {}).progress) || 0));
+    if (bar) bar.style.width = `${progress}%`;
+  } catch (err) {
+    if (box.isConnected) {
+      box.innerHTML = `<p class="muted small">${icon("info")} ${esc(t("my_impact_error"))}</p>`;
+    }
+  }
 }
 
 function myItemCard(it) {
@@ -1993,7 +2463,7 @@ function myItemCard(it) {
 
 function requestCard(r, mode) {
   const isReceived = mode === "received";
-  const owner = isReceived ? `<span class="list-card-meta"> · ${esc(r.requester_name || "")}</span>` : "";
+  const owner = isReceived ? `<span class="list-card-meta"> · ${esc(r.counterpart_name || r.requester_name || "")}</span>` : "";
   return `<article class="list-card">
     <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" loading="lazy" data-fallback data-category="otros">
     <div class="list-card-body">
@@ -2001,7 +2471,9 @@ function requestCard(r, mode) {
         <h3 class="list-card-title">${esc(r.item_title)}${owner}</h3>
         <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
       </div>
+      ${r.handover_point ? `<p class="list-card-meta">${icon("pin")}${esc(t("req_handover"))}: ${esc(handLabel(r.handover_point))}</p>` : ""}
       ${r.message ? `<p class="list-card-message">${esc(r.message)}</p>` : ""}
+      ${r.my_rating ? `<p class="list-card-rating">${starsHtml(r.my_rating, 0, { withCount: false })}<span>${esc(t("req_rated").replace("{n}", String(r.my_rating)))}</span></p>` : ""}
       <div class="list-card-actions">
         <button type="button" class="btn btn-ghost btn-sm" data-view="${r.item_id}">${icon("eye")}${esc(t("view_item"))}</button>
         ${!isReceived && r.status === "pendiente" ? `<button type="button" class="btn btn-danger btn-sm" data-cancelreq="${r.id}">${esc(t("cancel_req"))}</button>` : ""}
@@ -2009,6 +2481,7 @@ function requestCard(r, mode) {
           <button type="button" class="btn btn-primary btn-sm" data-accept="${r.id}">${icon("check")}${esc(t("accept"))}</button>
           <button type="button" class="btn btn-ghost btn-sm" data-reject="${r.id}">${esc(t("reject"))}</button>` : ""}
         ${isReceived && r.status === "aceptada" ? `<button type="button" class="btn btn-primary btn-sm" data-complete="${r.id}">${icon("check-circle")}${esc(t("complete"))}</button>` : ""}
+        ${r.can_rate ? `<button type="button" class="btn btn-primary btn-sm" data-rate="${r.id}" data-rate-title="${esc(r.item_title)}">${icon("star")}${esc(t("rate_cta"))}</button>` : ""}
       </div>
     </div>
   </article>`;
@@ -2023,7 +2496,9 @@ async function loadMyTab(tab) {
     if (tab === "items") {
       const data = await api("/api/items?status=&sort=recent");
       const mine = (data.items || []).filter(i => i.owner_id === state.user.id);
-      html = mine.length ? mine.map(myItemCard).join("") : emptyState({
+      html = mine.length
+        ? `<p class="hint-line">${icon("info")}${esc(t("status_help"))}</p>` + mine.map(myItemCard).join("")
+        : emptyState({
         iconName: "leaf",
         title: t("empty_my_items_t"),
         text: t("empty_my_items_b"),
@@ -2097,6 +2572,7 @@ function bindMyActions(panel) {
     try {
       await api(`/api/requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
       toast(okMsg);
+      state.stats = null;
       render();
     } catch (err) {
       btn.disabled = false;
@@ -2107,6 +2583,12 @@ function bindMyActions(panel) {
   $$("[data-accept]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.accept, "aceptada", t("toast_req_status")); });
   $$("[data-reject]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.reject, "rechazada", t("toast_req_status")); });
   $$("[data-complete]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.complete, "completada", t("toast_req_status")); });
+  $$("[data-rate]", panel).forEach(b => {
+    b.onclick = () => openRate(b.dataset.rate, b.dataset.rateTitle, () => {
+      loadMyTab(state.myTab);
+      loadTrustPanel();
+    });
+  });
 }
 
 function confirmDeleteItem(id) {
@@ -2155,6 +2637,7 @@ async function openItem(id) {
   }
   if (!modal.isConnected) return;
 
+  state.lastItem = it;
   const owner = it.owner || {};
   const isOwn = state.user && state.user.id === it.owner_id;
   const isSale = it.exchange_type === "vender";
@@ -2179,6 +2662,7 @@ async function openItem(id) {
       <span class="pill grey">${esc(condLabel(it.condition))}</span>
       <span class="pill grey">${esc(typeLabel(it.exchange_type))}</span>
       <span class="pill grey">${esc(campusLabel(it.campus))}</span>
+      ${it.faculty ? `<span class="pill grey">${icon("grid")}${esc(facLabel(it.faculty))}</span>` : ""}
     </div>
     <div class="detail-price-row">
       <div><span class="price">${price}</span>${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}</div>
@@ -2186,19 +2670,30 @@ async function openItem(id) {
     </div>
     <section class="detail-section">
       <h3>${esc(t("detail_description"))}</h3>
-      <p class="detail-desc">${esc(it.description)}</p>
+      <p class="detail-desc">${it.description ? esc(it.description) : `<span class="muted">${esc(t("detail_no_desc"))}</span>`}</p>
+      <p class="impact-line">${icon("leaf")}<span>${esc(t("impact_item").replace("{kg}", fmtNum((it.impact || {}).kg, 1)).replace("{eur}", fmtNum((it.impact || {}).savings, 0)))}</span></p>
     </section>
     <section class="detail-section">
       <h3>${esc(t("owner"))}</h3>
       <div class="owner-card">
         <span class="avatar" aria-hidden="true">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
-        <div>
+        <div class="owner-body">
           <p class="owner-name">${esc(owner.name || "—")}
-            <span class="identity-badge${owner.academic_email ? " academic" : ""}">${icon("check")}${esc(owner.academic_email ? t("academic_email") : t("personal_email"))}</span>
+            <span class="identity-badge${owner.university_verified ? " academic" : ""}">${icon(owner.university_verified ? "check" : "user")}${esc(owner.university_verified ? t("verified_badge") : t("personal_email"))}</span>
+          </p>
+          <p class="owner-trust">${starsHtml((owner.rating || {}).average, (owner.rating || {}).count)}</p>
+          <p class="owner-stats">
+            <span>${icon("refresh")}${(owner.exchanges || {}).completed || 0} ${esc(t("exchanges_short"))}</span>
+            <span>${icon("leaf")}${fmtNum((owner.impact || {}).kg, 1)} kg</span>
+            <span class="level-pill">${esc(t("level_label"))}: ${esc(levelLabel((owner.level || {}).key || "semilla"))}</span>
           </p>
           <small>${esc(t("identity_note"))}</small>
         </div>
       </div>
+      <details class="disclosure">
+        <summary>${icon("star")}<span>${esc(t("ratings_received"))}</span>${icon("chevron")}</summary>
+        <div class="disclosure-body">${ratingList(owner.rating)}</div>
+      </details>
     </section>
     <details class="disclosure">
       <summary>${icon("shield")}<span>${esc(t("detail_handover_h"))}</span>${icon("chevron")}</summary>
@@ -2257,6 +2752,8 @@ async function openItem(id) {
 }
 
 function openRequest(itemId) {
+  const item = state.lastItem && state.lastItem.id === itemId ? state.lastItem : null;
+  const suggestedPoint = (item && HANDOVERS.includes(item.handover_point)) ? item.handover_point : "acordado";
   openModal(`
     ${closeBtn()}
     <div class="modal-head">
@@ -2268,15 +2765,24 @@ function openRequest(itemId) {
         <label for="request-message">${esc(t("request_msg"))}</label>
         <textarea id="request-message" name="message" maxlength="1000" placeholder="${esc(t("request_msg_ph"))}" data-autofocus></textarea>
       </div>
+      <div class="field">
+        <label for="request-point">${esc(t("request_point"))}</label>
+        <select id="request-point" name="handover_point">
+          ${HANDOVERS.map(c => option(c, handLabel(c), c === suggestedPoint)).join("")}
+        </select>
+        <small>${esc(t("request_point_hint"))}</small>
+      </div>
       <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("inbox")}${esc(t("request_btn"))}</button>
     </form>`, { labelledBy: "request-title", sheet: true });
   $("#request-form").onsubmit = async (e) => {
     e.preventDefault();
-    const message = new FormData(e.target).get("message") || "";
+    const fd = new FormData(e.target);
+    const message = fd.get("message") || "";
+    const handover_point = fd.get("handover_point") || "";
     const submit = $("[data-submit]", e.target);
     setBusy(submit, true, t("sending"));
     try {
-      await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message }) });
+      await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message, handover_point }) });
       closeModal();
       toast(t("toast_request"));
     } catch (err) {

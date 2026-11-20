@@ -121,10 +121,12 @@ python3 app.py
 # Abrir http://127.0.0.1:5000
 ```
 
-La base y los objetos de ejemplo se crean automáticamente en el primer arranque.
-El propietario de ejemplo es `Equipo Circular Campus`, con contraseña aleatoria
-y no utilizable para iniciar sesión. Para reiniciar el demo, elimina el archivo
-de base de datos configurado y vuelve a arrancar.
+La base y los objetos de ejemplo se crean automáticamente en el primer arranque:
+12 objetos disponibles, 8 entregas con fecha, valoraciones de ejemplo y dos
+perfiles de demostración (`Lucía Ferreiro` y `Diego Camba`) con contraseña
+aleatoria. La cuenta propietaria del tablón es `Equipo Circular Campus`, también
+sin acceso. Para reiniciar el demo, elimina el archivo de base de datos
+configurado y vuelve a arrancar.
 
 ## Configuración
 
@@ -137,30 +139,54 @@ de base de datos configurado y vuelve a arrancar.
 | `SEED_DEMO` | `1` | `0` desactiva los objetos de ejemplo |
 | `CONTACT_EMAIL` | `privacidad@circular-campus.example` | **Sustituir por un correo real antes de producción** |
 | `CONTROLLER_NAME` | `Equipo Circular Campus (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
-| `LEGAL_VERSION` | `2026-11-17` | Versión del consentimiento; cambiarla fuerza renovación |
-| `LEGAL_UPDATED` | `2026-11-17` | Fecha visible en los documentos |
+| `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
+| `LEGAL_UPDATED` | `2026-11-20` | Fecha visible en los documentos |
+| `UNIVERSITY_DOMAINS` | lista interna (uvigo.gal, udc.es, usc.es, …) | Dominios de correo institucional que muestran la insignia informativa, separados por comas |
 
 No se necesita `SECRET_KEY`: la app no usa cookies de sesión de Flask, sino
 tokens Bearer aleatorios almacenados en el navegador.
 
 ## Funcionalidades
 
-- **Explorar**: búsqueda, filtros por categoría, campus, estado, tipo y orden.
-- **Publicar**: título, descripción honesta, categoría, estado, tipo, campus,
-  punto de entrega, foto local y confirmación obligatoria de particular.
+- **Explorar**: búsqueda instantánea con debounce (sin distinguir acentos:
+  «lampara» encuentra «Lámpara»), filtros combinables por categoría, campus,
+  tipo de operación, estado físico y facultad, y orden por precio o novedad.
+- **Publicar en menos de un minuto**: solo son obligatorios foto, título,
+  categoría y tipo de entrega; descripción, estado, campus, facultad y punto de
+  encuentro se pueden dejar sin rellenar y el formulario aplica valores
+  razonables (estado «bueno», punto «lugar acordado»).
 - **Precio orientativo**: visible solo en «Vender», con un aviso claro de que
   no hay pagos gestionados por la plataforma.
-- **Solicitar**: mensaje breve; la otra persona acepta, rechaza o marca entrega.
-- **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos y panel de
-  datos con exportación y supresión.
-- **Confianza**: estado del objeto, normas, entrega en lugar público y nota
-  clara de que no hay verificación oficial.
+- **Ciclo de vida explícito**: `Disponible → Reservado → Entregado`. Aceptar
+  una solicitud reserva el objeto, completarlo lo marca como entregado con
+  fecha, cancelar o rechazar lo devuelve al tablón y el resto de solicitudes
+  pendientes se cierran al entregar.
+- **Punto de encuentro**: la solicitud propone biblioteca, conserjería,
+  cafetería, entrada, punto señalizado o lugar acordado, y la otra persona
+  puede ajustarlo al aceptar.
+- **Confianza**: insignia automática de correo institucional (informativa, no
+  acredita matrícula), media de valoraciones 1–5 con comentarios, historial de
+  intercambios completados, nivel por actividad y badges de trayectoria.
+- **Valoración rápida**: tras cerrar una entrega, ambas partes pueden puntuar
+  y comentar una sola vez; el comentario es público y no editable.
+- **Impacto estimado**: objetos reutilizados, kilos de residuos evitados y
+  ahorro económico estimados por categoría, en la portada y en Mi área.
+- **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos, panel de
+  confianza y datos de la cuenta con exportación y supresión.
 - **Puntos de entrega**: etiquetas orientativas; no son puntos oficiales.
 - **Legal**: aviso legal, privacidad y condiciones en tres idiomas, con
   impresión/guardado en PDF desde el navegador.
 - **Trilingüe**: ES / EN / GL con selector y rutas directas.
-- **Estadísticas**: contadores reales de la base, sin métricas de impacto
-  inventadas.
+
+### Cómo se calcula el impacto
+
+Las cifras son **estimaciones transparentes**, no mediciones ni una auditoría
+ambiental. `CATEGORY_IMPACT` en `app.py` asigna a cada categoría un peso medio
+y un valor de reposición; por cada objeto con estado `entregado` se suman esos
+valores. En las ventas simbólicas el ahorro es la diferencia entre el valor de
+reposición y el precio orientativo. La interfaz lo etiqueta siempre como
+estimación y las condiciones de uso lo dejan por escrito.
+
 
 ## Interfaz y sistema de diseño
 
@@ -182,7 +208,8 @@ lugar de tablas densas.
 **Componentes unificados**: `.btn` (primario, fantasma, suave, peligro),
 `.chip`, `.pill`, `.badge`, `.status-pill`, `.card`, `.list-card`, `.field`,
 `.upload-zone`, `.segment`, `.modal` (hoja inferior en móvil), `.toast`,
-`.empty`, `skeleton` y `.notice`. La presentación se resuelve con variables y
+`.empty`, `skeleton`, `.notice`, `.impact-band`, `.trust-panel`, `.stars`,
+`.rating-list`, `.badge-chip`, `.level-track` y `.rate-option`. La presentación se resuelve con variables y
 clases; no se usan estilos inline para diseño.
 
 **Experiencia móvil**
@@ -192,12 +219,18 @@ clases; no se usan estilos inline para diseño.
 - Áreas táctiles mínimas de 44 × 44 px: `@media (pointer: coarse)` refuerza
   botones pequeños, chips y enlaces del pie.
 - Chips de categoría en una fila con scroll horizontal, pegajosa en escritorio.
-- Filtros de campus, estado, tipo y orden en una hoja inferior con «Ver
-  resultados» y contador de filtros activos.
+- Filtros de campus, estado, tipo, facultad y orden en una hoja inferior con
+  «Ver resultados» y contador de filtros activos; la búsqueda del hero filtra
+  en vivo con 320 ms de debounce y sin recargar la página.
 - Ficha del objeto como hoja inferior, con acciones pegadas al borde
   (solicitar/guardar) y avisos secundarios plegados en `<details>`.
 - Tarjetas con foto, título, categoría, estado, campus y acción principal; en
   móvil se oculta la descripción para priorizar el catálogo.
+- Banda de impacto bajo las cifras de la portada y panel de confianza en Mi
+  área (nivel, insignias, valoraciones e impacto propio) que se carga aparte
+  para no bloquear el resto de la vista.
+- Valoración con radios nativos de 44 px y comentario opcional; el estado
+  «Valorado con n/5» sustituye al botón cuando ya se ha puntuado.
 
 **Estados de interfaz**
 
@@ -229,10 +262,11 @@ una comprobación rápida es que `es`, `en` y `gl` mantengan las mismas claves.
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
 | GET | `/api/health` | — | Estado, producto y versión legal |
-| GET | `/api/stats` | — | Contadores reales y categorías |
-| GET | `/api/items` | — | Listar objetos y filtros |
-| GET | `/api/items/:id` | — | Detalle con propietario mínimo, sin email |
-| POST | `/api/items` | ✓ | Crear objeto; exige `private_seller` |
+| GET | `/api/stats` | — | Contadores reales, categorías e impacto estimado |
+| GET | `/api/impact/me` | ✓ | Impacto, valoraciones, nivel y badges propios |
+| GET | `/api/items` | — | Listar objetos con filtros (`q`, `category`, `campus`, `condition`, `type`, `faculty`, `status`, `sort`) |
+| GET | `/api/items/:id` | — | Detalle con impacto y confianza del propietario, sin email |
+| POST | `/api/items` | ✓ | Crear objeto; exige `private_seller`, foto y tipo |
 | PATCH | `/api/items/:id` | ✓ dueño | Cambiar estado |
 | DELETE | `/api/items/:id` | ✓ dueño | Eliminar objeto e imagen subida |
 | POST | `/api/upload` | ✓ | Subir imagen local validada por extensión y magic bytes |
@@ -246,10 +280,11 @@ una comprobación rápida es que `es`, `en` y `gl` mantengan las mismas claves.
 | POST | `/api/items/:id/request` | ✓ | Solicitar objeto |
 | GET | `/api/requests/mine` | ✓ | Solicitudes enviadas |
 | GET | `/api/requests/received` | ✓ | Solicitudes recibidas |
-| PATCH | `/api/requests/:id` | ✓ | Aceptar/rechazar/completar/cancelar |
+| PATCH | `/api/requests/:id` | ✓ | Aceptar/rechazar/completar/cancelar y ajustar el punto |
+| POST | `/api/requests/:id/rate` | ✓ | Valorar (1–5) una entrega completada |
 | POST | `/api/items/:id/favorite` | ✓ | Alternar favorito |
 | GET | `/api/favorites` | ✓ | Favoritos |
-| GET | `/api/users/:id` | — | Perfil público mínimo |
+| GET | `/api/users/:id` | — | Perfil público mínimo con valoraciones y badges |
 
 Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 `/mi-area`, `/aviso-legal`, `/privacidad`, `/condiciones`.
@@ -259,8 +294,15 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 - **SQLite local + PostgreSQL alojado**: el mismo código funciona con SQLite
   para desarrollo y con PostgreSQL mediante `DATABASE_URL` para desplegar sin
   depender de almacenamiento local persistente.
-- **Migración tolerante**: `migrate_db()` añade `consent_at` y
-  `consent_version` a bases creadas por versiones anteriores.
+- **Migración tolerante e idempotente**: `migrate_db()` añade
+  `consent_at`, `consent_version`, `faculty`, `delivered_at` y el punto
+  propuesto de cada solicitud a bases creadas por versiones anteriores, en
+  SQLite y PostgreSQL, y rellena `delivered_at` de las entregas antiguas.
+- **Valoración ligada a la entrega**: la tabla `ratings` es única por
+  `(request_id, rater_id)`, solo admite solicitudes `completada` y participantes,
+  y nunca permite autovalorarse.
+- **Impacto calculado en servidor**: el cliente no envía cifras; se derivan de
+  los objetos entregados y se muestran como estimación.
 - **Arranque WSGI-compatible**: `bootstrap()` se ejecuta al importar el módulo,
   no solo con `python3 app.py`.
 - **Validación en servidor** de longitudes, enumeraciones, precio, imagen,
@@ -278,7 +320,10 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 - En Render gratuito configura `DATABASE_URL` con PostgreSQL gestionado; si no,
   SQLite quedará en almacenamiento efímero y podría borrarse al reiniciar.
   Revisa los límites, pausas y copias del proveedor PostgreSQL.
-- Solo se cuentan objetos, disponibilidad, entregas marcadas y cuentas.
+- Las cifras de impacto son estimaciones por categoría, no mediciones: sirven
+  para dar orden de magnitud y se etiquetan como tales.
+- Las valoraciones no tienen moderación automática: son texto de las personas
+  usuarias y pueden requerir revisión manual.
 - Antes de uso real con datos personales o actividad económica, completa la
   identificación del responsable, el correo de contacto y una revisión
   jurídica/fiscal/LSSI específica.

@@ -52,6 +52,8 @@ externo; revisa allí sus condiciones actuales.
    de forma segura si falta `DATABASE_URL`, en vez de recurrir a SQLite efímero.
 5. Configura `CONTACT_EMAIL`, `CONTROLLER_NAME` y, si corresponde, las versiones
    legales. Cambia `SEED_DEMO=0` si no quieres objetos de demostración.
+   `UNIVERSITY_DOMAINS` permite ajustar, separados por comas, los dominios de
+   correo que muestran la insignia informativa de estudiante.
 6. Espera a que el health check esté en verde y prueba crear una cuenta; luego
    cierra sesión y vuelve a entrar para comprobar el guardado.
 
