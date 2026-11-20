@@ -96,7 +96,7 @@ campus-circular/
 ├── app.py                  # API, arranque, seguridad, seed y derechos de cuenta
 ├── templates/index.html    # Shell SPA, cabecera, pie y configuración legal
 ├── static/
-│   ├── css/style.css       # Diseño responsive y estilos de documentos legales
+│   ├── css/style.css       # Tokens de diseño, componentes, responsive y documentos legales
 │   ├── js/app.js           # SPA, i18n, vistas, modales y cliente API
 │   ├── img/                # Marca revisada, CTC Congress, equipo y fotografías locales
 │   └── uploads/            # Imágenes subidas (ignoradas en Git)
@@ -161,6 +161,68 @@ tokens Bearer aleatorios almacenados en el navegador.
 - **Trilingüe**: ES / EN / GL con selector y rutas directas.
 - **Estadísticas**: contadores reales de la base, sin métricas de impacto
   inventadas.
+
+## Interfaz y sistema de diseño
+
+La interfaz es **mobile-first**: en móvil se navega con una barra inferior fija
+y en escritorio con la barra superior. El catálogo usa tarjetas escaneables en
+lugar de tablas densas.
+
+**Tokens** (`:root` en `static/css/style.css`)
+
+| Grupo | Variables | Uso |
+|---|---|---|
+| Verde orgánico | `--green-50 … --green-900` | marca, botones primarios, estados disponibles |
+| Neutros cálidos | `--sand-50 … --sand-300`, `--ink`, `--ink-2`, `--muted` | fondos, jerarquía de texto |
+| Semánticos | `--amber-*`, `--red-*`, `--blue-*`, `--coral-*` | reservado/pendiente, rechazado/cancelado, entregado, avisos de pago |
+| Tipografía | `--font`, `--font-display`, `--text-xs … --text-3xl` | escala fluida con `clamp()`; serif editorial solo en titulares |
+| Espacio y forma | `--s1 … --s16`, `--r-xs … --r-xl`, `--shadow-xs … --shadow-lg` | ritmo de 4 px, radios y elevación consistentes |
+| Movimiento | `--ease`, `--fast`, `--slow` | transiciones cortas y predecibles |
+
+**Componentes unificados**: `.btn` (primario, fantasma, suave, peligro),
+`.chip`, `.pill`, `.badge`, `.status-pill`, `.card`, `.list-card`, `.field`,
+`.upload-zone`, `.segment`, `.modal` (hoja inferior en móvil), `.toast`,
+`.empty`, `skeleton` y `.notice`. La presentación se resuelve con variables y
+clases; no se usan estilos inline para diseño.
+
+**Experiencia móvil**
+
+- Barra inferior fija (`< 960 px`) con cinco destinos y botón central de
+  publicar; los mismos destinos aparecen en la barra superior de escritorio.
+- Áreas táctiles mínimas de 44 × 44 px: `@media (pointer: coarse)` refuerza
+  botones pequeños, chips y enlaces del pie.
+- Chips de categoría en una fila con scroll horizontal, pegajosa en escritorio.
+- Filtros de campus, estado, tipo y orden en una hoja inferior con «Ver
+  resultados» y contador de filtros activos.
+- Ficha del objeto como hoja inferior, con acciones pegadas al borde
+  (solicitar/guardar) y avisos secundarios plegados en `<details>`.
+- Tarjetas con foto, título, categoría, estado, campus y acción principal; en
+  móvil se oculta la descripción para priorizar el catálogo.
+
+**Estados de interfaz**
+
+- `skeleton` al cargar catálogo, estadísticas y «Mi área» (nunca pantallas en
+  blanco).
+- Estados vacíos accionables: publicar el primero, limpiar filtros o explorar.
+- Errores con «Reintentar» y avisos `toast` con icono, cierre manual y barra de
+  progreso; `toast` distinto para éxito, error e información.
+- Botones de envío con `spinner` y texto («Publicando…», «Enviando…»,
+  «Guardando…»).
+
+**Accesibilidad**
+
+- Contraste WCAG AA en texto principal y secundario, badges de estado y botones
+  (≥ 4.5:1 para texto normal; el foco visible se adapta sobre fondos oscuros).
+- Diálogos con `role="dialog"`, `aria-modal`, foco atrapado, cierre con `Escape`
+  y restauración del foco al elemento de origen.
+- `aria-pressed` en filtros y favoritos, `aria-selected` en pestañas,
+  `aria-current="page"` en navegación y regiones `aria-live` para resultados y
+  avisos.
+- Enlace «saltar al contenido», etiquetas explícitas en todos los campos, iconos
+  decorativos con `aria-hidden` y respeto a `prefers-reduced-motion`.
+
+Los textos nuevos se añaden en los tres idiomas de `I18N` (`static/js/app.js`);
+una comprobación rápida es que `es`, `en` y `gl` mantengan las mismas claves.
 
 ## API (resumen)
 

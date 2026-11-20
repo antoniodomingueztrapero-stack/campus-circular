@@ -156,6 +156,31 @@ const I18N = {
     legal_title: "Aviso legal", legal_lead: "Información general sobre Circular Campus, su naturaleza independiente y el uso de este sitio.",
     privacy_title: "Política de privacidad y datos", privacy_lead: "Aviso en capas: aquí tienes el resumen y el detalle del tratamiento de datos personales.",
     terms_title: "Condiciones de uso", terms_lead: "Reglas para participar como particular en un prototipo de reutilización sin pagos gestionados por la plataforma.",
+    hero_chip_1: "Sin pagos ni comisiones", hero_chip_2: "Datos mínimos", hero_chip_3: "Proyecto independiente",
+    type_badge_regalar: "Regalar", type_badge_prestar: "Prestar", type_badge_intercambiar: "Intercambiar", type_badge_vender: "Vender",
+    nav_my: "Mi área", nav_points_short: "Puntos", nav_rules_short: "Normas",
+    filters_btn: "Filtros", filters_title: "Filtros y orden", filters_subtitle: "Ajusta campus, estado, tipo y orden de los resultados.",
+    filters_apply: "Ver resultados", filters_clear: "Limpiar todo", sort_by: "Ordenar por",
+    loading_items: "Cargando objetos…", retry: "Reintentar", catalog_eyebrow: "Catálogo",
+    results_found: "objetos encontrados", results_one: "objeto encontrado",
+    empty_catalog_t: "Aún no hay objetos publicados", empty_catalog_b: "Sé la primera persona en dar una segunda vida a algo que ya no usas.",
+    empty_filter_t: "Ningún objeto coincide", empty_filter_b: "Prueba a quitar algún filtro o a buscar con otras palabras.",
+    empty_fav_t: "Todavía no guardas nada", empty_fav_b: "Toca el corazón de un objeto para guardarlo y verlo aquí.",
+    empty_my_items_t: "Aún no has publicado nada", empty_my_items_b: "Publica tu primer objeto: con una foto real y un estado honesto basta.",
+    empty_req_t: "Sin solicitudes enviadas", empty_req_b: "Cuando solicites un objeto, verás aquí su estado.",
+    empty_recv_t: "Sin solicitudes recibidas", empty_recv_b: "Cuando alguien se interese por tus objetos, aparecerá en esta lista.",
+    publish_first: "Publicar el primero", browse_catalog: "Explorar el catálogo", close_toast: "Cerrar notificación",
+    detail_description: "Descripción", detail_handover_h: "Entrega y seguridad", detail_payment_h: "Pago fuera de la plataforma",
+    detail_unavailable: "Este objeto ya no está disponible.", detail_manage: "Gestionar en Mi área", status_change: "Cambiar estado",
+    confirm_delete_t: "¿Eliminar este objeto?", confirm_delete_b: "Se borrará la publicación y sus datos asociados. Esta acción no se puede deshacer.",
+    confirm_delete_btn: "Sí, eliminar",
+    photo_drop_t: "Toca para elegir una foto", photo_drop_b: "JPG, PNG, WEBP o GIF · máximo 5 MB",
+    photo_remove: "Quitar foto", photo_upload: "Subir foto", photo_uploading: "Subiendo foto…",
+    photo_ready: "Foto subida y lista", photo_change: "Cambiar foto",
+    form_sec_1: "Lo esencial", form_sec_2: "Detalles del intercambio", form_sec_3: "Foto y publicación",
+    publishing: "Publicando…", sending: "Enviando…", saving: "Guardando…",
+    title_ph: "Ej.: Lámpara de escritorio LED",
+    my_area_subtitle: "Tus publicaciones, solicitudes y datos.",
     lang_name: "Español",
   },
   en: {
@@ -273,6 +298,31 @@ const I18N = {
     legal_title: "Legal notice", legal_lead: "General information about Circular Campus, its independent nature and the use of this site.",
     privacy_title: "Privacy & data policy", privacy_lead: "Layered notice: here you have both the summary and the detail of personal-data processing.",
     terms_title: "Terms of use", terms_lead: "Rules for taking part as a private individual in a reuse prototype with no platform-managed payments.",
+    hero_chip_1: "No payments or fees", hero_chip_2: "Minimal data", hero_chip_3: "Independent project",
+    type_badge_regalar: "Give away", type_badge_prestar: "Lend", type_badge_intercambiar: "Exchange", type_badge_vender: "Sell",
+    nav_my: "My area", nav_points_short: "Points", nav_rules_short: "Rules",
+    filters_btn: "Filters", filters_title: "Filters & sorting", filters_subtitle: "Adjust campus, condition, type and result order.",
+    filters_apply: "Show results", filters_clear: "Clear all", sort_by: "Sort by",
+    loading_items: "Loading items…", retry: "Try again", catalog_eyebrow: "Catalogue",
+    results_found: "items found", results_one: "item found",
+    empty_catalog_t: "No items listed yet", empty_catalog_b: "Be the first to give a second life to something you no longer use.",
+    empty_filter_t: "Nothing matches", empty_filter_b: "Try removing a filter or searching with different words.",
+    empty_fav_t: "Nothing saved yet", empty_fav_b: "Tap the heart on an item to save it and find it here.",
+    empty_my_items_t: "You haven't listed anything yet", empty_my_items_b: "List your first item: a real photo and an honest condition are enough.",
+    empty_req_t: "No sent requests", empty_req_b: "When you request an item, its status will appear here.",
+    empty_recv_t: "No received requests", empty_recv_b: "When someone is interested in your items, it will show up in this list.",
+    publish_first: "List the first one", browse_catalog: "Browse the catalogue", close_toast: "Dismiss notification",
+    detail_description: "Description", detail_handover_h: "Handover & safety", detail_payment_h: "Payment outside the platform",
+    detail_unavailable: "This item is no longer available.", detail_manage: "Manage in My area", status_change: "Change status",
+    confirm_delete_t: "Delete this item?", confirm_delete_b: "The listing and its related data will be deleted. This cannot be undone.",
+    confirm_delete_btn: "Yes, delete",
+    photo_drop_t: "Tap to choose a photo", photo_drop_b: "JPG, PNG, WEBP or GIF · 5 MB max",
+    photo_remove: "Remove photo", photo_upload: "Upload photo", photo_uploading: "Uploading photo…",
+    photo_ready: "Photo uploaded and ready", photo_change: "Change photo",
+    form_sec_1: "The essentials", form_sec_2: "Exchange details", form_sec_3: "Photo & publishing",
+    publishing: "Publishing…", sending: "Sending…", saving: "Saving…",
+    title_ph: "E.g. LED desk lamp",
+    my_area_subtitle: "Your listings, requests and data.",
     lang_name: "English",
   },
   gl: {
@@ -390,6 +440,31 @@ const I18N = {
     legal_title: "Aviso legal", legal_lead: "Información xeral sobre Circular Campus, a súa natureza independente e o uso deste sitio.",
     privacy_title: "Política de privacidade e datos", privacy_lead: "Aviso por capas: aquí tes o resumo e o detalle do tratamento de datos persoais.",
     terms_title: "Condicións de uso", terms_lead: "Regras para participar como particular nun prototipo de reutilización sen pagos xestionados pola plataforma.",
+    hero_chip_1: "Sen pagos nin comisións", hero_chip_2: "Datos mínimos", hero_chip_3: "Proxecto independente",
+    type_badge_regalar: "Regalar", type_badge_prestar: "Prestar", type_badge_intercambiar: "Intercambiar", type_badge_vender: "Vender",
+    nav_my: "A miña área", nav_points_short: "Puntos", nav_rules_short: "Normas",
+    filters_btn: "Filtros", filters_title: "Filtros e orde", filters_subtitle: "Axusta campus, estado, tipo e orde dos resultados.",
+    filters_apply: "Ver resultados", filters_clear: "Limpar todo", sort_by: "Ordenar por",
+    loading_items: "Cargando obxectos…", retry: "Reintentar", catalog_eyebrow: "Catálogo",
+    results_found: "obxectos atopados", results_one: "obxecto atopado",
+    empty_catalog_t: "Aínda non hai obxectos publicados", empty_catalog_b: "Sé a primeira persoa en darlle unha segunda vida a algo que xa non usas.",
+    empty_filter_t: "Ningún obxecto coincide", empty_filter_b: "Proba a quitar algún filtro ou a buscar con outras palabras.",
+    empty_fav_t: "Aínda non gardas nada", empty_fav_b: "Toca o corazón dun obxecto para gardalo e velo aquí.",
+    empty_my_items_t: "Aínda non publicaches nada", empty_my_items_b: "Publica o teu primeiro obxecto: cunha foto real e un estado honesto abonda.",
+    empty_req_t: "Sen solicitudes enviadas", empty_req_b: "Cando solicites un obxecto, verás aquí o seu estado.",
+    empty_recv_t: "Sen solicitudes recibidas", empty_recv_b: "Cando alguén se interese polos teus obxectos, aparecerá nesta lista.",
+    publish_first: "Publicar o primeiro", browse_catalog: "Explorar o catálogo", close_toast: "Pechar notificación",
+    detail_description: "Descrición", detail_handover_h: "Entrega e seguridade", detail_payment_h: "Pago fóra da plataforma",
+    detail_unavailable: "Este obxecto xa non está dispoñible.", detail_manage: "Xestionar na Miña área", status_change: "Cambiar estado",
+    confirm_delete_t: "Eliminar este obxecto?", confirm_delete_b: "Borrarase a publicación e os seus datos asociados. Esta acción non se pode desfacer.",
+    confirm_delete_btn: "Si, eliminar",
+    photo_drop_t: "Toca para escoller unha foto", photo_drop_b: "JPG, PNG, WEBP ou GIF · máximo 5 MB",
+    photo_remove: "Quitar foto", photo_upload: "Subir foto", photo_uploading: "Subindo foto…",
+    photo_ready: "Foto subida e lista", photo_change: "Cambiar foto",
+    form_sec_1: "O esencial", form_sec_2: "Detalles do intercambio", form_sec_3: "Foto e publicación",
+    publishing: "Publicando…", sending: "Enviando…", saving: "Gardando…",
+    title_ph: "Ex.: Lámpara de escritorio LED",
+    my_area_subtitle: "As túas publicacións, solicitudes e datos.",
     lang_name: "Galego",
   }
 };
@@ -527,12 +602,28 @@ const t = (k) => (I18N[state.lang] && I18N[state.lang][k]) || I18N.es[k] || k;
 const catLabel = (c) => t("cat_" + c);
 const condLabel = (c) => t("cond_" + c);
 const typeLabel = (c) => t("type_" + c);
+const typeBadge = (c) => t("type_badge_" + c);
 const campusLabel = (c) => t("campus_" + c);
 const handLabel = (c) => t("hand_" + c);
 const statusLabel = (s) => t("status_" + s);
 const reqLabel = (s) => t("req_" + s);
 const categoryImage = (c) => `/static/img/items/${CATEGORIES.includes(c) ? c : "placeholder"}.jpg`;
 const itemImage = (it) => it.image_url || categoryImage(it.category);
+const POINT_ICONS = { biblioteca: "inbox", entrada: "pin", cafeteria: "clock", punto: "tag", acordado: "shield" };
+const MY_TABS = [
+  { id: "items", label: "my_items" },
+  { id: "requests", label: "my_requests" },
+  { id: "received", label: "received" },
+  { id: "favorites", label: "favorites" }
+];
+const TOAST_ICONS = { success: "check-circle", error: "alert", info: "info" };
+const TOAST_DURATION = 4600;
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+
+/* ---------------- Iconos y utilidades ---------------- */
+function icon(name, extra = "") {
+  return `<svg class="icon${extra ? " " + extra : ""}" aria-hidden="true" focusable="false"><use href="#i-${name}"></use></svg>`;
+}
 
 function legalText(s = "") {
   let out = esc(s);
@@ -550,6 +641,23 @@ function legalText(s = "") {
   };
   for (const [key, value] of Object.entries(replacements)) out = out.split(key).join(value);
   return out;
+}
+
+function setBusy(btn, busy, label) {
+  if (!btn) return;
+  if (busy) {
+    if (!btn.dataset.idleLabel) btn.dataset.idleLabel = btn.innerHTML;
+    btn.classList.add("btn-loading");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner" aria-hidden="true"></span><span>${esc(label || t("saving"))}</span>`;
+  } else {
+    btn.classList.remove("btn-loading");
+    btn.disabled = false;
+    if (btn.dataset.idleLabel) {
+      btn.innerHTML = btn.dataset.idleLabel;
+      delete btn.dataset.idleLabel;
+    }
+  }
 }
 
 /* ---------------- API y errores ---------------- */
@@ -581,14 +689,83 @@ function errorMessage(err) {
   return (err && err.message) || t("toast_error");
 }
 
-function toast(msg, isError = false) {
+/* ---------------- Toasts ---------------- */
+function toast(message, type = "success") {
   const root = $("#toast-root");
-  if (!root) return;
+  if (!root || !message) return;
+  let kind = type === true ? "error" : type;
+  if (!TOAST_ICONS[kind]) kind = "success";
+  while (root.children.length >= 3) root.firstElementChild.remove();
   const el = document.createElement("div");
-  el.className = "toast" + (isError ? " error" : "");
-  el.textContent = msg;
+  el.className = `toast toast-${kind}`;
+  el.innerHTML = `<span class="toast-icon">${icon(TOAST_ICONS[kind])}</span>
+    <span class="toast-msg"></span>
+    <button type="button" class="toast-close" aria-label="${esc(t("close_toast"))}">${icon("close")}</button>
+    <span class="toast-progress" style="animation-duration:${TOAST_DURATION}ms" aria-hidden="true"></span>`;
+  el.querySelector(".toast-msg").textContent = message;
+  const dismiss = () => {
+    if (!el.isConnected || el.classList.contains("is-leaving")) return;
+    el.classList.add("is-leaving");
+    setTimeout(() => el.remove(), 220);
+  };
+  el.querySelector(".toast-close").onclick = dismiss;
   root.appendChild(el);
-  setTimeout(() => el.remove(), 4200);
+  const timer = setTimeout(dismiss, TOAST_DURATION);
+  el.addEventListener("mouseenter", () => clearTimeout(timer), { once: true });
+  return el;
+}
+
+/* ---------------- Estados vacíos / esqueletos ---------------- */
+function emptyState({ iconName = "leaf", title = "", text = "", actions = [] }) {
+  return `<div class="empty">
+    <span class="empty-icon" aria-hidden="true">${icon(iconName)}</span>
+    <h3>${esc(title)}</h3>
+    ${text ? `<p>${esc(text)}</p>` : ""}
+    ${actions.length ? `<div class="empty-actions">${actions.map(a =>
+      `<button type="button" class="btn ${a.variant || "btn-primary"}" data-empty="${esc(a.id)}">${a.icon ? icon(a.icon) : ""}${esc(a.label)}</button>`
+    ).join("")}</div>` : ""}
+  </div>`;
+}
+
+function bindEmptyActions(scope, handlers) {
+  $$("[data-empty]", scope).forEach(btn => {
+    const fn = handlers[btn.dataset.empty];
+    if (fn) btn.onclick = fn;
+  });
+}
+
+function skeletonCards(n = 6) {
+  return Array.from({ length: n }, () => `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="skeleton sk-media"></div>
+      <div class="sk-body">
+        <div class="skeleton sk-line w-90"></div>
+        <div class="skeleton sk-line w-45"></div>
+        <div class="sk-row"><div class="skeleton sk-pill"></div><div class="skeleton sk-pill short"></div></div>
+        <div class="skeleton sk-line w-70"></div>
+      </div>
+    </div>`).join("");
+}
+
+function skeletonRows(n = 3) {
+  return Array.from({ length: n }, () => `
+    <div class="skeleton-card sk-card-row" aria-hidden="true">
+      <div class="skeleton sk-thumb"></div>
+      <div class="sk-stack">
+        <div class="skeleton sk-line w-70"></div>
+        <div class="skeleton sk-line w-45"></div>
+        <div class="skeleton sk-line w-90"></div>
+      </div>
+    </div>`).join("");
+}
+
+function statSkeleton() {
+  return Array.from({ length: 4 }, () => `
+    <div class="stat-card" aria-hidden="true">
+      <div class="skeleton sk-stat-icon"></div>
+      <div class="sk-stat-body"><div class="skeleton sk-line sk-num"></div>
+      <div class="skeleton sk-line sk-stat-label"></div></div>
+    </div>`).join("");
 }
 
 /* ---------------- Enlaces y mejoras de DOM ---------------- */
@@ -607,16 +784,33 @@ function bindImageFallbacks(root = document) {
   });
 }
 function bindViewButtons(root = document) {
-  $$("[data-view]", root).forEach(b => { b.onclick = () => openItem(Number(b.dataset.view)); });
+  $$("[data-view]", root).forEach(b => {
+    b.onclick = (e) => { e.stopPropagation(); openItem(Number(b.dataset.view)); };
+  });
 }
 function bindFavButtons(root = document) {
-  $$("[data-fav]", root).forEach(b => b.onclick = async () => {
-    if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
-    try {
-      const d = await api(`/api/items/${b.dataset.fav}/favorite`, { method: "POST" });
-      toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
-      render();
-    } catch (e) { toast(errorMessage(e), true); }
+  $$("[data-fav]", root).forEach(b => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
+      if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+      b.disabled = true;
+      try {
+        const d = await api(`/api/items/${b.dataset.fav}/favorite`, { method: "POST" });
+        toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
+        b.classList.toggle("active", d.is_favorite);
+        b.setAttribute("aria-pressed", String(d.is_favorite));
+        b.setAttribute("aria-label", d.is_favorite ? t("detail_faved") : t("detail_fav"));
+        b.disabled = false;
+        if (state.view === "my" && state.myTab === "favorites" && !d.is_favorite) {
+          const card = b.closest(".card");
+          if (card) card.remove();
+          if ($("#my-panel") && !$("#my-panel .card")) loadMyTab("favorites");
+        }
+      } catch (err) {
+        toast(errorMessage(err), "error");
+        b.disabled = false;
+      }
+    };
   });
 }
 function bindAccountTools(root = document) {
@@ -624,7 +818,7 @@ function bindAccountTools(root = document) {
   $$('[data-action="delete"]', root).forEach(b => { b.onclick = openDeleteAccount; });
   $$('[data-action="login"]', root).forEach(b => { b.onclick = () => openAuth("login"); });
 }
-function enhance(root) {
+function enhance(root = document) {
   bindRouteLinks(root);
   bindImageFallbacks(root);
   bindViewButtons(root);
@@ -639,44 +833,62 @@ function setApp(app, html) {
 }
 
 /* ---------------- Auth UI ---------------- */
+function closeUserMenu() {
+  const menu = $("#user-menu");
+  const chip = $("#user-chip");
+  if (menu && !menu.classList.contains("hidden")) {
+    menu.classList.add("hidden");
+    if (chip) chip.setAttribute("aria-expanded", "false");
+  }
+}
+
 function renderAuthArea() {
   const area = $("#auth-area");
+  if (!area) return;
+  if (state.token && !state.user) {
+    area.innerHTML = `<span class="skeleton sk-auth" aria-hidden="true"></span>`;
+    return;
+  }
   if (!state.user) {
     area.innerHTML = `
-      <button class="btn btn-ghost btn-sm" id="btn-login">${esc(t("login"))}</button>
-      <button class="btn btn-primary btn-sm" id="btn-register">${esc(t("register"))}</button>`;
+      <button type="button" class="btn btn-ghost btn-sm auth-login" id="btn-login" aria-label="${esc(t("login"))}">
+        ${icon("user", "icon-only")}<span class="label-lg">${esc(t("login"))}</span>
+      </button>
+      <button type="button" class="btn btn-primary btn-sm auth-register" id="btn-register">${esc(t("register"))}</button>`;
     $("#btn-login").onclick = () => openAuth("login");
     $("#btn-register").onclick = () => openAuth("register");
   } else {
-    const initials = esc(state.user.name.trim().charAt(0).toUpperCase());
+    const initials = esc((state.user.name || "?").trim().charAt(0).toUpperCase() || "?");
+    const firstName = esc((state.user.name || "").trim().split(/\s+/)[0] || t("my_area"));
     area.innerHTML = `
       <div class="dropdown">
-        <button class="user-chip" id="user-chip" aria-haspopup="true" aria-expanded="false">
-          <span class="avatar">${initials}</span><span>${esc(state.user.name)}</span>
+        <button type="button" class="user-chip" id="user-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
+          <span class="avatar" aria-hidden="true">${initials}</span>
+          <span class="user-name">${firstName}</span>
+          ${icon("chevron")}
         </button>
-        <div class="dropdown-menu hidden" id="user-menu">
-          <button id="menu-my">${esc(t("my_area"))}</button>
-          <button id="menu-publish">${esc(t("nav_publish"))}</button>
-          <button id="menu-privacy">${esc(t("footer_privacy"))}</button>
-          <button id="menu-logout">${esc(t("logout"))}</button>
+        <div class="dropdown-menu hidden" id="user-menu" role="menu" aria-labelledby="user-chip">
+          <button type="button" role="menuitem" id="menu-my">${icon("grid")}${esc(t("my_area"))}</button>
+          <button type="button" role="menuitem" id="menu-publish">${icon("plus")}${esc(t("nav_publish"))}</button>
+          <button type="button" role="menuitem" id="menu-privacy">${icon("shield")}${esc(t("footer_privacy"))}</button>
+          <div class="menu-sep" role="separator"></div>
+          <button type="button" role="menuitem" id="menu-logout" class="danger">${icon("logout")}${esc(t("logout"))}</button>
         </div>
       </div>`;
-    $("#user-chip").onclick = (e) => {
-      e.stopPropagation();
-      const menu = $("#user-menu");
-      menu.classList.toggle("hidden");
-      $("#user-chip").setAttribute("aria-expanded", String(!menu.classList.contains("hidden")));
+    const chip = $("#user-chip");
+    const menu = $("#user-menu");
+    const setOpen = (open) => {
+      menu.classList.toggle("hidden", !open);
+      chip.setAttribute("aria-expanded", String(open));
     };
-    document.addEventListener("click", () => {
-      const m = $("#user-menu");
-      if (m) m.classList.add("hidden");
-      const chip = $("#user-chip");
-      if (chip) chip.setAttribute("aria-expanded", "false");
-    }, { once: true });
-    $("#menu-my").onclick = () => navigate("my");
-    $("#menu-publish").onclick = () => navigate("publish");
-    $("#menu-privacy").onclick = () => navigate("privacy");
-    $("#menu-logout").onclick = logout;
+    chip.onclick = (e) => {
+      e.stopPropagation();
+      setOpen(menu.classList.contains("hidden"));
+    };
+    $("#menu-my").onclick = () => { setOpen(false); navigate("my"); };
+    $("#menu-publish").onclick = () => { setOpen(false); navigate("publish"); };
+    $("#menu-privacy").onclick = () => { setOpen(false); navigate("privacy"); };
+    $("#menu-logout").onclick = () => { setOpen(false); logout(); };
   }
 }
 
@@ -684,24 +896,71 @@ async function logout() {
   try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {}
   state.token = null; state.user = null; state.pendingConsent = false;
   localStorage.removeItem("cc_token");
-  renderAuthArea(); toast(t("toast_logout")); navigate("home");
+  renderAuthArea();
+  toast(t("toast_logout"));
+  navigate("home");
+}
+
+/* ---------------- Modales ---------------- */
+let lastFocused = null;
+
+function trapFocus(e) {
+  if (e.key !== "Tab") return;
+  const modal = e.currentTarget;
+  const items = $$(FOCUSABLE, modal).filter(el => el.offsetParent !== null);
+  if (!items.length) { e.preventDefault(); modal.focus(); return; }
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || document.activeElement === modal)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 function openModal(html, opts = {}) {
   const dismissible = opts.dismissible !== false;
-  $("#modal-root").innerHTML = `<div class="modal-backdrop" id="backdrop"><div class="modal${opts.wide ? " modal-wide" : ""}" role="dialog" aria-modal="true">${html}</div></div>`;
+  lastFocused = document.activeElement;
+  const root = $("#modal-root");
+  const labelAttr = opts.labelledBy
+    ? `aria-labelledby="${esc(opts.labelledBy)}"`
+    : opts.label ? `aria-label="${esc(opts.label)}"` : "";
+  root.innerHTML = `<div class="modal-backdrop" id="backdrop">
+    <div class="modal${opts.wide ? " modal-wide" : ""}${opts.sheet ? " modal-sheet" : ""}" role="dialog" aria-modal="true" ${labelAttr} tabindex="-1">
+      <span class="sheet-handle" aria-hidden="true"></span>
+      ${html}
+    </div>
+  </div>`;
   const backdrop = $("#backdrop");
+  const modal = $(".modal", backdrop);
   if (dismissible) {
-    backdrop.addEventListener("click", (e) => { if (e.target.id === "backdrop") closeModal(); });
+    backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
   }
-  enhance(backdrop);
+  modal.addEventListener("keydown", trapFocus);
+  document.body.classList.add("is-locked");
+  enhance(modal);
+  const target = $("[data-autofocus]", modal) || modal;
+  requestAnimationFrame(() => {
+    try { target.focus({ preventScroll: true }); } catch (e) {}
+  });
+  return modal;
 }
+
 function closeModal() {
   if (state.pendingConsent) return;
-  $("#modal-root").innerHTML = "";
+  const root = $("#modal-root");
+  if (!root || !root.firstElementChild) return;
+  root.innerHTML = "";
+  document.body.classList.remove("is-locked");
+  if (lastFocused && lastFocused.isConnected) {
+    try { lastFocused.focus({ preventScroll: true }); } catch (e) {}
+  }
+  lastFocused = null;
 }
 function closeBtn() {
-  return state.pendingConsent ? "" : `<button class="close" data-close aria-label="${esc(t("close"))}">✕</button>`;
+  return state.pendingConsent ? "" : `<button type="button" class="close" data-close aria-label="${esc(t("close"))}">${icon("close")}</button>`;
 }
 window.closeModal = closeModal;
 
@@ -709,69 +968,100 @@ function openAuth(mode = "login") {
   const isLogin = mode === "login";
   openModal(`
     ${closeBtn()}
-    <h2>${esc(isLogin ? t("auth_login_title") : t("auth_register_title"))}</h2>
-    <p class="muted">${esc(t("demo_hint"))}</p>
-    <form id="auth-form">
-      ${isLogin ? "" : `<div class="field"><label>${esc(t("auth_name"))}</label><input name="name" required minlength="2" maxlength="60" autocomplete="name"></div>`}
-      <div class="field"><label>${esc(t("auth_email"))}</label><input name="email" type="email" required autocomplete="email"><small>${esc(t("auth_email_hint"))}</small></div>
-      <div class="field"><label>${esc(t("auth_password"))}</label><input name="password" type="password" required minlength="8" autocomplete="${isLogin ? "current-password" : "new-password"}"><small>${esc(t("auth_password_hint"))}</small></div>
+    <div class="modal-head">
+      <h2 id="auth-title">${esc(isLogin ? t("auth_login_title") : t("auth_register_title"))}</h2>
+      <p>${esc(t("demo_hint"))}</p>
+    </div>
+    <form id="auth-form" aria-labelledby="auth-title">
+      ${isLogin ? "" : `<div class="field"><label for="auth-name">${esc(t("auth_name"))}</label><input id="auth-name" name="name" required minlength="2" maxlength="60" autocomplete="name"></div>`}
+      <div class="field">
+        <label for="auth-email">${esc(t("auth_email"))}</label>
+        <input id="auth-email" name="email" type="email" required autocomplete="email" ${isLogin ? "data-autofocus" : ""}>
+        <small>${esc(t("auth_email_hint"))}</small>
+      </div>
+      <div class="field">
+        <label for="auth-password">${esc(t("auth_password"))}</label>
+        <input id="auth-password" name="password" type="password" required minlength="8" autocomplete="${isLogin ? "current-password" : "new-password"}">
+        <small>${esc(t("auth_password_hint"))}</small>
+      </div>
       ${isLogin ? "" : `
-        <div class="field"><label>${esc(t("auth_campus"))}</label>
-          <select name="campus">${CAMPUSES.map(c => `<option value="${c}">${esc(campusLabel(c))}</option>`).join("")}</select></div>
+        <div class="field">
+          <label for="auth-campus">${esc(t("auth_campus"))}</label>
+          <select id="auth-campus" name="campus">${CAMPUSES.map(c => `<option value="${c}">${esc(campusLabel(c))}</option>`).join("")}</select>
+        </div>
         <div class="consent-box">
           <label class="check-row"><input type="checkbox" name="consent" required><span>${legalText(t("auth_consent"))}</span></label>
-          <p class="muted">${esc(t("auth_minimum"))}</p>
+          <p>${esc(t("auth_minimum"))}</p>
         </div>`}
-      <div style="margin-top:16px"><button class="btn btn-primary btn-block" type="submit">${esc(isLogin ? t("auth_btn_login") : t("auth_btn_register"))}</button></div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${esc(isLogin ? t("auth_btn_login") : t("auth_btn_register"))}</button>
     </form>
-    <p style="text-align:center;margin-top:12px">
+    <p class="muted small text-center mt-3">
       ${esc(isLogin ? t("auth_no_account") : t("auth_have_account"))}
-      <button class="btn btn-ghost btn-sm" id="switch-auth">${esc(isLogin ? t("register") : t("login"))}</button>
-    </p>`);
+      <button type="button" class="btn-link" id="switch-auth">${esc(isLogin ? t("register") : t("login"))}</button>
+    </p>`, { labelledBy: "auth-title" });
+
   $("#switch-auth").onclick = () => openAuth(isLogin ? "register" : "login");
   $("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    const form = e.target;
+    const submit = $("[data-submit]", form);
+    const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
     if (!isLogin) {
       payload.consent = fd.get("consent") === "on";
       payload.legal_version = CONFIG.legalVersion;
     }
+    setBusy(submit, true);
     try {
       const data = await api(isLogin ? "/api/auth/login" : "/api/auth/register", {
         method: "POST", body: JSON.stringify(payload)
       });
-      state.token = data.token; state.user = data.user;
+      state.token = data.token;
+      state.user = data.user;
       localStorage.setItem("cc_token", data.token);
-      closeModal(); renderAuthArea();
+      closeModal();
+      renderAuthArea();
       toast(isLogin ? t("toast_login") : t("toast_register"));
       render();
-    } catch (err) { toast(errorMessage(err), true); }
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
 function openConsentUpdate() {
   state.pendingConsent = true;
   openModal(`
-    <h2>${esc(t("consent_update_title"))}</h2>
-    <p>${legalText(t("consent_update_body"))}</p>
-    <form id="consent-update-form">
+    <div class="modal-head">
+      <h2 id="consent-title">${esc(t("consent_update_title"))}</h2>
+      <p>${legalText(t("consent_update_body"))}</p>
+    </div>
+    <form id="consent-update-form" aria-labelledby="consent-title">
       <div class="consent-box">
         <label class="check-row"><input type="checkbox" name="consent" required><span>${legalText(t("consent_update_check"))}</span></label>
       </div>
-      <button class="btn btn-primary btn-block" type="submit">${esc(t("consent_update_btn"))}</button>
-    </form>`, { dismissible: false });
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${esc(t("consent_update_btn"))}</button>
+    </form>`, { dismissible: false, labelledBy: "consent-title" });
   $("#consent-update-form").onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true);
     try {
       const data = await api("/api/account/consent", {
         method: "POST", body: JSON.stringify({ consent: fd.get("consent") === "on", legal_version: CONFIG.legalVersion })
       });
       state.user = data.user;
       state.pendingConsent = false;
-      closeModal(); renderAuthArea(); toast(t("toast_consent_updated")); render();
-    } catch (err) { toast(errorMessage(err), true); }
+      closeModal();
+      renderAuthArea();
+      toast(t("toast_consent_updated"));
+      render();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
@@ -780,27 +1070,37 @@ function navigate(view, opts = {}) {
   state.view = view;
   const path = ROUTE_PATHS[view] || "/";
   if (!opts.fromPopState && location.pathname !== path) {
-    history.pushState({ view }, "", path);
+    try { history.pushState({ view }, "", path); } catch (e) { location.hash = path; }
   }
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  closeUserMenu();
+  try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) {}
   render();
 }
 window.navigate = navigate;
 
 async function render() {
   const app = $("#app");
+  if (!app) return;
+  closeUserMenu();
   document.documentElement.lang = state.lang;
   document.title = `${t("title_" + state.view) || CONFIG.service} · ${CONFIG.service}`;
-  $$(".lang-switch button").forEach(b => b.classList.toggle("active", b.dataset.lang === state.lang));
+  $$(".lang-switch button").forEach(b => {
+    const active = b.dataset.lang === state.lang;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
   $$("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
-  $$("[data-nav]").forEach(b => {
-    b.onclick = (e) => { e.preventDefault(); navigate(b.dataset.nav); };
-    b.classList.toggle("active", b.dataset.nav === state.view);
+  $$("[data-nav]").forEach(el => {
+    el.onclick = (e) => { e.preventDefault(); navigate(el.dataset.nav); };
+    if (el.classList.contains("brand")) return;
+    const active = el.dataset.nav === state.view;
+    el.classList.toggle("active", active);
+    if (active) el.setAttribute("aria-current", "page");
+    else el.removeAttribute("aria-current");
   });
   $$("a[data-route]").forEach(a => a.classList.toggle("active", a.dataset.route === state.view));
   bindRouteLinks(document);
 
-  if (state.view === "home") return renderHome(app);
   if (state.view === "publish") return renderPublish(app);
   if (state.view === "points") return renderPoints(app);
   if (state.view === "rules") return renderRules(app);
@@ -812,10 +1112,19 @@ async function render() {
   return renderHome(app);
 }
 
-async function loadStats() {
-  try { state.stats = await api("/api/stats"); } catch (e) { state.stats = null; }
+/* ---------------- Datos ---------------- */
+let statsPromise = null;
+function fetchStats() {
+  if (!statsPromise) {
+    statsPromise = api("/api/stats")
+      .then(data => { state.stats = data; return data; })
+      .catch(() => null)
+      .finally(() => { statsPromise = null; });
+  }
+  return statsPromise;
 }
-async function loadItems() {
+
+function filterParams() {
   const f = state.filters;
   const params = new URLSearchParams();
   if (f.q) params.set("q", f.q);
@@ -824,266 +1133,668 @@ async function loadItems() {
   if (f.condition) params.set("condition", f.condition);
   if (f.type) params.set("type", f.type);
   if (f.sort) params.set("sort", f.sort);
+  return params;
+}
+
+async function fetchItems() {
+  const data = await api("/api/items?" + filterParams().toString());
+  return data.items || [];
+}
+
+function hasFilters() {
+  const f = state.filters;
+  return Boolean(f.q || f.category || f.campus || f.condition || f.type);
+}
+
+function clearFilters() {
+  state.filters.q = "";
+  state.filters.category = "";
+  state.filters.campus = "";
+  state.filters.condition = "";
+  state.filters.type = "";
+  state.filters.sort = "recent";
+  syncHeroSearch();
+}
+
+function syncHeroSearch() {
+  const q = $("#q");
+  const campus = $("#campus-sel");
+  const sort = $("#f-sort");
+  if (q) q.value = state.filters.q;
+  if (campus) campus.value = state.filters.campus;
+  if (sort) sort.value = state.filters.sort;
+}
+
+/* ---------------- Catálogo ---------------- */
+function categoryChips() {
+  const f = state.filters;
+  const chip = (value, label) => {
+    const active = (f.category || "") === value;
+    return `<button type="button" class="chip${active ? " active" : ""}" data-cat="${esc(value)}" aria-pressed="${active}">${esc(label)}</button>`;
+  };
+  return [chip("", t("all"))]
+    .concat(CATEGORIES.map(c => chip(c, catLabel(c))))
+    .join("");
+}
+
+function activeFilterChips() {
+  const f = state.filters;
+  const items = [];
+  if (f.q) items.push(`<span class="active-filter">«${esc(f.q)}»<button type="button" data-remove-filter="q" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.campus) items.push(`<span class="active-filter">${esc(campusLabel(f.campus))}<button type="button" data-remove-filter="campus" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.condition) items.push(`<span class="active-filter">${esc(condLabel(f.condition))}<button type="button" data-remove-filter="condition" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.type) items.push(`<span class="active-filter">${esc(typeLabel(f.type))}<button type="button" data-remove-filter="type" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (items.length > 1 || f.q) {
+    items.push(`<button type="button" class="clear-link" id="clear-all-filters">${esc(t("filters_clear"))}</button>`);
+  }
+  return items.join("");
+}
+
+function syncFilterUI() {
+  $$("#cat-filters .chip").forEach(b => {
+    const active = (b.dataset.cat || "") === (state.filters.category || "");
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
+  const count = ["campus", "condition", "type"].filter(k => state.filters[k]).length;
+  const dot = $("#filter-dot");
+  if (dot) {
+    dot.textContent = count ? String(count) : "";
+    dot.classList.toggle("hidden", !count);
+  }
+  const box = $("#active-filters");
+  if (box) {
+    box.innerHTML = activeFilterChips();
+    $$("[data-remove-filter]", box).forEach(btn => {
+      btn.onclick = () => {
+        state.filters[btn.dataset.removeFilter] = "";
+        if (btn.dataset.removeFilter === "q") { const q = $("#q"); if (q) q.value = ""; }
+        refreshCatalog();
+      };
+    });
+    const clear = $("#clear-all-filters", box);
+    if (clear) clear.onclick = () => { clearFilters(); refreshCatalog(); };
+  }
+}
+
+let catalogRequest = 0;
+
+async function refreshCatalog() {
+  const box = $("#catalog-results");
+  if (!box) return;
+  const request = ++catalogRequest;
+  syncFilterUI();
+  const countEl = $("#results-count");
+  if (countEl) countEl.textContent = t("loading_items");
+  box.setAttribute("aria-busy", "true");
+  box.innerHTML = `<div class="grid grid-items">${skeletonCards(6)}</div>`;
+  let items;
   try {
-    const data = await api("/api/items?" + params.toString());
-    state.items = data.items || [];
-  } catch (e) {
-    state.items = [];
-    toast(errorMessage(e), true);
+    items = await fetchItems();
+  } catch (err) {
+    if (request !== catalogRequest || !$("#catalog-results")) return;
+    box.innerHTML = emptyState({
+      iconName: "alert",
+      title: t("toast_error"),
+      text: errorMessage(err),
+      actions: [{ id: "retry", label: t("retry"), icon: "refresh", variant: "btn-ghost" }]
+    });
+    bindEmptyActions(box, { retry: () => refreshCatalog() });
+    box.removeAttribute("aria-busy");
+    if (countEl) countEl.textContent = "";
+    return;
+  }
+  if (request !== catalogRequest || !$("#catalog-results")) return;
+  state.items = items;
+  if (!items.length) {
+    const onlyCategory = !state.filters.q && !state.filters.campus && !state.filters.condition && !state.filters.type && state.filters.category;
+    box.innerHTML = hasFilters()
+      ? emptyState({
+          iconName: "search",
+          title: t("empty_filter_t"),
+          text: t("empty_filter_b"),
+          actions: [
+            { id: "clear", label: t("filters_clear"), icon: "close", variant: "btn-ghost" },
+            { id: "publish", label: onlyCategory ? t("publish_first") : t("publish_cta"), icon: "plus" }
+          ]
+        })
+      : emptyState({
+          iconName: "leaf",
+          title: t("empty_catalog_t"),
+          text: t("empty_catalog_b"),
+          actions: [{ id: "publish", label: t("publish_first"), icon: "plus" }]
+        });
+    bindEmptyActions(box, {
+      clear: () => { clearFilters(); refreshCatalog(); },
+      publish: () => navigate("publish")
+    });
+  } else {
+    box.innerHTML = `<div class="grid grid-items">${items.map(itemCard).join("")}</div>`;
+    enhance(box);
+  }
+  box.removeAttribute("aria-busy");
+  if (countEl) {
+    countEl.textContent = `${items.length} ${items.length === 1 ? t("results_one") : t("results_found")}`;
   }
 }
 
 function itemCard(it) {
   const isSale = it.exchange_type === "vender";
-  const price = isSale ? `€${Number(it.price).toFixed(0)}` : esc(t("free"));
+  const price = isSale ? `€${Number(it.price || 0).toFixed(0)}` : esc(t("free"));
+  const saved = Boolean(it.is_favorite);
+  const openLabel = `${t("view_item")}: ${it.title}`;
   return `
   <article class="card">
-    <div class="card-img">
-      <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" loading="lazy" data-fallback data-category="${esc(it.category)}">
-      <span class="badge">${esc(condLabel(it.condition))}</span>
-      <span class="badge badge-type${isSale ? " sale" : ""}">${esc(typeLabel(it.exchange_type))}</span>
-      <button class="fav-btn ${it.is_favorite ? "active" : ""}" data-fav="${it.id}" aria-label="${esc(t("detail_fav"))}">${it.is_favorite ? "♥" : "♡"}</button>
+    <div class="card-media">
+      <button type="button" class="card-media-open" data-view="${it.id}" aria-label="${esc(openLabel)}">
+        <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" loading="lazy" decoding="async" data-fallback data-category="${esc(it.category)}">
+      </button>
+      <div class="card-badges">
+        <span class="badge badge-cond">${esc(condLabel(it.condition))}</span>
+        <span class="badge badge-type${isSale ? " is-sale" : ""}">${esc(typeBadge(it.exchange_type))}</span>
+      </div>
+      <button type="button" class="fav-btn${saved ? " active" : ""}" data-fav="${it.id}" aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}: ${esc(it.title)}">${icon("heart")}</button>
     </div>
     <div class="card-body">
-      <h3>${esc(it.title)}</h3>
+      <h3 class="card-title">${esc(it.title)}</h3>
       <div class="card-meta">
         <span class="pill">${esc(catLabel(it.category))}</span>
-        <span class="pill grey">${esc(campusLabel(it.campus))}</span>
-        <span>${esc(handLabel(it.handover_point))}</span>
+        <span class="card-location">${icon("pin")}${esc(campusLabel(it.campus))}</span>
       </div>
+      <p class="card-location">${icon("tag")}${esc(handLabel(it.handover_point))}</p>
       <p class="card-desc">${esc(it.description)}</p>
       <div class="card-foot">
-        <div><span class="price">${price}</span>${isSale ? `<small class="price-sub">${esc(t("price_orientative"))}</small>` : ""}</div>
-        <button class="btn btn-primary btn-sm" data-view="${it.id}">${esc(t("view_item"))}</button>
+        <div>
+          <span class="price${isSale ? "" : " is-free"}">${price}</span>
+          ${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}
+        </div>
+        <button type="button" class="card-cta" data-view="${it.id}">${esc(t("view_item"))}${icon("arrow")}</button>
       </div>
     </div>
   </article>`;
 }
 
+function statsCards(stats) {
+  const s = stats || { total_items: 0, available: 0, delivered: 0, users: 0 };
+  const cells = [
+    { icon: "leaf", value: s.total_items, label: t("stat_items") },
+    { icon: "check-circle", value: s.available, label: t("stat_available") },
+    { icon: "shield", value: s.delivered, label: t("stat_delivered") },
+    { icon: "user", value: s.users, label: t("stat_users") }
+  ];
+  return cells.map(c => `
+    <div class="stat-card">
+      <span class="stat-icon" aria-hidden="true">${icon(c.icon)}</span>
+      <div><strong>${Number(c.value) || 0}</strong><span>${esc(c.label)}</span></div>
+    </div>`).join("");
+}
+
+function option(value, label, selected) {
+  return `<option value="${esc(value)}"${selected ? " selected" : ""}>${esc(label)}</option>`;
+}
+
+function openFilters() {
+  const f = state.filters;
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="filters-title">${esc(t("filters_title"))}</h2>
+      <p>${esc(t("filters_subtitle"))}</p>
+    </div>
+    <form id="filters-form" aria-labelledby="filters-title">
+      <div class="field">
+        <label for="fl-campus">${esc(t("campus"))}</label>
+        <select id="fl-campus" name="campus">
+          ${option("", `${t("campus")}: ${t("all")}`, !f.campus)}
+          ${CAMPUSES.map(c => option(c, campusLabel(c), f.campus === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-condition">${esc(t("condition"))}</label>
+        <select id="fl-condition" name="condition">
+          ${option("", `${t("condition")}: ${t("all")}`, !f.condition)}
+          ${CONDITIONS.map(c => option(c, condLabel(c), f.condition === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-type">${esc(t("type"))}</label>
+        <select id="fl-type" name="type">
+          ${option("", `${t("type")}: ${t("all")}`, !f.type)}
+          ${TYPES.map(c => option(c, typeLabel(c), f.type === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-sort">${esc(t("sort_by"))}</label>
+        <select id="fl-sort" name="sort">
+          ${option("recent", t("sort_recent"), f.sort === "recent")}
+          ${option("price_asc", t("sort_price_asc"), f.sort === "price_asc")}
+          ${option("price_desc", t("sort_price_desc"), f.sort === "price_desc")}
+        </select>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-primary" type="submit">${esc(t("filters_apply"))}</button>
+        <button class="btn btn-ghost" type="button" id="filters-reset">${esc(t("filters_clear"))}</button>
+      </div>
+    </form>`, { labelledBy: "filters-title", sheet: true });
+
+  $("#filters-form").onsubmit = (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    state.filters.campus = fd.get("campus") || "";
+    state.filters.condition = fd.get("condition") || "";
+    state.filters.type = fd.get("type") || "";
+    state.filters.sort = fd.get("sort") || "recent";
+    closeModal();
+    syncHeroSearch();
+    refreshCatalog();
+  };
+  $("#filters-reset").onclick = () => {
+    clearFilters();
+    closeModal();
+    refreshCatalog();
+  };
+}
+
+/* ---------------- Home ---------------- */
 async function renderHome(app) {
-  await loadStats();
-  await loadItems();
-  const s = state.stats || { total_items: 0, available: 0, delivered: 0, users: 0 };
   const f = state.filters;
   setApp(app, `
-    <section class="hero">
+    <section class="hero" aria-labelledby="hero-title">
       <div class="hero-grid">
-        <div>
-          <span class="eyebrow">${esc(t("hero_eyebrow"))}</span>
-          <h1>${esc(t("hero_title"))}</h1>
+        <div class="hero-copy">
+          <span class="eyebrow">${icon("leaf")}${esc(t("hero_eyebrow"))}</span>
+          <h1 id="hero-title">${esc(t("hero_title"))}</h1>
           <p class="lead">${esc(t("hero_lead"))}</p>
-          <form class="searchbar" id="hero-search">
-            <input id="q" type="search" placeholder="${esc(t("hero_search_ph"))}" value="${esc(f.q)}">
-            <select id="campus-sel" aria-label="${esc(t("campus"))}">
-              <option value="">${esc(t("campus"))}: ${esc(t("all"))}</option>
-              ${CAMPUSES.map(c => `<option value="${c}" ${f.campus === c ? "selected" : ""}>${esc(campusLabel(c))}</option>`).join("")}
+          <form class="searchbar" id="hero-search" role="search" aria-label="${esc(t("search"))}">
+            <div class="search-input">
+              ${icon("search")}
+              <label class="sr-only" for="q">${esc(t("search"))}</label>
+              <input id="q" type="search" placeholder="${esc(t("hero_search_ph"))}" value="${esc(f.q)}" autocomplete="off">
+            </div>
+            <label class="sr-only" for="campus-sel">${esc(t("campus"))}</label>
+            <select id="campus-sel">
+              ${option("", `${t("campus")}: ${t("all")}`, !f.campus)}
+              ${CAMPUSES.map(c => option(c, campusLabel(c), f.campus === c)).join("")}
             </select>
             <button class="btn btn-primary" type="submit">${esc(t("hero_search_btn"))}</button>
-            <button class="btn btn-ghost" type="button" id="go-publish">${esc(t("publish_cta"))}</button>
+            <button class="btn btn-ghost" type="button" id="go-publish">${icon("plus")}${esc(t("publish_cta"))}</button>
           </form>
+          <ul class="hero-badges">
+            <li>${icon("shield")}${esc(t("hero_chip_1"))}</li>
+            <li>${icon("user")}${esc(t("hero_chip_2"))}</li>
+            <li>${icon("leaf")}${esc(t("hero_chip_3"))}</li>
+          </ul>
         </div>
-        <img class="hero-art" src="/static/img/hero-reuse.jpg" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
+        <img class="hero-art" src="/static/img/hero-reuse.jpg" alt="" width="880" height="660" fetchpriority="high" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
       </div>
-      <div class="notice payment-banner" role="note">
-        <span class="notice-icon" aria-hidden="true">€</span>
-        <div><strong>${esc(t("payment_banner_title"))}</strong><p>${esc(t("payment_banner_body"))}</p></div>
-      </div>
-      <div class="hero-stats">
-        <div class="stat"><strong>${s.total_items}</strong><span>${esc(t("stat_items"))}</span></div>
-        <div class="stat"><strong>${s.available}</strong><span>${esc(t("stat_available"))}</span></div>
-        <div class="stat"><strong>${s.delivered}</strong><span>${esc(t("stat_delivered"))}</span></div>
-        <div class="stat"><strong>${s.users}</strong><span>${esc(t("stat_users"))}</span></div>
-      </div>
+      <div class="stats-row" id="hero-stats">${state.stats ? statsCards(state.stats) : statSkeleton()}</div>
     </section>
 
-    <div class="section-title">
-      <h2>${esc(t("nav_home"))}</h2>
-      <p>${state.items.length} ${esc(t("results"))}</p>
+    <div class="catalog-toolbar">
+      <div class="chips-scroll" id="cat-filters" role="group" aria-label="${esc(t("filters"))}">${categoryChips()}</div>
+      <div class="toolbar-actions">
+        <button type="button" class="filter-btn" id="open-filters" aria-haspopup="dialog">
+          ${icon("sliders")}${esc(t("filters_btn"))}<span class="filter-dot hidden" id="filter-dot" aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
-    <div class="filters" id="cat-filters">
-      <button class="chip ${!f.category ? "active" : ""}" data-cat="">${esc(t("all"))}</button>
-      ${CATEGORIES.map(c => `<button class="chip ${f.category === c ? "active" : ""}" data-cat="${c}">${esc(catLabel(c))}</button>`).join("")}
+    <div class="catalog-meta">
+      <p class="results-count" id="results-count" role="status" aria-live="polite">${esc(t("loading_items"))}</p>
+      <div class="active-filters" id="active-filters"></div>
     </div>
-    <div class="filter-row">
-      <select id="f-condition" aria-label="${esc(t("condition"))}">
-        <option value="">${esc(t("condition"))}: ${esc(t("all"))}</option>
-        ${CONDITIONS.map(c => `<option value="${c}" ${f.condition === c ? "selected" : ""}>${esc(condLabel(c))}</option>`).join("")}
-      </select>
-      <select id="f-type" aria-label="${esc(t("type"))}">
-        <option value="">${esc(t("type"))}: ${esc(t("all"))}</option>
-        ${TYPES.map(c => `<option value="${c}" ${f.type === c ? "selected" : ""}>${esc(typeLabel(c))}</option>`).join("")}
-      </select>
-      <select id="f-sort" aria-label="${esc(t("sort"))}">
-        <option value="recent" ${f.sort === "recent" ? "selected" : ""}>${esc(t("sort_recent"))}</option>
-        <option value="price_asc" ${f.sort === "price_asc" ? "selected" : ""}>${esc(t("sort_price_asc"))}</option>
-        <option value="price_desc" ${f.sort === "price_desc" ? "selected" : ""}>${esc(t("sort_price_desc"))}</option>
-      </select>
-    </div>
-    ${state.items.length ? `<div class="grid">${state.items.map(itemCard).join("")}</div>` : `<div class="empty">${esc(t("no_results"))}</div>`}
 
-    <div class="two-col" style="margin-top:28px">
+    <div id="catalog-results"><div class="grid grid-items">${skeletonCards(6)}</div></div>
+
+    <div class="two-col mt-8">
       <div class="info-card">
         <h3>${esc(t("how_title"))}</h3>
-        <p><strong>${esc(t("how_1_t"))}</strong> — ${esc(t("how_1_b"))}</p>
-        <p><strong>${esc(t("how_2_t"))}</strong> — ${esc(t("how_2_b"))}</p>
-        <p><strong>${esc(t("how_3_t"))}</strong> — ${esc(t("how_3_b"))}</p>
+        <div class="steps">
+          ${[1, 2, 3].map(n => `<div class="step">
+            <span class="step-num" aria-hidden="true">${n}</span>
+            <div><strong>${esc(t("how_" + n + "_t"))}</strong><p>${esc(t("how_" + n + "_b"))}</p></div>
+          </div>`).join("")}
+        </div>
       </div>
       <div class="info-card">
         <h3>${esc(t("trust_title"))}</h3>
         <ul class="clean-list">
-          <li>${esc(t("trust_1"))}</li><li>${esc(t("trust_2"))}</li><li>${esc(t("trust_3"))}</li>
+          <li>${icon("check")}${esc(t("trust_1"))}</li>
+          <li>${icon("check")}${esc(t("trust_2"))}</li>
+          <li>${icon("check")}${esc(t("trust_3"))}</li>
         </ul>
         <p class="legal-inline">${legalText(t("about_p3"))}</p>
       </div>
+    </div>
+
+    <div class="notice payment-banner" role="note">
+      <span class="notice-icon" aria-hidden="true">€</span>
+      <div><strong>${esc(t("payment_banner_title"))}</strong><p>${esc(t("payment_banner_body"))}</p></div>
     </div>`);
+
+  const readHero = () => {
+    const q = $("#q");
+    const campus = $("#campus-sel");
+    state.filters.q = q ? q.value.trim() : "";
+    state.filters.campus = campus ? campus.value : "";
+  };
 
   $("#hero-search").onsubmit = (e) => {
     e.preventDefault();
-    state.filters.q = $("#q").value.trim();
-    state.filters.campus = $("#campus-sel").value;
-    render();
+    readHero();
+    refreshCatalog();
+    const toolbar = $(".catalog-toolbar");
+    if (toolbar) {
+      const top = toolbar.getBoundingClientRect().top + window.scrollY - 12;
+      if (window.scrollY < top - 80) window.scrollTo({ top, behavior: "smooth" });
+    }
+    const q = $("#q");
+    if (q && window.innerWidth < 720) q.blur();
   };
+  $("#campus-sel").onchange = () => { readHero(); refreshCatalog(); };
   $("#go-publish").onclick = () => navigate("publish");
-  $$("#cat-filters .chip").forEach(b => b.onclick = () => { state.filters.category = b.dataset.cat; render(); });
-  $("#f-condition").onchange = (e) => { state.filters.condition = e.target.value; render(); };
-  $("#f-type").onchange = (e) => { state.filters.type = e.target.value; render(); };
-  $("#f-sort").onchange = (e) => { state.filters.sort = e.target.value; render(); };
+  $$("#cat-filters .chip").forEach(b => {
+    b.onclick = () => {
+      state.filters.category = b.dataset.cat || "";
+      refreshCatalog();
+    };
+  });
+  $("#open-filters").onclick = openFilters;
+
+  syncFilterUI();
+  refreshCatalog();
+  if (!state.stats) {
+    fetchStats().then(stats => {
+      const box = $("#hero-stats");
+      if (box && stats) box.innerHTML = statsCards(stats);
+    });
+  }
 }
 
+/* ---------------- Publicar ---------------- */
 function renderPublish(app) {
   if (!state.user) {
-    setApp(app, `<div class="empty" style="margin-top:30px"><p>${esc(t("need_login_publish"))}</p>
-      <button class="btn btn-primary" id="pub-login">${esc(t("login"))}</button></div>`);
-    $("#pub-login").onclick = () => openAuth("login");
+    setApp(app, `
+      <div class="page-head">
+        <span class="eyebrow">${icon("plus")}${esc(t("nav_publish"))}</span>
+        <h1>${esc(t("publish_title"))}</h1>
+      </div>
+      ${emptyState({
+        iconName: "camera",
+        title: t("need_login_publish"),
+        text: t("publish_intro"),
+        actions: [{ id: "login", label: t("login"), icon: "user" }]
+      })}`);
+    bindEmptyActions(app, { login: () => openAuth("login") });
     return;
   }
+
   setApp(app, `
-    <div class="section-title"><h2>${esc(t("publish_title"))}</h2></div>
-    <p class="muted" style="max-width:820px">${esc(t("publish_intro"))}</p>
-    <div class="info-card" style="max-width:820px">
-      <form id="publish-form">
-        <div class="field"><label>${esc(t("f_title"))}</label><input name="title" required minlength="3" maxlength="80" placeholder="Ej.: Lámpara de escritorio LED"></div>
-        <div class="field"><label>${esc(t("f_desc"))}</label><textarea name="description" required minlength="10" maxlength="2000"></textarea><small>${esc(t("desc_hint"))}</small></div>
+    <div class="page-head">
+      <span class="eyebrow">${icon("plus")}${esc(t("nav_publish"))}</span>
+      <h1>${esc(t("publish_title"))}</h1>
+      <p class="lead">${esc(t("publish_intro"))}</p>
+    </div>
+    <form class="form-shell" id="publish-form">
+      <div class="form-section">
+        <h3>${esc(t("form_sec_1"))}</h3>
+        <div class="field">
+          <label for="p-title">${esc(t("f_title"))}</label>
+          <input id="p-title" name="title" required minlength="3" maxlength="80" placeholder="${esc(t("title_ph"))}" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="p-desc">${esc(t("f_desc"))}</label>
+          <textarea id="p-desc" name="description" required minlength="10" maxlength="2000"></textarea>
+          <div class="field-hint"><span>${esc(t("desc_hint"))}</span><span class="counter" id="desc-counter">0/2000</span></div>
+        </div>
         <div class="form-grid">
-          <div class="field"><label>${esc(t("f_category"))}</label><select name="category">${CATEGORIES.map(c => `<option value="${c}">${esc(catLabel(c))}</option>`).join("")}</select></div>
-          <div class="field"><label>${esc(t("f_condition"))}</label><select name="condition">${CONDITIONS.map(c => `<option value="${c}">${esc(condLabel(c))}</option>`).join("")}</select></div>
-          <div class="field"><label>${esc(t("f_type"))}</label><select name="exchange_type" id="pub-type">${TYPES.map(c => `<option value="${c}">${esc(typeLabel(c))}</option>`).join("")}</select></div>
-          <div class="field hidden" id="price-field"><label>${esc(t("f_price"))}</label><input name="price" type="number" min="0" max="10000" step="1" value="0"><small>${esc(t("f_price_hint"))}</small></div>
-          <div class="field"><label>${esc(t("f_campus"))}</label><select name="campus">${CAMPUSES.map(c => `<option value="${c}" ${state.user.campus === c ? "selected" : ""}>${esc(campusLabel(c))}</option>`).join("")}</select></div>
-          <div class="field"><label>${esc(t("f_handover"))}</label><select name="handover_point">${HANDOVERS.map(c => `<option value="${c}">${esc(handLabel(c))}</option>`).join("")}</select></div>
+          <div class="field">
+            <label for="p-category">${esc(t("f_category"))}</label>
+            <select id="p-category" name="category">${CATEGORIES.map(c => option(c, catLabel(c))).join("")}</select>
+          </div>
+          <div class="field">
+            <label for="p-condition">${esc(t("f_condition"))}</label>
+            <select id="p-condition" name="condition">${CONDITIONS.map(c => option(c, condLabel(c))).join("")}</select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>${esc(t("form_sec_2"))}</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="p-type">${esc(t("f_type"))}</label>
+            <select id="p-type" name="exchange_type">${TYPES.map(c => option(c, typeLabel(c))).join("")}</select>
+          </div>
+          <div class="field hidden" id="price-field">
+            <label for="p-price">${esc(t("f_price"))}</label>
+            <input id="p-price" name="price" type="number" min="0" max="10000" step="1" value="0" inputmode="numeric">
+            <small>${esc(t("f_price_hint"))}</small>
+          </div>
+          <div class="field">
+            <label for="p-campus">${esc(t("f_campus"))}</label>
+            <select id="p-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), state.user.campus === c)).join("")}</select>
+          </div>
+          <div class="field">
+            <label for="p-handover">${esc(t("f_handover"))}</label>
+            <select id="p-handover" name="handover_point">${HANDOVERS.map(c => option(c, handLabel(c))).join("")}</select>
+          </div>
         </div>
         <div class="notice hidden" id="payment-notice" role="note">
           <span class="notice-icon" aria-hidden="true">€</span>
           <div><strong>${esc(t("payment_notice_title"))}</strong><p>${esc(t("payment_notice_body"))}</p></div>
         </div>
-        <div class="field"><label>${esc(t("f_image"))}</label>
+      </div>
+
+      <div class="form-section">
+        <h3>${esc(t("form_sec_3"))}</h3>
+        <div class="field">
+          <span class="field-label">${esc(t("f_image"))}</span>
+          <label class="upload-zone" id="upload-zone" for="img-file">
+            ${icon("camera")}
+            <strong>${esc(t("photo_drop_t"))}</strong>
+            <span>${esc(t("photo_drop_b"))}</span>
+            <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp,image/gif">
+          </label>
           <input type="hidden" id="img-url" value="">
-          <input type="file" id="img-file" accept="image/*">
-          <div style="margin-top:8px"><button type="button" class="btn btn-ghost btn-sm" id="upload-btn">${esc(t("upload"))}</button></div>
+          <div class="upload-preview-wrap" id="preview-wrap">
+            <img id="img-preview" class="upload-preview" alt="">
+            <button type="button" class="upload-remove" id="img-remove">${icon("trash")}${esc(t("photo_remove"))}</button>
+          </div>
+          <div class="upload-status hidden" id="upload-status" role="status" aria-live="polite"></div>
           <small>${esc(t("f_image_hint"))}</small>
-          <img id="img-preview" class="hidden upload-preview" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
         </div>
         <div class="consent-box">
-          <label class="check-row"><input type="checkbox" name="private_seller" required><span>${esc(t("f_private"))}</span></label>
-          <p class="muted">${esc(t("f_private_hint"))}</p>
+          <label class="check-row"><input type="checkbox" name="private_seller" id="p-private" required><span>${esc(t("f_private"))}</span></label>
+          <p>${esc(t("f_private_hint"))}</p>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-primary" type="submit">${esc(t("publish_btn"))}</button>
-          <button class="btn btn-ghost" type="button" id="pub-cancel">${esc(t("cancel"))}</button>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" type="submit" id="publish-submit">${icon("plus")}${esc(t("publish_btn"))}</button>
+          <button class="btn btn-ghost btn-lg" type="button" id="pub-cancel">${esc(t("cancel"))}</button>
         </div>
-      </form>
-    </div>`);
+      </div>
+    </form>`);
+
+  const counter = $("#desc-counter");
+  const desc = $("#p-desc");
+  const updateCounter = () => {
+    const n = desc.value.length;
+    counter.textContent = `${n}/2000`;
+    counter.classList.toggle("is-near", n > 1700);
+  };
+  desc.addEventListener("input", updateCounter);
+  updateCounter();
 
   const syncType = () => {
-    const sale = $("#pub-type").value === "vender";
+    const sale = $("#p-type").value === "vender";
     $("#price-field").classList.toggle("hidden", !sale);
     $("#payment-notice").classList.toggle("hidden", !sale);
   };
-  $("#pub-type").onchange = syncType;
+  $("#p-type").onchange = syncType;
   syncType();
-  $("#img-file").onchange = () => {
-    const file = $("#img-file").files[0];
-    const preview = $("#img-preview");
-    if (!file) { preview.classList.add("hidden"); return; }
+
+  const zone = $("#upload-zone");
+  const fileInput = $("#img-file");
+  const previewWrap = $("#preview-wrap");
+  const preview = $("#img-preview");
+  const status = $("#upload-status");
+
+  const uploadFile = async (file) => {
+    if (!file) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) {
+      toast(t("toast_invalid_image"), "error");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast(t("photo_drop_b"), "error");
+      return;
+    }
+    status.classList.remove("hidden");
+    status.innerHTML = `<span class="spinner" aria-hidden="true"></span>${esc(t("photo_uploading"))}`;
     preview.src = URL.createObjectURL(file);
-    preview.classList.remove("hidden");
-  };
-  $("#upload-btn").onclick = async () => {
-    const file = $("#img-file").files[0];
-    if (!file) { toast(t("toast_error"), true); return; }
-    const fd = new FormData(); fd.append("file", file);
+    previewWrap.classList.add("is-visible");
+    const fd = new FormData();
+    fd.append("file", file);
     try {
       const res = await fetch("/api/upload", {
-        method: "POST", headers: state.token ? { Authorization: "Bearer " + state.token } : {}, body: fd
+        method: "POST",
+        headers: state.token ? { Authorization: "Bearer " + state.token } : {},
+        body: fd
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const err = new Error(data.message || data.error || "error"); err.data = data; throw err;
+        const err = new Error(data.message || data.error || "error");
+        err.data = data;
+        throw err;
       }
       $("#img-url").value = data.url;
-      $("#img-preview").src = data.url;
-      $("#img-preview").classList.remove("hidden");
+      preview.src = data.url;
+      status.innerHTML = `${icon("check-circle")}${esc(t("photo_ready"))}`;
       toast(t("toast_upload"));
-    } catch (err) { toast(errorMessage(err), true); }
+    } catch (err) {
+      status.classList.add("hidden");
+      previewWrap.classList.remove("is-visible");
+      $("#img-url").value = "";
+      toast(errorMessage(err), "error");
+    }
+  };
+
+  fileInput.onchange = () => uploadFile(fileInput.files[0]);
+  ["dragenter", "dragover"].forEach(evt => zone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    zone.classList.add("is-dragging");
+  }));
+  ["dragleave", "drop"].forEach(evt => zone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    zone.classList.remove("is-dragging");
+  }));
+  zone.addEventListener("drop", (e) => {
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) uploadFile(file);
+  });
+  $("#img-remove").onclick = () => {
+    $("#img-url").value = "";
+    fileInput.value = "";
+    previewWrap.classList.remove("is-visible");
+    preview.removeAttribute("src");
+    status.classList.add("hidden");
   };
   $("#pub-cancel").onclick = () => navigate("home");
+
   $("#publish-form").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    const form = e.target;
+    const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
     payload.private_seller = fd.get("private_seller") === "on";
     payload.image_url = $("#img-url").value || "";
     payload.price = payload.exchange_type === "vender" ? Number(payload.price || 0) : 0;
+    const submit = $("#publish-submit");
+    setBusy(submit, true, t("publishing"));
     try {
       await api("/api/items", { method: "POST", body: JSON.stringify(payload) });
-      toast(t("toast_published")); navigate("home");
-    } catch (err) { toast(errorMessage(err), true); }
+      toast(t("toast_published"));
+      navigate("home");
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
+/* ---------------- Puntos de entrega ---------------- */
 function renderPoints(app) {
-  const pts = HANDOVERS;
   setApp(app, `
-    <div class="section-title"><h2>${esc(t("points_title"))}</h2></div>
-    <p class="muted" style="max-width:820px">${esc(t("points_lead"))}</p>
-    <div class="notice" role="note"><span class="notice-icon" aria-hidden="true">i</span><div><p>${esc(t("points_notice"))}</p></div></div>
-    <div class="grid" style="margin-top:18px">
-      ${pts.map(p => `
-        <div class="point-card">
-          <h3>📍 ${esc(t("points_" + p + "_t"))}</h3>
-          <p class="muted">${esc(t("points_" + p + "_b"))}</p>
-          <p><span class="pill">${esc(campusLabel("vigo"))}</span> <span class="pill grey">${esc(campusLabel("pontevedra"))}</span> <span class="pill grey">${esc(campusLabel("ourense"))}</span></p>
-        </div>`).join("")}
-    </div>`);
-}
-
-function renderRules(app) {
-  const rules = [1, 2, 3, 4, 5, 6];
-  setApp(app, `
-    <div class="section-title"><h2>${esc(t("rules_title"))}</h2></div>
-    <p class="muted" style="max-width:820px">${esc(t("rules_lead"))}</p>
-    <div class="grid" style="margin-top:18px">
-      ${rules.map(n => `
-        <div class="info-card"><h3>${esc(t("rules_" + n + "_t"))}</h3><p class="muted">${esc(t("rules_" + n + "_b"))}</p></div>`).join("")}
+    <div class="page-head">
+      <span class="eyebrow">${icon("pin")}${esc(t("nav_points"))}</span>
+      <h1>${esc(t("points_title"))}</h1>
+      <p class="lead">${esc(t("points_lead"))}</p>
     </div>
-    <div class="two-col" style="margin-top:18px">
-      <div class="info-card"><span class="eyebrow">${esc(t("payment_eyebrow"))}</span><h3>${esc(t("rules_payment_title"))}</h3><p>${esc(t("rules_payment_body"))}</p></div>
-      <div class="info-card"><span class="eyebrow">RGPD · LOPDGDD</span><h3>${esc(t("rules_data_title"))}</h3><p>${esc(t("rules_data_body"))}</p></div>
+    <div class="notice is-soft" role="note">
+      <span class="notice-icon" aria-hidden="true">${icon("info")}</span>
+      <div><p>${esc(t("points_notice"))}</p></div>
+    </div>
+    <div class="grid mt-4">
+      ${HANDOVERS.map(p => `
+        <article class="point-card">
+          <span class="point-icon" aria-hidden="true">${icon(POINT_ICONS[p] || "pin")}</span>
+          <h3>${esc(t("points_" + p + "_t"))}</h3>
+          <p>${esc(t("points_" + p + "_b"))}</p>
+          <p class="card-meta mt-auto">${CAMPUSES.map(c => `<span class="pill grey">${esc(campusLabel(c))}</span>`).join("")}</p>
+        </article>`).join("")}
     </div>`);
 }
 
+/* ---------------- Normas y confianza ---------------- */
+function renderRules(app) {
+  setApp(app, `
+    <div class="page-head">
+      <span class="eyebrow">${icon("shield")}${esc(t("nav_rules"))}</span>
+      <h1>${esc(t("rules_title"))}</h1>
+      <p class="lead">${esc(t("rules_lead"))}</p>
+    </div>
+    <div class="rules-grid">
+      ${[1, 2, 3, 4, 5, 6].map(n => `
+        <article class="info-card rule-card">
+          <span class="rule-icon" aria-hidden="true">${n}</span>
+          <div>
+            <h3>${esc(t("rules_" + n + "_t"))}</h3>
+            <p>${esc(t("rules_" + n + "_b"))}</p>
+          </div>
+        </article>`).join("")}
+    </div>
+    <div class="two-col mt-4">
+      <div class="info-card">
+        <span class="eyebrow">${esc(t("payment_eyebrow"))}</span>
+        <h3>${esc(t("rules_payment_title"))}</h3>
+        <p>${esc(t("rules_payment_body"))}</p>
+      </div>
+      <div class="info-card">
+        <span class="eyebrow">${esc(t("account_rights"))}</span>
+        <h3>${esc(t("rules_data_title"))}</h3>
+        <p>${esc(t("rules_data_body"))}</p>
+      </div>
+    </div>`);
+}
+
+/* ---------------- El proyecto ---------------- */
 function renderAbout(app) {
   setApp(app, `
-    <div class="section-title"><h2>${esc(t("about_title"))}</h2></div>
-    <p class="lead-block">${esc(t("about_lead"))}</p>
+    <div class="page-head">
+      <span class="eyebrow">${icon("info")}${esc(t("nav_about"))}</span>
+      <h1>${esc(t("about_title"))}</h1>
+      <p class="lead">${esc(t("about_lead"))}</p>
+    </div>
     <div class="about-layout">
       <div class="info-card">
         <p>${esc(t("about_p1"))}</p>
         <p>${esc(t("about_p2"))}</p>
         <p>${esc(t("about_p3"))}</p>
-        <h3>${esc(t("about_pillars_title"))}</h3>
+        <h3 class="mt-5">${esc(t("about_pillars_title"))}</h3>
         <ul class="clean-list">
-          <li>${esc(t("about_pillar_1"))}</li><li>${esc(t("about_pillar_2"))}</li><li>${esc(t("about_pillar_3"))}</li>
+          <li>${icon("shield")}${esc(t("about_pillar_1"))}</li>
+          <li>${icon("user")}${esc(t("about_pillar_2"))}</li>
+          <li>${icon("tag")}${esc(t("about_pillar_3"))}</li>
         </ul>
         <p class="team-list"><strong>${esc(t("credit_label"))}</strong>${TEAM_NAMES.map(esc).join(" · ")}</p>
       </div>
@@ -1097,12 +1808,13 @@ function renderAbout(app) {
     </div>`);
 }
 
+/* ---------------- Panel de datos ---------------- */
 function accountToolsHtml() {
   if (!state.user) {
     return `<div class="privacy-panel">
       <h3>${esc(t("account_data_title"))}</h3>
       <p>${esc(t("privacy_login_manage"))}</p>
-      <button class="btn btn-primary btn-sm" data-action="login">${esc(t("login"))}</button>
+      <button class="btn btn-primary btn-sm" data-action="login">${icon("user")}${esc(t("login"))}</button>
     </div>`;
   }
   return `<div class="privacy-panel">
@@ -1112,8 +1824,8 @@ function accountToolsHtml() {
         <p>${esc(t("account_data_body"))}</p>
       </div>
       <div class="account-actions">
-        <button class="btn btn-ghost btn-sm" data-action="export">${esc(t("privacy_export"))}</button>
-        <button class="btn btn-danger btn-sm" data-action="delete">${esc(t("privacy_delete"))}</button>
+        <button class="btn btn-ghost btn-sm" data-action="export">${icon("download")}${esc(t("privacy_export"))}</button>
+        <button class="btn btn-danger btn-sm" data-action="delete">${icon("trash")}${esc(t("privacy_delete"))}</button>
       </div>
     </div>
     <dl class="account-meta">
@@ -1122,7 +1834,7 @@ function accountToolsHtml() {
       <div><dt>${esc(t("account_consent"))}</dt><dd>${state.user.consent_ok ? esc(t("account_consent_ok")) : esc(t("account_consent_old"))} · ${esc(CONFIG.legalVersion)}</dd></div>
       <div><dt>${esc(t("account_rights"))}</dt><dd>${esc(t("account_rights_body"))}</dd></div>
     </dl>
-    <p class="muted">${legalText(t("account_note"))}</p>
+    <p class="muted small">${legalText(t("account_note"))}</p>
   </div>`;
 }
 
@@ -1134,34 +1846,51 @@ async function downloadAccountExport() {
     const a = document.createElement("a");
     a.href = url;
     a.download = `circular-campus-export-${(state.user && state.user.id) || "account"}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast(t("toast_account_exported"));
-  } catch (e) { toast(errorMessage(e), true); }
+  } catch (e) { toast(errorMessage(e), "error"); }
 }
 
 function openDeleteAccount() {
   openModal(`
     ${closeBtn()}
-    <h2>${esc(t("delete_account_title"))}</h2>
-    <p class="danger-text">${esc(t("delete_warning"))}</p>
-    <form id="delete-account-form">
-      <div class="field"><label>${esc(t("delete_password"))}</label><input name="password" type="password" required autocomplete="current-password"></div>
-      <button class="btn btn-danger btn-block" type="submit">${esc(t("delete_confirm_btn"))}</button>
-      <button class="btn btn-ghost btn-block" type="button" data-close style="margin-top:8px">${esc(t("cancel"))}</button>
-    </form>`);
+    <div class="modal-head">
+      <h2 id="delete-title">${esc(t("delete_account_title"))}</h2>
+      <p class="danger-text">${esc(t("delete_warning"))}</p>
+    </div>
+    <form id="delete-account-form" aria-labelledby="delete-title">
+      <div class="field">
+        <label for="delete-password">${esc(t("delete_password"))}</label>
+        <input id="delete-password" name="password" type="password" required autocomplete="current-password" data-autofocus>
+      </div>
+      <button class="btn btn-danger-solid btn-block" type="submit" data-submit>${icon("trash")}${esc(t("delete_confirm_btn"))}</button>
+    </form>`, { labelledBy: "delete-title" });
   $("#delete-account-form").onsubmit = async (e) => {
     e.preventDefault();
     const password = new FormData(e.target).get("password") || "";
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("saving"));
     try {
       await api("/api/account/delete", { method: "DELETE", body: JSON.stringify({ password }) });
-      state.token = null; state.user = null; state.pendingConsent = false;
+      state.token = null;
+      state.user = null;
+      state.pendingConsent = false;
       localStorage.removeItem("cc_token");
-      closeModal(); renderAuthArea(); toast(t("toast_account_deleted")); navigate("home");
-    } catch (err) { toast(errorMessage(err), true); }
+      closeModal();
+      renderAuthArea();
+      toast(t("toast_account_deleted"));
+      navigate("home");
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
+/* ---------------- Documentos legales ---------------- */
 function renderLegalPage(app, kind) {
   const docs = LEGAL_DOCS[state.lang] || LEGAL_DOCS.es;
   const sections = docs[kind] || [];
@@ -1176,184 +1905,384 @@ function renderLegalPage(app, kind) {
       <header class="legal-head">
         <img src="/static/img/circular-campus-lockup.png" alt="" data-fallback data-fallback-src="/static/img/circular-campus-mark-white.png">
         <div>
-          <span class="eyebrow">${esc(t("legal_kicker"))} · ${esc(CONFIG.service)}</span>
+          <span class="eyebrow">${icon("shield")}${esc(t("legal_kicker"))} · ${esc(CONFIG.service)}</span>
           <h1>${esc(t(kind + "_title"))}</h1>
           <p class="lead">${esc(t(kind + "_lead"))}</p>
           <p class="muted">${esc(t("legal_updated"))}: ${esc(CONFIG.legalUpdated)} · ${esc(t("legal_version"))}: ${esc(CONFIG.legalVersion)} · ${esc(t("legal_contact_label"))}: <a href="mailto:${esc(CONFIG.contactEmail)}">${esc(CONFIG.contactEmail)}</a></p>
         </div>
-        <button class="btn btn-ghost btn-sm" data-print>${esc(t("legal_print"))}</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-print>${icon("download")}${esc(t("legal_print"))}</button>
       </header>
       ${rendered}
       ${kind === "privacy" ? accountToolsHtml() : ""}
-      <p class="legal-back"><a href="/" data-route="home">← ${esc(t("back_home"))}</a></p>
+      <p class="legal-back"><a href="/" data-route="home">${icon("arrow", "icon-sm")} ${esc(t("back_home"))}</a></p>
     </article>`);
 }
 
-async function renderMy(app) {
+/* ---------------- Mi área ---------------- */
+function renderMy(app) {
   if (!state.user) {
-    setApp(app, `<div class="empty" style="margin-top:30px"><p>${esc(t("need_login"))}</p>
-      <button class="btn btn-primary" id="my-login">${esc(t("login"))}</button></div>`);
-    $("#my-login").onclick = () => openAuth("login");
+    setApp(app, `
+      <div class="page-head">
+        <span class="eyebrow">${icon("user")}${esc(t("my_area"))}</span>
+        <h1>${esc(t("my_area"))}</h1>
+      </div>
+      ${emptyState({
+        iconName: "user",
+        title: t("need_login"),
+        text: t("account_data_body"),
+        actions: [
+          { id: "login", label: t("login"), icon: "user" },
+          { id: "register", label: t("register"), variant: "btn-ghost" }
+        ]
+      })}`);
+    bindEmptyActions(app, { login: () => openAuth("login"), register: () => openAuth("register") });
     return;
   }
-  const tab = state.myTab;
-  let content = "";
-  if (tab === "items") {
-    const data = await api("/api/items?status=&sort=recent").catch(() => ({ items: [] }));
-    const mine = (data.items || []).filter(i => i.owner_id === state.user.id);
-    content = mine.length ? mine.map(it => `
-      <div class="list-item">
-        <img src="${esc(itemImage(it))}" alt="" data-fallback data-category="${esc(it.category)}">
-        <div class="grow"><strong>${esc(it.title)}</strong><br><span class="muted">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))}</span></div>
-        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
-        <button class="btn btn-ghost btn-sm" data-view="${it.id}">${esc(t("view_item"))}</button>
-        <select data-status="${it.id}" aria-label="${esc(t("status_disponible"))}">
-          <option value="disponible" ${it.status === "disponible" ? "selected" : ""}>${esc(t("status_disponible"))}</option>
-          <option value="reservado" ${it.status === "reservado" ? "selected" : ""}>${esc(t("status_reservado"))}</option>
-          <option value="entregado" ${it.status === "entregado" ? "selected" : ""}>${esc(t("status_entregado"))}</option>
-        </select>
-        <button class="btn btn-danger btn-sm" data-del="${it.id}">${esc(t("delete_item"))}</button>
-      </div>`).join("") : `<div class="empty">${esc(t("my_empty_items"))}</div>`;
-  } else if (tab === "requests") {
-    const data = await api("/api/requests/mine").catch(() => ({ requests: [] }));
-    content = data.requests.length ? data.requests.map(r => `
-      <div class="list-item">
-        <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" data-fallback data-category="otros">
-        <div class="grow"><strong>${esc(r.item_title)}</strong><br><span class="muted">${esc(r.message || "—")}</span></div>
-        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
-        ${r.status === "pendiente" ? `<button class="btn btn-ghost btn-sm" data-cancelreq="${r.id}">${esc(t("cancel_req"))}</button>` : ""}
-      </div>`).join("") : `<div class="empty">${esc(t("my_empty_requests"))}</div>`;
-  } else if (tab === "received") {
-    const data = await api("/api/requests/received").catch(() => ({ requests: [] }));
-    content = data.requests.length ? data.requests.map(r => `
-      <div class="list-item">
-        <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" data-fallback data-category="otros">
-        <div class="grow"><strong>${esc(r.item_title)}</strong> · ${esc(r.requester_name)}<br><span class="muted">${esc(r.message || "—")}</span></div>
-        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
-        ${r.status === "pendiente" ? `<button class="btn btn-primary btn-sm" data-accept="${r.id}">${esc(t("accept"))}</button><button class="btn btn-ghost btn-sm" data-reject="${r.id}">${esc(t("reject"))}</button>` : ""}
-        ${r.status === "aceptada" ? `<button class="btn btn-primary btn-sm" data-complete="${r.id}">${esc(t("complete"))}</button>` : ""}
-      </div>`).join("") : `<div class="empty">${esc(t("my_empty_received"))}</div>`;
-  } else if (tab === "favorites") {
-    const data = await api("/api/favorites").catch(() => ({ items: [] }));
-    content = data.items.length ? `<div class="grid">${data.items.map(itemCard).join("")}</div>` : `<div class="empty">${esc(t("my_empty_favs"))}</div>`;
-  }
 
+  const tab = state.myTab;
+  const initials = esc((state.user.name || "?").trim().charAt(0).toUpperCase() || "?");
   setApp(app, `
-    <div class="section-title">
-      <h2>${esc(t("my_area"))} · ${esc(state.user.name)}</h2>
-      <p>${state.user.academic_email ? esc(t("academic_email")) : esc(t("personal_email"))} · ${esc(t("identity_note"))}</p>
+    <div class="page-head mb-4">
+      <span class="eyebrow">${icon("user")}${esc(t("my_area"))}</span>
+      <h1>${esc(state.user.name)}</h1>
+      <p class="lead lead-inline">
+        <span class="avatar avatar-sm" aria-hidden="true">${initials}</span>
+        <span>${esc(campusLabel(state.user.campus))} · ${esc(state.user.email)}</span>
+        <span class="identity-badge${state.user.academic_email ? " academic" : ""}">${icon(state.user.academic_email ? "check" : "user")}${esc(state.user.academic_email ? t("academic_email") : t("personal_email"))}</span>
+      </p>
     </div>
-    <div class="tabs">
-      <button data-tab="items" class="${tab === "items" ? "active" : ""}">${esc(t("my_items"))}</button>
-      <button data-tab="requests" class="${tab === "requests" ? "active" : ""}">${esc(t("my_requests"))}</button>
-      <button data-tab="received" class="${tab === "received" ? "active" : ""}">${esc(t("received"))}</button>
-      <button data-tab="favorites" class="${tab === "favorites" ? "active" : ""}">${esc(t("favorites"))}</button>
+    <div class="segment" role="tablist" aria-label="${esc(t("my_area_subtitle"))}">
+      ${MY_TABS.map(x => `<button type="button" role="tab" id="tab-${x.id}" aria-selected="${tab === x.id}" aria-controls="my-panel" data-tab="${x.id}">${esc(t(x.label))}</button>`).join("")}
     </div>
-    ${content}
+    <div id="my-panel" role="tabpanel" aria-labelledby="tab-${tab}" class="mt-4">
+      ${skeletonRows(3)}
+    </div>
     ${accountToolsHtml()}`);
 
-  $$("[data-tab]").forEach(b => b.onclick = () => { state.myTab = b.dataset.tab; render(); });
-  $$("[data-status]").forEach(sel => sel.onchange = async () => {
-    try { await api(`/api/items/${sel.dataset.status}`, { method: "PATCH", body: JSON.stringify({ status: sel.value }) }); toast(t("toast_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  $$(".segment [data-tab]").forEach(b => {
+    b.onclick = () => { state.myTab = b.dataset.tab; state.myTabFocus = true; render(); };
   });
-  $$("[data-del]").forEach(b => b.onclick = async () => {
-    if (!confirm(t("delete_item") + "?")) return;
-    try { await api(`/api/items/${b.dataset.del}`, { method: "DELETE" }); toast(t("toast_deleted")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  if (state.myTabFocus) {
+    state.myTabFocus = false;
+    const activeTab = $('.segment [aria-selected="true"]');
+    if (activeTab) activeTab.focus();
+  }
+  loadMyTab(tab);
+}
+
+function myItemCard(it) {
+  return `<article class="list-card">
+    <img src="${esc(itemImage(it))}" alt="" loading="lazy" data-fallback data-category="${esc(it.category)}">
+    <div class="list-card-body">
+      <div class="list-card-top">
+        <h3 class="list-card-title">${esc(it.title)}</h3>
+        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
+      </div>
+      <p class="list-card-meta">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))}</p>
+      <div class="list-card-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-view="${it.id}">${icon("eye")}${esc(t("view_item"))}</button>
+        <label class="sr-only" for="status-${it.id}">${esc(t("status_change"))}</label>
+        <select id="status-${it.id}" data-status="${it.id}" aria-label="${esc(t("status_change"))}">
+          ${["disponible", "reservado", "entregado"].map(s => option(s, statusLabel(s), it.status === s)).join("")}
+        </select>
+        <button type="button" class="btn btn-danger btn-sm" data-del="${it.id}">${icon("trash")}${esc(t("delete_item"))}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function requestCard(r, mode) {
+  const isReceived = mode === "received";
+  const owner = isReceived ? `<span class="list-card-meta"> · ${esc(r.requester_name || "")}</span>` : "";
+  return `<article class="list-card">
+    <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" loading="lazy" data-fallback data-category="otros">
+    <div class="list-card-body">
+      <div class="list-card-top">
+        <h3 class="list-card-title">${esc(r.item_title)}${owner}</h3>
+        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
+      </div>
+      ${r.message ? `<p class="list-card-message">${esc(r.message)}</p>` : ""}
+      <div class="list-card-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-view="${r.item_id}">${icon("eye")}${esc(t("view_item"))}</button>
+        ${!isReceived && r.status === "pendiente" ? `<button type="button" class="btn btn-danger btn-sm" data-cancelreq="${r.id}">${esc(t("cancel_req"))}</button>` : ""}
+        ${isReceived && r.status === "pendiente" ? `
+          <button type="button" class="btn btn-primary btn-sm" data-accept="${r.id}">${icon("check")}${esc(t("accept"))}</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-reject="${r.id}">${esc(t("reject"))}</button>` : ""}
+        ${isReceived && r.status === "aceptada" ? `<button type="button" class="btn btn-primary btn-sm" data-complete="${r.id}">${icon("check-circle")}${esc(t("complete"))}</button>` : ""}
+      </div>
+    </div>
+  </article>`;
+}
+
+async function loadMyTab(tab) {
+  const panel = $("#my-panel");
+  if (!panel) return;
+  panel.innerHTML = skeletonRows(3);
+  let html = "";
+  try {
+    if (tab === "items") {
+      const data = await api("/api/items?status=&sort=recent");
+      const mine = (data.items || []).filter(i => i.owner_id === state.user.id);
+      html = mine.length ? mine.map(myItemCard).join("") : emptyState({
+        iconName: "leaf",
+        title: t("empty_my_items_t"),
+        text: t("empty_my_items_b"),
+        actions: [{ id: "publish", label: t("publish_cta"), icon: "plus" }]
+      });
+    } else if (tab === "requests") {
+      const data = await api("/api/requests/mine");
+      const list = data.requests || [];
+      html = list.length ? list.map(r => requestCard(r, "mine")).join("") : emptyState({
+        iconName: "inbox",
+        title: t("empty_req_t"),
+        text: t("empty_req_b"),
+        actions: [{ id: "browse", label: t("browse_catalog"), icon: "search", variant: "btn-ghost" }]
+      });
+    } else if (tab === "received") {
+      const data = await api("/api/requests/received");
+      const list = data.requests || [];
+      html = list.length ? list.map(r => requestCard(r, "received")).join("") : emptyState({
+        iconName: "inbox",
+        title: t("empty_recv_t"),
+        text: t("empty_recv_b"),
+        actions: [{ id: "publish", label: t("publish_cta"), icon: "plus" }]
+      });
+    } else {
+      const data = await api("/api/favorites");
+      const list = data.items || [];
+      html = list.length ? `<div class="grid grid-items">${list.map(itemCard).join("")}</div>` : emptyState({
+        iconName: "heart",
+        title: t("empty_fav_t"),
+        text: t("empty_fav_b"),
+        actions: [{ id: "browse", label: t("browse_catalog"), icon: "search", variant: "btn-ghost" }]
+      });
+    }
+  } catch (err) {
+    html = emptyState({
+      iconName: "alert",
+      title: t("toast_error"),
+      text: errorMessage(err),
+      actions: [{ id: "retry", label: t("retry"), icon: "refresh", variant: "btn-ghost" }]
+    });
+  }
+  if (!panel.isConnected) return;
+  panel.innerHTML = html;
+  enhance(panel);
+  bindEmptyActions(panel, {
+    publish: () => navigate("publish"),
+    browse: () => navigate("home"),
+    retry: () => loadMyTab(state.myTab)
   });
-  $$("[data-cancelreq]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.cancelreq}`, { method: "PATCH", body: JSON.stringify({ status: "cancelada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  bindMyActions(panel);
+}
+
+function bindMyActions(panel) {
+  $$("[data-status]", panel).forEach(sel => {
+    sel.onchange = async () => {
+      sel.disabled = true;
+      try {
+        await api(`/api/items/${sel.dataset.status}`, { method: "PATCH", body: JSON.stringify({ status: sel.value }) });
+        toast(t("toast_status"));
+        render();
+      } catch (err) {
+        sel.disabled = false;
+        toast(errorMessage(err), "error");
+      }
+    };
   });
-  $$("[data-accept]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.accept}`, { method: "PATCH", body: JSON.stringify({ status: "aceptada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
-  });
-  $$("[data-reject]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.reject}`, { method: "PATCH", body: JSON.stringify({ status: "rechazada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
-  });
-  $$("[data-complete]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.complete}`, { method: "PATCH", body: JSON.stringify({ status: "completada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
-  });
+  $$("[data-del]", panel).forEach(b => { b.onclick = () => confirmDeleteItem(Number(b.dataset.del)); });
+  const patchRequest = (id, status, okMsg) => async (event) => {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    try {
+      await api(`/api/requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+      toast(okMsg);
+      render();
+    } catch (err) {
+      btn.disabled = false;
+      toast(errorMessage(err), "error");
+    }
+  };
+  $$("[data-cancelreq]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.cancelreq, "cancelada", t("toast_req_status")); });
+  $$("[data-accept]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.accept, "aceptada", t("toast_req_status")); });
+  $$("[data-reject]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.reject, "rechazada", t("toast_req_status")); });
+  $$("[data-complete]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.complete, "completada", t("toast_req_status")); });
+}
+
+function confirmDeleteItem(id) {
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="confirm-delete-title">${esc(t("confirm_delete_t"))}</h2>
+      <p>${esc(t("confirm_delete_b"))}</p>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close>${esc(t("cancel"))}</button>
+      <button type="button" class="btn btn-danger-solid" id="confirm-delete-btn">${icon("trash")}${esc(t("confirm_delete_btn"))}</button>
+    </div>`, { labelledBy: "confirm-delete-title" });
+  $("#confirm-delete-btn").onclick = async () => {
+    const btn = $("#confirm-delete-btn");
+    setBusy(btn, true, t("saving"));
+    try {
+      await api(`/api/items/${id}`, { method: "DELETE" });
+      closeModal();
+      toast(t("toast_deleted"));
+      render();
+    } catch (err) {
+      setBusy(btn, false);
+      toast(errorMessage(err), "error");
+    }
+  };
 }
 
 /* ---------------- Detalle y solicitudes ---------------- */
 async function openItem(id) {
+  const modal = openModal(`
+    ${closeBtn()}
+    <div class="skeleton sk-media-detail" aria-hidden="true"></div>
+    <div class="skeleton sk-line w-70 sk-title" aria-hidden="true"></div>
+    <div class="skeleton sk-line w-45 sk-subtitle" aria-hidden="true"></div>`,
+    { sheet: true, label: t("view_item") });
+
+  let it;
   try {
     const data = await api(`/api/items/${id}`);
-    const it = data.item;
-    const owner = it.owner || {};
-    const isOwn = state.user && state.user.id === it.owner_id;
-    const isSale = it.exchange_type === "vender";
-    const price = isSale ? `€${Number(it.price).toFixed(0)}` : esc(t("free"));
-    openModal(`
-      ${closeBtn()}
-      <img class="detail-img" src="${esc(itemImage(it))}" alt="${esc(it.title)}" data-fallback data-category="${esc(it.category)}">
-      <h2 style="margin-top:14px">${esc(it.title)}</h2>
-      <div class="card-meta">
-        <span class="pill">${esc(catLabel(it.category))}</span>
-        <span class="pill">${esc(condLabel(it.condition))}</span>
-        <span class="pill grey">${esc(typeLabel(it.exchange_type))}</span>
-        <span class="pill grey">${esc(campusLabel(it.campus))}</span>
+    it = data.item;
+  } catch (e) {
+    closeModal();
+    toast(errorMessage(e), "error");
+    return;
+  }
+  if (!modal.isConnected) return;
+
+  const owner = it.owner || {};
+  const isOwn = state.user && state.user.id === it.owner_id;
+  const isSale = it.exchange_type === "vender";
+  const available = it.status === "disponible";
+  const price = isSale ? `€${Number(it.price || 0).toFixed(0)}` : esc(t("free"));
+  const saved = Boolean(it.is_favorite);
+
+  modal.removeAttribute("aria-label");
+  modal.setAttribute("aria-labelledby", "detail-title");
+  modal.innerHTML = `
+    ${closeBtn()}
+    <div class="detail-media">
+      <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" data-fallback data-category="${esc(it.category)}">
+      <button type="button" class="fav-btn${saved ? " active" : ""}" data-detail-fav aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}">${icon("heart")}</button>
+      <div class="card-badges badges-start">
         <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
       </div>
-      <p style="margin-top:12px">${esc(it.description)}</p>
-      <div class="owner-box">
-        <span class="avatar">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
+    </div>
+    <h2 class="detail-title" id="detail-title">${esc(it.title)}</h2>
+    <div class="detail-badges">
+      <span class="pill">${esc(catLabel(it.category))}</span>
+      <span class="pill grey">${esc(condLabel(it.condition))}</span>
+      <span class="pill grey">${esc(typeLabel(it.exchange_type))}</span>
+      <span class="pill grey">${esc(campusLabel(it.campus))}</span>
+    </div>
+    <div class="detail-price-row">
+      <div><span class="price">${price}</span>${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}</div>
+      <span class="card-location">${icon("pin")}${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))}</span>
+    </div>
+    <section class="detail-section">
+      <h3>${esc(t("detail_description"))}</h3>
+      <p class="detail-desc">${esc(it.description)}</p>
+    </section>
+    <section class="detail-section">
+      <h3>${esc(t("owner"))}</h3>
+      <div class="owner-card">
+        <span class="avatar" aria-hidden="true">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
         <div>
-          <strong>${esc(owner.name || "—")}</strong>
-          <span class="identity-badge ${owner.academic_email ? "academic" : ""}">${owner.academic_email ? esc(t("academic_email")) : esc(t("personal_email"))}</span>
-          <small class="muted">${esc(t("identity_note"))}</small><br>
-          <span class="muted">${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))} · ${esc(campusLabel(it.campus))}</span>
+          <p class="owner-name">${esc(owner.name || "—")}
+            <span class="identity-badge${owner.academic_email ? " academic" : ""}">${icon("check")}${esc(owner.academic_email ? t("academic_email") : t("personal_email"))}</span>
+          </p>
+          <small>${esc(t("identity_note"))}</small>
         </div>
-        <div class="owner-price"><span class="price">${price}</span>${isSale ? `<small class="price-sub">${esc(t("price_orientative"))}</small>` : ""}</div>
       </div>
-      ${isSale ? `<div class="notice" role="note"><span class="notice-icon" aria-hidden="true">€</span><div><p>${esc(t("detail_payment_notice"))}</p></div></div>` : ""}
-      <p class="muted" style="font-size:14px">${esc(t("loan_rules"))}</p>
-      <p class="muted" style="font-size:14px">${esc(t("detail_privacy_note"))}</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-        ${isOwn ? `<button class="btn btn-ghost" id="detail-manage">${esc(t("my_area"))}</button>`
-                : `<button class="btn btn-primary" id="detail-request" ${it.status !== "disponible" ? "disabled" : ""}>${esc(t("detail_request"))}</button>`}
-        <button class="btn btn-ghost" id="detail-fav">${it.is_favorite ? esc(t("detail_faved")) : esc(t("detail_fav"))}</button>
-      </div>`);
-    const favBtn = $("#detail-fav");
-    if (favBtn) favBtn.onclick = async () => {
-      if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
-      try {
-        const d = await api(`/api/items/${id}/favorite`, { method: "POST" });
-        toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
-        openItem(id);
-      } catch (e) { toast(errorMessage(e), true); }
-    };
-    const manageBtn = $("#detail-manage");
-    if (manageBtn) manageBtn.onclick = () => { closeModal(); navigate("my"); };
-    const reqBtn = $("#detail-request");
-    if (reqBtn) reqBtn.onclick = () => {
-      if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
-      openRequest(id);
-    };
-  } catch (e) { toast(errorMessage(e), true); }
+    </section>
+    <details class="disclosure">
+      <summary>${icon("shield")}<span>${esc(t("detail_handover_h"))}</span>${icon("chevron")}</summary>
+      <div class="disclosure-body">
+        <p>${esc(t("loan_rules"))}</p>
+        <p>${esc(t("detail_privacy_note"))}</p>
+      </div>
+    </details>
+    ${isSale ? `<details class="disclosure">
+      <summary>${icon("tag")}<span>${esc(t("detail_payment_h"))}</span>${icon("chevron")}</summary>
+      <div class="disclosure-body"><p>${esc(t("detail_payment_notice"))}</p></div>
+    </details>` : ""}
+    ${!available && !isOwn ? `<p class="danger-text mt-4">${esc(t("detail_unavailable"))}</p>` : ""}
+    <div class="detail-actions">
+      ${isOwn
+        ? `<button type="button" class="btn btn-primary" id="detail-manage">${icon("grid")}${esc(t("detail_manage"))}</button>`
+        : `<button type="button" class="btn btn-primary" id="detail-request"${available ? "" : " disabled"}>${icon("inbox")}${esc(t("detail_request"))}</button>`}
+      <button type="button" class="btn btn-ghost" id="detail-fav-btn" aria-pressed="${saved}">
+        ${icon("heart")}<span id="detail-fav-label">${esc(saved ? t("detail_faved") : t("detail_fav"))}</span>
+      </button>
+    </div>`;
+  enhance(modal);
+
+  const toggleFav = async (btn) => {
+    if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+    btn.disabled = true;
+    try {
+      const d = await api(`/api/items/${id}/favorite`, { method: "POST" });
+      toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
+      $$("[data-detail-fav]", modal).forEach(b => {
+        b.classList.toggle("active", d.is_favorite);
+        b.setAttribute("aria-pressed", String(d.is_favorite));
+      });
+      const favTop = $("[data-detail-fav]", modal);
+      if (favTop) favTop.setAttribute("aria-label", d.is_favorite ? t("detail_faved") : t("detail_fav"));
+      const label = $("#detail-fav-label", modal);
+      if (label) label.textContent = d.is_favorite ? t("detail_faved") : t("detail_fav");
+    } catch (e) {
+      toast(errorMessage(e), "error");
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  const favTop = $("[data-detail-fav]", modal);
+  if (favTop) favTop.onclick = () => toggleFav(favTop);
+  const favBtn = $("#detail-fav-btn", modal);
+  if (favBtn) favBtn.onclick = () => toggleFav(favBtn);
+
+  const manageBtn = $("#detail-manage", modal);
+  if (manageBtn) manageBtn.onclick = () => { closeModal(); state.myTab = "items"; navigate("my"); };
+  const reqBtn = $("#detail-request", modal);
+  if (reqBtn) reqBtn.onclick = () => {
+    if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+    openRequest(id);
+  };
 }
 
 function openRequest(itemId) {
   openModal(`
     ${closeBtn()}
-    <h2>${esc(t("request_title"))}</h2>
-    <p class="muted">${esc(t("request_privacy"))}</p>
-    <form id="request-form">
-      <div class="field"><label>${esc(t("request_msg"))}</label><textarea name="message" maxlength="1000" placeholder="${esc(t("request_msg_ph"))}"></textarea></div>
-      <button class="btn btn-primary btn-block" type="submit">${esc(t("request_btn"))}</button>
-    </form>`);
+    <div class="modal-head">
+      <h2 id="request-title">${esc(t("request_title"))}</h2>
+      <p>${esc(t("request_privacy"))}</p>
+    </div>
+    <form id="request-form" aria-labelledby="request-title">
+      <div class="field">
+        <label for="request-message">${esc(t("request_msg"))}</label>
+        <textarea id="request-message" name="message" maxlength="1000" placeholder="${esc(t("request_msg_ph"))}" data-autofocus></textarea>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("inbox")}${esc(t("request_btn"))}</button>
+    </form>`, { labelledBy: "request-title", sheet: true });
   $("#request-form").onsubmit = async (e) => {
     e.preventDefault();
     const message = new FormData(e.target).get("message") || "";
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("sending"));
     try {
       await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message }) });
-      closeModal(); toast(t("toast_request"));
-    } catch (err) { toast(errorMessage(err), true); }
+      closeModal();
+      toast(t("toast_request"));
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
@@ -1361,36 +2290,62 @@ function openRequest(itemId) {
 async function init() {
   $$(".lang-switch button").forEach(b => {
     b.onclick = () => {
+      if (state.lang === b.dataset.lang) return;
       state.lang = b.dataset.lang;
       localStorage.setItem("cc_lang", state.lang);
-      renderAuthArea(); render();
+      if (!state.pendingConsent) closeModal();
+      renderAuthArea();
+      render();
     };
   });
+
+  let scrollTick = false;
+  window.addEventListener("scroll", () => {
+    if (scrollTick) return;
+    scrollTick = true;
+    requestAnimationFrame(() => {
+      document.body.classList.toggle("is-scrolled", window.scrollY > 6);
+      scrollTick = false;
+    });
+  }, { passive: true });
+
   window.addEventListener("popstate", (e) => {
     state.view = (e.state && e.state.view) || PATH_VIEWS[location.pathname] || "home";
     render();
   });
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !state.pendingConsent) closeModal();
+    if (e.key !== "Escape") return;
+    closeUserMenu();
+    if (!state.pendingConsent) closeModal();
   });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest || !e.target.closest(".dropdown")) closeUserMenu();
+  });
+
   try { history.replaceState({ view: state.view }, "", location.pathname || "/"); } catch (e) {}
 
-  if (state.token) {
-    try {
-      const data = await api("/api/auth/me");
-      state.user = data.user;
-      if (!state.user) {
-        state.token = null;
-        localStorage.removeItem("cc_token");
-      } else if (!state.user.consent_ok) {
-        openConsentUpdate();
-      }
-    } catch (e) {
-      state.token = null;
-      localStorage.removeItem("cc_token");
-    }
-  }
   renderAuthArea();
   render();
+
+  if (!state.token) return;
+  try {
+    const data = await api("/api/auth/me");
+    state.user = data.user;
+    if (!state.user) {
+      state.token = null;
+      localStorage.removeItem("cc_token");
+      renderAuthArea();
+      return;
+    }
+    renderAuthArea();
+    render();
+    if (!state.user.consent_ok) openConsentUpdate();
+  } catch (e) {
+    state.token = null;
+    localStorage.removeItem("cc_token");
+    renderAuthArea();
+  }
 }
 document.addEventListener("DOMContentLoaded", init);

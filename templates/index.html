@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Circular Campus · Reutilización e intercambio</title>
 <meta name="description" content="Circular Campus es un prototipo independiente para publicar, encontrar y reutilizar materiales de segunda vida. Sin pagos dentro de la plataforma y con control sobre tus datos.">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="theme-color" content="#1f7a4d">
+<meta name="theme-color" content="#12573A">
+<meta name="color-scheme" content="light">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Circular Campus">
 <meta property="og:description" content="Reutilizar es sencillo. Proyecto independiente presentado en CTC Congress.">
@@ -19,43 +20,73 @@
 <body>
 <a class="skip-link" href="#app" data-i18n="skip_content">Saltar al contenido</a>
 
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.8 8.2l-2.1 5.5-5.5 2.1 2.1-5.5 5.5-2.1Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10.5c0 5.5-8 11-8 11s-8-5.5-8-11a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10.5" r="2.8"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 21.5s7.5-3.7 7.5-9.5V5.4L12 2.5 4.5 5.4v6.6c0 5.8 7.5 9.5 7.5 9.5Z"/><path d="M9 11.8l2.1 2.1 4-4.4"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16.5V11M12 7.8h.01"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.2c.6-3.4 3.7-5.7 7.5-5.7s6.9 2.3 7.5 5.7"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.6 5.9a5.3 5.3 0 0 0-7.5 0L12 7l-1.1-1.1a5.3 5.3 0 0 0-7.5 7.5L12 21.2l8.6-7.8a5.3 5.3 0 0 0 0-7.5Z"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 8h8M17.5 8H20M4 16h3.5M12 16h8"/><circle cx="14.7" cy="8" r="2.8"/><circle cx="9.2" cy="16" r="2.8"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L20 6.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.4l2.6 2.6 5-5.6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.8v4.7M12 16.2h.01"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M21.5 18.7a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2V8.6a2 2 0 0 1 2-2h3.2l1.7-2.8h5.2l1.7 2.8h3.2a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="3.7"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.5 6.2h17M8.5 6.2V3.8h7v2.4M6.2 6.2l1 14h9.6l1-14M10 10.5v5.4M14 10.5v5.4"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.2v11.6M7.4 10.4L12 15l4.6-4.6M4.5 20.4h15"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4.5 12h14M13 6.2l6 5.8-6 5.8"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14.5 3.2H19a2 2 0 0 1 2 2v13.6a2 2 0 0 1-2 2h-4.5M10 16.6l4.6-4.6L10 7.4M14.6 12H3.4"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 12.5h5l1.8 2.8h4.4L16 12.5h5"/><path d="M5.4 4.8h13.2l2.4 7.7v5.9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5.9Z"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M4.5 19.5C4.5 11 10 4.5 19.5 4.5c0 9.5-6.5 15-15 15Z"/><path d="M4.5 19.5c2.5-5 6.5-8.5 11.5-10.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6M20.4 3.6V9h-5.4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.1 2"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.4 12 5.4 21.5 12 21.5 12 18 18.6 12 18.6 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3.1"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.5 13.4l-7.1 7.1a2 2 0 0 1-2.8 0L3 12.9V3.5h9.4l8.1 8.1a2 2 0 0 1 0 1.8Z"/><circle cx="8" cy="8" r="1.3"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="18.5" r="2.8"/><path d="M8.5 10.6l7-3.6M8.5 13.4l7 3.6"/></symbol>
+</svg>
+
 <header class="topbar">
-  <div class="wrap topbar-inner">
+  <div class="topbar-inner">
     <a class="brand" href="/" data-nav="home" aria-label="Circular Campus — inicio">
-      <img class="brand-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="46" height="46">
+      <img class="brand-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="44" height="44" decoding="async">
       <span class="brand-text">
         <strong>Circular Campus</strong>
         <small data-i18n="brand_tag">Proyecto independiente · CTC Congress</small>
       </span>
     </a>
     <nav class="mainnav" aria-label="Principal">
-      <button data-nav="home" data-i18n="nav_home">Explorar</button>
-      <button data-nav="publish" data-i18n="nav_publish">Publicar</button>
-      <button data-nav="points" data-i18n="nav_points">Puntos de entrega</button>
-      <button data-nav="rules" data-i18n="nav_rules">Normas y confianza</button>
-      <button data-nav="about" data-i18n="nav_about">El proyecto</button>
+      <button type="button" class="navlink" data-nav="home"><span data-i18n="nav_home">Explorar</span></button>
+      <button type="button" class="navlink" data-nav="publish"><span data-i18n="nav_publish">Publicar</span></button>
+      <button type="button" class="navlink" data-nav="points"><span data-i18n="nav_points">Puntos de entrega</span></button>
+      <button type="button" class="navlink" data-nav="rules"><span data-i18n="nav_rules">Normas y confianza</span></button>
+      <button type="button" class="navlink" data-nav="about"><span data-i18n="nav_about">El proyecto</span></button>
     </nav>
     <div class="topbar-actions">
       <div class="lang-switch" role="group" aria-label="Idioma / Language / Lingua">
-        <button data-lang="es" class="active" aria-label="Español">ES</button>
-        <button data-lang="en" aria-label="English">EN</button>
-        <button data-lang="gl" aria-label="Galego">GL</button>
+        <button type="button" data-lang="es" lang="es" class="active" aria-pressed="true" aria-label="Español">ES</button>
+        <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
+        <button type="button" data-lang="gl" lang="gl" aria-pressed="false" aria-label="Galego">GL</button>
       </div>
-      <div id="auth-area"></div>
+      <div id="auth-area" class="auth-area"></div>
     </div>
   </div>
 </header>
 
-<main id="app" class="wrap"></main>
+<main id="app" class="wrap" tabindex="-1"></main>
 
 <footer class="footer">
   <div class="wrap footer-grid">
     <div class="footer-brand">
-      <img class="footer-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="62" height="62">
+      <img class="footer-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="56" height="56" loading="lazy">
       <div>
         <strong>Circular Campus</strong>
         <p data-i18n="footer_tag">Reutilización e intercambio de materiales de segunda vida.</p>
-        <p class="muted" data-i18n="footer_independent">Proyecto independiente. No es un servicio oficial de ninguna universidad.</p>
+        <p class="muted small" data-i18n="footer_independent">Proyecto independiente. No es un servicio oficial de ninguna universidad.</p>
       </div>
     </div>
     <div class="footer-col">
@@ -63,6 +94,7 @@
       <a href="/puntos" data-route="points" data-i18n="nav_points">Puntos de entrega</a>
       <a href="/normas" data-route="rules" data-i18n="nav_rules">Normas y confianza</a>
       <a href="/proyecto" data-route="about" data-i18n="nav_about">El proyecto</a>
+      <a href="/publicar" data-route="publish" data-i18n="nav_publish">Publicar</a>
     </div>
     <div class="footer-col">
       <h3 data-i18n="footer_legal">Información legal</h3>
@@ -72,18 +104,39 @@
     </div>
     <div class="footer-partner">
       <span data-i18n="footer_presented">Presentado en</span>
-      <img src="/static/img/ctc-congress.png" alt="CTC Congress" width="260" height="78">
-      <p class="footer-payment" data-i18n="footer_payment_mini">Sin pagos dentro de la plataforma</p>
+      <img src="/static/img/ctc-congress.png" alt="CTC Congress" width="260" height="78" loading="lazy">
+      <p class="footer-payment"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span data-i18n="footer_payment_mini">Sin pagos dentro de la plataforma</span></p>
     </div>
   </div>
   <div class="wrap footer-bottom">
-    <p class="muted" data-i18n="footer_note">Prototipo sin ánimo de lucro · sin analítica · sin recursos de terceros · las imágenes de ejemplo son locales.</p>
-    <p class="credit"><span data-i18n="credit_label">Equipo del proyecto</span> <span class="team-names">Pavlo Kovalenko · Karen Itzel Sandoval Ramos · Okechukwu Patrick Okeh · Fernando Heriberto Cardenas Rubi · Alba Grille Louro · Filip Juran · Greypher Alisander Garcia Alvarado · Jacob Schaal · Antonio Domínguez Trapero</span></p>
+    <p class="muted small" data-i18n="footer_note">Prototipo sin ánimo de lucro · sin analítica · sin recursos de terceros · las imágenes de ejemplo son locales.</p>
+    <details class="team-credits">
+      <summary><span data-i18n="credit_label">Equipo del proyecto</span><svg class="icon" aria-hidden="true"><use href="#i-chevron"></use></svg></summary>
+      <p class="team-names">Pavlo Kovalenko · Karen Itzel Sandoval Ramos · Okechukwu Patrick Okeh · Fernando Heriberto Cardenas Rubi · Alba Grille Louro · Filip Juran · Greypher Alisander Garcia Alvarado · Jacob Schaal · Antonio Domínguez Trapero</p>
+    </details>
   </div>
 </footer>
 
+<nav class="tabbar" aria-label="Navegación principal móvil">
+  <button type="button" class="tab" data-nav="home">
+    <svg class="icon" aria-hidden="true"><use href="#i-compass"></use></svg><span data-i18n="nav_home">Explorar</span>
+  </button>
+  <button type="button" class="tab" data-nav="points">
+    <svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg><span data-i18n="nav_points_short">Puntos</span>
+  </button>
+  <button type="button" class="tab tab-cta" data-nav="publish">
+    <span class="tab-cta-icon"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></span><span data-i18n="nav_publish">Publicar</span>
+  </button>
+  <button type="button" class="tab" data-nav="rules">
+    <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span data-i18n="nav_rules_short">Normas</span>
+  </button>
+  <button type="button" class="tab" data-nav="my">
+    <svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg><span data-i18n="nav_my">Mi área</span>
+  </button>
+</nav>
+
 <div id="modal-root"></div>
-<div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+<div id="toast-root" class="toast-stack" role="status" aria-live="polite" aria-atomic="false"></div>
 <noscript><div class="noscript" data-i18n="noscript">Circular Campus necesita JavaScript para mostrar el catálogo y gestionar la cuenta.</div></noscript>
 
 <script id="cc-boot" type="application/json">{{ boot|tojson }}</script>
