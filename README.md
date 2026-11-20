@@ -195,6 +195,14 @@ credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
 - **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos, panel de
   confianza y datos de la cuenta, con edición de perfil (nombre y campus),
   cambio de contraseña, exportación y supresión.
+- **Editor de publicaciones**: desde Mi área o desde el detalle se cambian
+  título, categoría, tipo, precio, estado físico, campus, facultad, punto de
+  encuentro y descripción. El estado (`disponible` / `reservado` / `entregado`)
+  se cambia con un toque en el segmentado de cada tarjeta, sin recargar.
+- **Modo demo para la exposición**: con `SEED_DEMO=1` el modal de acceso ofrece
+  *Probar al instante*, que abre una cuenta temporal propia (sin registro, sin
+  correo real) y lleva directo a publicar. Cada visitante tiene su cuenta y las
+  caducadas se borran solas a las 12 horas, sin cron ni servicios externos.
 - **Puntos de entrega**: etiquetas orientativas; no son puntos oficiales.
 - **Legal**: aviso legal, privacidad y condiciones en tres idiomas, con
   impresión/guardado en PDF desde el navegador.
@@ -342,6 +350,8 @@ Ventana deslizante en memoria (`429` + `Retry-After`), por IP y por cuenta:
 | Enviar solicitud | 20 / hora por cuenta |
 | Reportar | 10 / hora por cuenta |
 | Cambiar contraseña | 5 / hora por cuenta |
+| Editar publicación | 60 / hora por cuenta |
+| Cuenta demo | 40 / hora por IP |
 
 Los contadores viven en el proceso: con el despliegue de un worker son exactos.
 Para escalar a varios procesos hace falta un almacén compartido (Redis) y hay
@@ -393,10 +403,11 @@ eliminarlo desde **Mi área**.
 | GET | `/api/items/mine` | ✓ | Objetos propios, paginados |
 | GET | `/api/items/:id` | — | Detalle con impacto y confianza del propietario, sin email |
 | POST | `/api/items` | ✓ | Crear objeto; exige `private_seller`, foto y tipo |
-| PATCH | `/api/items/:id` | ✓ dueño | Cambiar estado |
+| PATCH | `/api/items/:id` | ✓ dueño | Editar contenido (`title`, `description`, `category`, `condition`, `exchange_type`, `price`, `campus`, `faculty`, `handover_point`) y/o cambiar `status`; mismas validaciones que al publicar |
 | DELETE | `/api/items/:id` | ✓ dueño | Eliminar objeto e imagen subida |
 | POST | `/api/upload` | ✓ | Subir JPG/PNG/WebP: valida magic bytes, recorta a 1200 px, convierte a WebP ≤400 KB y borra EXIF/GPS; guarda en `media` y devuelve la URL |
 | POST | `/api/auth/register` | — | Registro con `consent: true` |
+| POST | `/api/auth/demo` | — | Cuenta temporal de demostración (solo con `SEED_DEMO=1`); caduca en 12 h |
 | POST | `/api/auth/login` | — | Login → token |
 | POST | `/api/auth/logout` | ✓ | Cerrar sesión actual |
 | GET | `/api/auth/me` | — | Usuario actual y versión legal |
