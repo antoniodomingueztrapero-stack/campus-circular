@@ -53,14 +53,14 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="/" data-nav="home" aria-label="Circular Campus — inicio">
+    <a class="brand" href="/" data-nav="home" aria-label="Circular Campus — inicio" data-i18n-aria="brand_home">
       <img class="brand-mark" src="/static/img/circular-campus-mark-white.png" alt="" width="44" height="44" decoding="async">
       <span class="brand-text">
         <strong>Circular Campus</strong>
         <small data-i18n="brand_tag">Proyecto independiente · CTC Congress</small>
       </span>
     </a>
-    <nav class="mainnav" aria-label="Principal">
+    <nav class="mainnav" aria-label="Principal" data-i18n-aria="nav_primary">
       <button type="button" class="navlink" data-nav="home"><span data-i18n="nav_home">Explorar</span></button>
       <button type="button" class="navlink" data-nav="publish"><span data-i18n="nav_publish">Publicar</span></button>
       <button type="button" class="navlink" data-nav="points"><span data-i18n="nav_points">Puntos de entrega</span></button>
@@ -68,16 +68,34 @@
       <button type="button" class="navlink" data-nav="about"><span data-i18n="nav_about">El proyecto</span></button>
     </nav>
     <div class="topbar-actions">
-      <button type="button" class="navlink guide-trigger" id="quick-guide" aria-haspopup="dialog" data-i18n="how_title">¿Cómo funciona?</button>
+      <button type="button" class="navlink guide-trigger" id="quick-guide" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg><span data-i18n="how_title">¿Cómo funciona?</span></button>
       <div class="lang-switch" role="group" aria-label="Idioma / Language / Lingua">
-        <button type="button" data-lang="es" lang="es" class="active" aria-pressed="true" aria-label="Español">ES</button>
-        <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
-        <button type="button" data-lang="gl" lang="gl" aria-pressed="false" aria-label="Galego">GL</button>
+        <button type="button" data-lang="es" lang="es" class="active" aria-pressed="true" aria-label="ES — Español">ES</button>
+        <button type="button" data-lang="en" lang="en" aria-pressed="false" aria-label="EN — English">EN</button>
+        <button type="button" data-lang="gl" lang="gl" aria-pressed="false" aria-label="GL — Galego">GL</button>
       </div>
       <div id="auth-area" class="auth-area"></div>
     </div>
   </div>
 </header>
+
+<nav class="tabbar" aria-label="Principal" data-i18n-aria="nav_primary">
+  <button type="button" class="tab" data-nav="home">
+    <svg class="icon" aria-hidden="true"><use href="#i-compass"></use></svg><span data-i18n="nav_home">Explorar</span>
+  </button>
+  <button type="button" class="tab" data-nav="points">
+    <svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg><span data-i18n="nav_points_short">Puntos</span>
+  </button>
+  <button type="button" class="tab tab-cta" data-nav="publish">
+    <span class="tab-cta-icon"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></span><span data-i18n="nav_publish_short">Publicar</span>
+  </button>
+  <button type="button" class="tab" data-nav="rules">
+    <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span data-i18n="nav_rules_short">Normas</span>
+  </button>
+  <button type="button" class="tab" data-nav="my">
+    <svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg><span data-i18n="nav_my_short">Mi área</span>
+  </button>
+</nav>
 
 <main id="app" class="wrap" tabindex="-1"></main>
 
@@ -92,14 +110,14 @@
       </div>
     </div>
     <div class="footer-col">
-      <h3 data-i18n="footer_explore">Explorar</h3>
+      <h2 data-i18n="footer_explore">Explorar</h2>
       <a href="/puntos" data-route="points" data-i18n="nav_points">Puntos de entrega</a>
       <a href="/normas" data-route="rules" data-i18n="nav_rules">Normas y confianza</a>
       <a href="/proyecto" data-route="about" data-i18n="nav_about">El proyecto</a>
       <a href="/publicar" data-route="publish" data-i18n="nav_publish">Publicar</a>
     </div>
     <div class="footer-col">
-      <h3 data-i18n="footer_legal">Información legal</h3>
+      <h2 data-i18n="footer_legal">Información legal</h2>
       <a href="/aviso-legal" data-route="legal" data-i18n="footer_legal_notice">Aviso legal</a>
       <a href="/privacidad" data-route="privacy" data-i18n="footer_privacy">Privacidad y datos</a>
       <a href="/condiciones" data-route="terms" data-i18n="footer_terms">Condiciones de uso</a>
@@ -118,24 +136,6 @@
     </details>
   </div>
 </footer>
-
-<nav class="tabbar" aria-label="Navegación principal móvil">
-  <button type="button" class="tab" data-nav="home">
-    <svg class="icon" aria-hidden="true"><use href="#i-compass"></use></svg><span data-i18n="nav_home">Explorar</span>
-  </button>
-  <button type="button" class="tab" data-nav="points">
-    <svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg><span data-i18n="nav_points_short">Puntos</span>
-  </button>
-  <button type="button" class="tab tab-cta" data-nav="publish">
-    <span class="tab-cta-icon"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></span><span data-i18n="nav_publish">Publicar</span>
-  </button>
-  <button type="button" class="tab" data-nav="rules">
-    <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span data-i18n="nav_rules_short">Normas</span>
-  </button>
-  <button type="button" class="tab" data-nav="my">
-    <svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg><span data-i18n="nav_my">Mi área</span>
-  </button>
-</nav>
 
 <div id="modal-root"></div>
 <div id="toast-root" class="toast-stack" role="status" aria-live="polite" aria-atomic="false"></div>
