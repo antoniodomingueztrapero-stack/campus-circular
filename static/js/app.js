@@ -172,6 +172,20 @@ const I18N = {
     publish_first: "Publicar el primero", browse_catalog: "Explorar el catálogo", close_toast: "Cerrar notificación",
     detail_description: "Descripción", detail_handover_h: "Entrega y seguridad", detail_payment_h: "Pago fuera de la plataforma",
     detail_unavailable: "Este objeto ya no está disponible.", detail_manage: "Gestionar en Mi área", status_change: "Cambiar estado",
+    edit_item: "Editar",
+    edit_title: "Editar publicación",
+    edit_hint: "Cambia los datos del objeto. La foto se mantiene.",
+    edit_save: "Guardar cambios",
+    edit_saved: "Publicación actualizada.",
+    status_quick: "Estado de la publicación",
+    demo_cta: "Probar al instante",
+    demo_note: "Abre una cuenta temporal, sin registro. Lo que publiques lo verá todo el mundo en el catálogo y se queda ahí; la cuenta caduca en {h} h. No pongas datos personales.",
+    demo_started: "Modo demo: publica algo y lo verá todo el mundo en el catálogo.",
+    demo_badge: "demo",
+    demo_failed: "No se pudo abrir la demo. Inténtalo otra vez.",
+    or: "o",
+    filters_view: "Ver {n} objetos",
+    filters_view_all: "Ver todos",
     confirm_delete_t: "¿Eliminar este objeto?", confirm_delete_b: "Se borrará la publicación y sus datos asociados. Esta acción no se puede deshacer.",
     confirm_delete_btn: "Sí, eliminar",
     photo_drop_t: "Toca para elegir una foto", photo_drop_b: "JPG, PNG o WebP · máximo 5 MB · se optimiza al subir",
@@ -435,6 +449,20 @@ const I18N = {
     publish_first: "List the first one", browse_catalog: "Browse the catalogue", close_toast: "Dismiss notification",
     detail_description: "Description", detail_handover_h: "Handover & safety", detail_payment_h: "Payment outside the platform",
     detail_unavailable: "This item is no longer available.", detail_manage: "Manage in My area", status_change: "Change status",
+    edit_item: "Edit",
+    edit_title: "Edit listing",
+    edit_hint: "Change the item details. The photo stays the same.",
+    edit_save: "Save changes",
+    edit_saved: "Listing updated.",
+    status_quick: "Listing status",
+    demo_cta: "Try it right now",
+    demo_note: "Opens a temporary account, no sign-up. Everything you publish is visible to everyone in the catalogue and stays there; the account expires in {h} h. Do not enter personal data.",
+    demo_started: "Demo mode: publish something and everyone will see it in the catalogue.",
+    demo_badge: "demo",
+    demo_failed: "Could not open the demo. Please try again.",
+    or: "or",
+    filters_view: "Show {n} items",
+    filters_view_all: "Show all",
     confirm_delete_t: "Delete this item?", confirm_delete_b: "The listing and its related data will be deleted. This cannot be undone.",
     confirm_delete_btn: "Yes, delete",
     photo_drop_t: "Tap to choose a photo", photo_drop_b: "JPG, PNG or WebP · 5 MB max · optimised on upload",
@@ -698,6 +726,20 @@ const I18N = {
     publish_first: "Publicar o primeiro", browse_catalog: "Explorar o catálogo", close_toast: "Pechar notificación",
     detail_description: "Descrición", detail_handover_h: "Entrega e seguridade", detail_payment_h: "Pago fóra da plataforma",
     detail_unavailable: "Este obxecto xa non está dispoñible.", detail_manage: "Xestionar na Miña área", status_change: "Cambiar estado",
+    edit_item: "Editar",
+    edit_title: "Editar publicación",
+    edit_hint: "Cambia os datos do obxecto. A foto mantense.",
+    edit_save: "Gardar cambios",
+    edit_saved: "Publicación actualizada.",
+    status_quick: "Estado da publicación",
+    demo_cta: "Probar agora mesmo",
+    demo_note: "Abre unha conta temporal, sen rexistro. O que publiques vaino ver todo o mundo no catálogo e queda aí; a conta caduca en {h} h. Non poñas datos persoais.",
+    demo_started: "Modo demo: publica algo e vaino ver todo o mundo no catálogo.",
+    demo_badge: "demo",
+    demo_failed: "Non se puido abrir a demo. Téntao outra vez.",
+    or: "ou",
+    filters_view: "Ver {n} obxectos",
+    filters_view_all: "Ver todos",
     confirm_delete_t: "Eliminar este obxecto?", confirm_delete_b: "Borrarase a publicación e os seus datos asociados. Esta acción non se pode desfacer.",
     confirm_delete_btn: "Si, eliminar",
     photo_drop_t: "Toca para escoller unha foto", photo_drop_b: "JPG, PNG ou WebP · máximo 5 MB · optimízase ao subir",
@@ -964,8 +1006,10 @@ const state = {
   myTab: "items",
   filters: { q: "", category: "", campus: "", condition: "", type: "", faculty: "", sort: "recent" },
   items: [],
+  totalResults: null,
   stats: null,
   pendingConsent: false,
+  demo: localStorage.getItem("cc_demo") === "1",
 };
 
 const t = (k) => (I18N[state.lang] && I18N[state.lang][k]) || I18N.es[k] || k;
@@ -1325,6 +1369,7 @@ function renderAuthArea() {
         <button type="button" class="user-chip" id="user-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
           <span class="avatar" aria-hidden="true">${initials}</span>
           <span class="user-name">${firstName}</span>
+          ${state.demo ? `<span class="demo-badge">${esc(t("demo_badge"))}</span>` : ""}
           ${icon("chevron")}
         </button>
         <div class="dropdown-menu hidden" id="user-menu" role="menu" aria-labelledby="user-chip">
@@ -1357,7 +1402,9 @@ function renderAuthArea() {
 async function logout() {
   try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {}
   state.token = null; state.user = null; state.pendingConsent = false;
+  state.demo = false;
   localStorage.removeItem("cc_token");
+  localStorage.removeItem("cc_demo");
   renderAuthArea();
   toast(t("toast_logout"));
   navigate("home");
@@ -1426,6 +1473,28 @@ function closeBtn() {
 }
 window.closeModal = closeModal;
 
+/* Cuenta temporal para la exposición: un toque y dentro, sin formularios. */
+async function startDemo() {
+  const btn = $("#auth-demo");
+  if (btn) setBusy(btn, true, t("demo_cta"));
+  try {
+    const data = await api("/api/auth/demo", { method: "POST" });
+    state.token = data.token;
+    state.user = data.user;
+    state.demo = true;
+    localStorage.setItem("cc_token", data.token);
+    localStorage.setItem("cc_demo", "1");
+    closeModal();
+    renderAuthArea();
+    toast(t("demo_started"));
+    state.myTab = "items";
+    navigate("publish");
+  } catch (err) {
+    if (btn) setBusy(btn, false);
+    toast(err && err.data && err.data.error === "demo_disabled" ? t("demo_failed") : errorMessage(err), "error");
+  }
+}
+
 function openAuth(mode = "login") {
   const isLogin = mode === "login";
   openModal(`
@@ -1457,12 +1526,20 @@ function openAuth(mode = "login") {
         </div>`}
       <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${esc(isLogin ? t("auth_btn_login") : t("auth_btn_register"))}</button>
     </form>
+    ${BOOT.demoMode ? `
+      <div class="auth-demo">
+        <span class="auth-demo-sep">${esc(t("or"))}</span>
+        <button type="button" class="btn btn-ghost btn-block" id="auth-demo">${icon("refresh")}${esc(t("demo_cta"))}</button>
+        <small>${esc(t("demo_note").replace("{h}", String(BOOT.demoTtlHours || 24)))}</small>
+      </div>` : ""}
     <p class="muted small text-center mt-3">
       ${esc(isLogin ? t("auth_no_account") : t("auth_have_account"))}
       <button type="button" class="btn-link" id="switch-auth">${esc(isLogin ? t("register") : t("login"))}</button>
     </p>`, { labelledBy: "auth-title" });
 
   $("#switch-auth").onclick = () => openAuth(isLogin ? "register" : "login");
+  const demoBtn = $("#auth-demo");
+  if (demoBtn) demoBtn.onclick = startDemo;
   $("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -1480,7 +1557,9 @@ function openAuth(mode = "login") {
       });
       state.token = data.token;
       state.user = data.user;
+      state.demo = false;
       localStorage.setItem("cc_token", data.token);
+      localStorage.removeItem("cc_demo");
       closeModal();
       renderAuthArea();
       toast(isLogin ? t("toast_login") : t("toast_register"));
@@ -1926,6 +2005,7 @@ async function refreshCatalog(opts = {}) {
   if (request !== catalogRequest || !$("#catalog-results")) return;
   const items = page.items || [];
   state.items = items;
+  state.totalResults = Number(page.total) || 0;
   if (!items.length) {
     const onlyCategory = !state.filters.q && !state.filters.campus && !state.filters.condition && !state.filters.type && state.filters.category;
     box.innerHTML = hasFilters()
@@ -2061,27 +2141,46 @@ function openFilters() {
         </select>
       </div>
       <div class="modal-foot">
-        <button class="btn btn-primary" type="submit">${esc(t("filters_apply"))}</button>
+        <button class="btn btn-primary" type="submit" id="filters-apply">${esc(t("filters_apply"))}</button>
         <button class="btn btn-ghost" type="button" id="filters-reset">${esc(t("filters_clear"))}</button>
       </div>
     </form>`, { labelledBy: "filters-title", sheet: true });
 
-  $("#filters-form").onsubmit = (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
+  // Móvil: cada cambio se aplica al momento (con un debounce mínimo) y el
+  // botón pasa a mostrar cuántos objetos hay. Así se filtra sin idas y venidas.
+  const form = $("#filters-form");
+  const applyBtn = $("#filters-apply");
+  const readForm = () => {
+    const fd = new FormData(form);
     state.filters.campus = fd.get("campus") || "";
     state.filters.condition = fd.get("condition") || "";
     state.filters.type = fd.get("type") || "";
     state.filters.faculty = fd.get("faculty") || "";
     state.filters.sort = fd.get("sort") || "recent";
-    closeModal();
     syncHeroSearch();
-    refreshCatalog();
+  };
+  let pending = null;
+  const applyLive = () => {
+    clearTimeout(pending);
+    pending = setTimeout(async () => {
+      readForm();
+      await refreshCatalog({ quiet: true });
+      if (applyBtn && Number.isInteger(state.totalResults)) {
+        applyBtn.textContent = t("filters_view").replace("{n}", String(state.totalResults));
+      }
+    }, 140);
+  };
+  form.addEventListener("change", applyLive);
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    readForm();
+    closeModal();
+    refreshCatalog({ quiet: true });
   };
   $("#filters-reset").onclick = () => {
     clearFilters();
     closeModal();
-    refreshCatalog();
+    refreshCatalog({ quiet: true });
   };
 }
 
@@ -2821,6 +2920,106 @@ async function loadTrustPanel() {
   }
 }
 
+function openItemEditor(item) {
+  if (!item) return;
+  const isSale = item.exchange_type === "vender";
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="edit-item-title">${esc(t("edit_title"))}</h2>
+      <p>${esc(t("edit_hint"))}</p>
+    </div>
+    <form id="edit-item-form" aria-labelledby="edit-item-title">
+      <div class="field">
+        <label for="e-title">${esc(t("f_title"))} <span class="req-mark" aria-hidden="true">*</span></label>
+        <input id="e-title" name="title" required minlength="3" maxlength="80" value="${esc(item.title || "")}" autocomplete="off" data-autofocus>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="e-category">${esc(t("f_category"))}</label>
+          <select id="e-category" name="category">${CATEGORIES.map(c => option(c, catLabel(c), item.category === c)).join("")}</select>
+        </div>
+        <div class="field">
+          <label for="e-type">${esc(t("f_type"))}</label>
+          <select id="e-type" name="exchange_type">${TYPES.map(c => option(c, typeLabel(c), item.exchange_type === c)).join("")}</select>
+        </div>
+        <div class="field${isSale ? "" : " hidden"}" id="e-price-field">
+          <label for="e-price">${esc(t("f_price"))}</label>
+          <input id="e-price" name="price" type="number" min="0" max="10000" step="1" inputmode="numeric" value="${Number(item.price || 0)}">
+        </div>
+        <div class="field">
+          <label for="e-condition">${esc(t("condition"))}</label>
+          <select id="e-condition" name="condition">${CONDITIONS.map(c => option(c, condLabel(c), item.condition === c)).join("")}</select>
+        </div>
+        <div class="field">
+          <label for="e-campus">${esc(t("campus"))}</label>
+          <select id="e-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), item.campus === c)).join("")}</select>
+        </div>
+        <div class="field">
+          <label for="e-faculty">${esc(t("faculty"))}</label>
+          <select id="e-faculty" name="faculty">
+            ${option("", `${t("faculty")}: ${t("all")}`, !item.faculty)}
+            ${FACULTIES.map(c => option(c, facLabel(c), item.faculty === c)).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label for="e-point">${esc(t("handover_label"))}</label>
+          <select id="e-point" name="handover_point">${HANDOVERS.map(c => option(c, handLabel(c), item.handover_point === c)).join("")}</select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="e-desc">${esc(t("f_desc_optional"))}</label>
+        <textarea id="e-desc" name="description" maxlength="2000">${esc(item.description || "")}</textarea>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("check")}${esc(t("edit_save"))}</button>
+    </form>`, { labelledBy: "edit-item-title", sheet: true });
+
+  const typeSel = $("#e-type");
+  const priceField = $("#e-price-field");
+  const syncPriceField = () => priceField.classList.toggle("hidden", typeSel.value !== "vender");
+  typeSel.onchange = syncPriceField;
+
+  $("#edit-item-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const fd = new FormData(form);
+    const submit = $("[data-submit]", form);
+    setBusy(submit, true, t("saving"));
+    try {
+      const data = await api(`/api/items/${item.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: String(fd.get("title") || "").trim().replace(/\s+/g, " "),
+          description: String(fd.get("description") || "").trim(),
+          category: fd.get("category"),
+          condition: fd.get("condition"),
+          exchange_type: fd.get("exchange_type"),
+          campus: fd.get("campus"),
+          faculty: fd.get("faculty") || "",
+          handover_point: fd.get("handover_point"),
+          price: Number(fd.get("price") || 0),
+        }),
+      });
+      state.lastItem = data.item;
+      closeModal();
+      toast(t("edit_saved"));
+      state.stats = null;
+      if (state.view === "my") loadMyTab(state.myTab);
+      else render();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
+}
+
+function openItemEditorById(id, fallback) {
+  if (fallback) return openItemEditor(fallback);
+  api(`/api/items/${id}`)
+    .then(d => openItemEditor(d.item))
+    .catch(err => toast(errorMessage(err), "error"));
+}
+
 function myItemCard(it) {
   return `<article class="list-card">
     ${responsiveImage(itemImage(it), { category: it.category, sizes: "64px" })}
@@ -2834,11 +3033,14 @@ function myItemCard(it) {
       ${it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}
       <div class="list-card-actions">
         <button type="button" class="btn btn-ghost btn-sm" data-view="${it.id}">${icon("eye")}${esc(t("view_item"))}</button>
-        <label class="sr-only" for="status-${it.id}">${esc(t("status_change"))}</label>
-        <select id="status-${it.id}" data-status="${it.id}" aria-label="${esc(t("status_change"))}">
-          ${["disponible", "reservado", "entregado"].map(s => option(s, statusLabel(s), it.status === s)).join("")}
-        </select>
+        <button type="button" class="btn btn-ghost btn-sm" data-edit="${it.id}">${icon("sliders")}${esc(t("edit_item"))}</button>
         <button type="button" class="btn btn-danger btn-sm" data-del="${it.id}">${icon("trash")}${esc(t("delete_item"))}</button>
+      </div>
+      <div class="status-switch" role="group" aria-label="${esc(t("status_quick"))}">
+        ${["disponible", "reservado", "entregado"].map(st => `
+          <button type="button" class="status-opt${it.status === st ? " is-on" : ""}"
+                  data-set-status="${it.id}" data-next-status="${st}"
+                  aria-pressed="${it.status === st}">${esc(statusLabel(st))}</button>`).join("")}
       </div>
     </div>
   </article>`;
@@ -2935,19 +3137,31 @@ async function loadMyTab(tab) {
 }
 
 function bindMyActions(panel) {
-  $$("[data-status]", panel).forEach(sel => {
-    sel.onchange = async () => {
-      sel.disabled = true;
+  // Estado en un toque: los tres botones del segmentado se excluyen entre sí.
+  $$("[data-set-status]", panel).forEach(btn => {
+    btn.onclick = async () => {
+      const id = Number(btn.dataset.setStatus);
+      const next = btn.dataset.nextStatus;
+      if (btn.getAttribute("aria-pressed") === "true") return;
+      btn.disabled = true;
       try {
-        await api(`/api/items/${sel.dataset.status}`, { method: "PATCH", body: JSON.stringify({ status: sel.value }) });
+        const data = await api(`/api/items/${id}`, { method: "PATCH", body: JSON.stringify({ status: next }) });
+        if (state.lastItem && Number(state.lastItem.id) === id) state.lastItem = data.item;
+        $$(`[data-set-status="${id}"]`, panel).forEach(b => {
+          const on = b.dataset.nextStatus === next;
+          b.classList.toggle("is-on", on);
+          b.setAttribute("aria-pressed", String(on));
+        });
         toast(t("toast_status"));
-        render();
+        state.stats = null;
       } catch (err) {
-        sel.disabled = false;
         toast(errorMessage(err), "error");
+      } finally {
+        $$(`[data-set-status="${id}"]`, panel).forEach(b => { b.disabled = false; });
       }
     };
   });
+  $$("[data-edit]", panel).forEach(b => { b.onclick = () => openItemEditorById(Number(b.dataset.edit)); });
   $$("[data-del]", panel).forEach(b => { b.onclick = () => confirmDeleteItem(Number(b.dataset.del)); });
   const patchRequest = (id, status, okMsg) => async (event) => {
     const btn = event.currentTarget;
@@ -3092,7 +3306,8 @@ async function openItem(id) {
     ${!available && !isOwn ? `<p class="danger-text mt-4">${esc(t("detail_unavailable"))}</p>` : ""}
     <div class="detail-actions">
       ${isOwn
-        ? `<button type="button" class="btn btn-primary" id="detail-manage">${icon("grid")}${esc(t("detail_manage"))}</button>`
+        ? `<button type="button" class="btn btn-primary" id="detail-edit">${icon("sliders")}${esc(t("edit_item"))}</button>
+           <button type="button" class="btn btn-ghost" id="detail-manage">${icon("grid")}${esc(t("detail_manage"))}</button>`
         : `<button type="button" class="btn btn-primary" id="detail-request"${available ? "" : " disabled"}>${icon("inbox")}${esc(t("detail_request"))}</button>`}
       <button type="button" class="btn btn-ghost" id="detail-fav-btn" aria-pressed="${saved}">
         ${icon("heart")}<span id="detail-fav-label">${esc(saved ? t("detail_faved") : t("detail_fav"))}</span>
@@ -3129,6 +3344,8 @@ async function openItem(id) {
 
   const manageBtn = $("#detail-manage", modal);
   if (manageBtn) manageBtn.onclick = () => { closeModal(); state.myTab = "items"; navigate("my"); };
+  const editBtn = $("#detail-edit", modal);
+  if (editBtn) editBtn.onclick = () => { closeModal(); openItemEditor(state.lastItem); };
   const reqBtn = $("#detail-request", modal);
   if (reqBtn) reqBtn.onclick = () => {
     if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }

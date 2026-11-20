@@ -95,6 +95,15 @@ CAMPUSES = ["vigo", "pontevedra", "ourense"]
 HANDOVER_POINTS = ["biblioteca", "conserjeria", "cafeteria", "entrada", "punto", "acordado"]
 FACULTIES = ["ingenieria", "ciencias", "salud", "sociales", "humanidades", "artes"]
 ITEM_STATUSES = ["disponible", "reservado", "entregado"]
+# Cuentas de demostración: efímeras, sin datos personales y solo con SEED_DEMO=1.
+# Lo que publican NO se borra: al caducar la cuenta, sus objetos se transfieren a
+# la cuenta de muestra para que el catálogo siga siendo compartido y visible.
+DEMO_EMAIL_DOMAIN = "demo.circular-campus.local"
+try:
+    DEMO_TTL_HOURS = max(1, int(os.environ.get("DEMO_TTL_HOURS", "24")))
+except ValueError:
+    DEMO_TTL_HOURS = 24
+DEMO_NAME = "Asistente CTC"
 REQUEST_STATUSES = ["pendiente", "aceptada", "rechazada", "cancelada", "completada"]
 RATING_MIN = 1
 RATING_MAX = 5
@@ -156,8 +165,15 @@ UPLOAD_URL_PREFIX = "/static/uploads/"
 # Ventana deslizante en memoria por proceso: con varios workers el límite real
 # es (workers × límite). Suficiente para frenar fuerza bruta y spam sin añadir
 # Redis ni otro servicio externo.
+# En una exposición todos los asistentes comparten la IP del wifi: conviene poder
+# subir el techo global sin tocar el código (API_RATE_LIMIT=900, por ejemplo).
+try:
+    API_RATE_LIMIT = max(60, int(os.environ.get("API_RATE_LIMIT", "300")))
+except ValueError:
+    API_RATE_LIMIT = 300
+
 RATE_LIMITS = {
-    "api": (300, 60),          # techo global por IP para /api/
+    "api": (API_RATE_LIMIT, 60),  # techo global por IP para /api/
     "login": (10, 300),        # intentos de acceso por IP
     "login_account": (6, 300),  # intentos por cuenta, aunque cambie la IP
     "register": (5, 3600),     # cuentas nuevas por IP
@@ -168,6 +184,8 @@ RATE_LIMITS = {
     "message": (30, 3600),     # mensajes dentro de una solicitud
     "profile": (10, 3600),     # cambios de perfil por cuenta
     "password": (5, 3600),     # cambios de contraseña por cuenta
+    "item_edit": (60, 3600),   # ediciones de publicaciones por cuenta
+    "demo": (40, 3600),        # cuentas temporales (exposición con IP compartida)
 }
 MAX_JSON_BYTES = 64 * 1024
 DEFAULT_CORS_ORIGINS = "https://campus-circular.onrender.com"
@@ -276,6 +294,8 @@ def boot_config(view="home"):
         "assetVersion": ASSET_VERSION,
         "pageSize": DEFAULT_PAGE_SIZE,
         "imgManifest": IMG_MANIFEST,
+        "demoMode": SEED_DEMO,
+        "demoTtlHours": DEMO_TTL_HOURS,
     }
 
 
@@ -1987,30 +2007,104 @@ def create_item(user):
     return jsonify({"item": row_to_item(row)}), 201
 
 
+EDITABLE_ITEM_FIELDS = {
+    "title", "description", "category", "condition", "exchange_type",
+    "price", "campus", "faculty", "handover_point",
+}
+
+
 @app.patch("/api/items/<int:item_id>")
 @require_auth
 def update_item(user, item_id):
+    """Edita una publicación propia y/o cambia su estado.
+
+    Los campos de contenido se validan con las mismas reglas que al publicar:
+    el editor de la interfaz no puede saltarse ninguna comprobación del servidor.
+    """
+    limited = rate_limited("item_edit", str(user["id"]))
+    if limited:
+        return limited
     db = get_db()
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     if not row:
         return jsonify({"error": "not_found"}), 404
     if row["owner_id"] != user["id"]:
         return jsonify({"error": "forbidden"}), 403
-    data = request.get_json(silent=True) or {}
-    new_status = data.get("status")
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid_request"}), 400
+    if not data:
+        return jsonify({"error": "nothing_to_update"}), 400
+
+    # --- estado ---------------------------------------------------------
+    new_status = data.get("status", row["status"])
     if new_status not in ITEM_STATUSES:
         return jsonify({"error": "invalid_status"}), 400
+
+    # --- contenido ------------------------------------------------------
+    title = clean_text(data["title"], max_len=80) if "title" in data else row["title"]
+    if len(title) < 3 or len(title) > 80:
+        return jsonify({
+            "error": "invalid_title",
+            "message": "El título debe tener entre 3 y 80 caracteres.",
+        }), 400
+    description = (
+        clean_text(data["description"], multiline=True, max_len=2000)
+        if "description" in data else row["description"]
+    )
+    if description and (len(description) < 10 or len(description) > 2000):
+        return jsonify({
+            "error": "invalid_description",
+            "message": "La descripción, si la escribes, debe tener entre 10 y 2000 caracteres.",
+        }), 400
+    category = data.get("category", row["category"])
+    if category not in CATEGORIES:
+        return jsonify({"error": "invalid_category"}), 400
+    condition = data.get("condition", row["condition"])
+    if condition not in CONDITIONS:
+        return jsonify({"error": "invalid_condition"}), 400
+    exchange_type = data.get("exchange_type", row["exchange_type"])
+    if exchange_type not in EXCHANGE_TYPES:
+        return jsonify({"error": "invalid_exchange_type"}), 400
+    campus = data.get("campus", row["campus"])
+    if campus not in CAMPUSES:
+        return jsonify({"error": "invalid_campus"}), 400
+    faculty = (
+        clean_text(data["faculty"], max_len=40) if "faculty" in data
+        else (row["faculty"] or "")
+    )
+    if faculty and faculty not in FACULTIES:
+        return jsonify({"error": "invalid_faculty"}), 400
+    handover_point = data.get("handover_point", row["handover_point"])
+    if handover_point not in HANDOVER_POINTS:
+        return jsonify({"error": "invalid_handover_point"}), 400
+    try:
+        price = float(data.get("price", row["price"]))
+    except (TypeError, ValueError):
+        return jsonify({"error": "invalid_price"}), 400
+    if not math.isfinite(price) or price < 0 or price > 10000:
+        return jsonify({"error": "invalid_price"}), 400
+    if exchange_type != "vender":
+        price = 0
+
+    delivered_at = row["delivered_at"] or ""
     if new_status == "entregado":
-        delivered_at = row["delivered_at"] or now_iso()
-        db.execute("UPDATE items SET status = ?, delivered_at = ? WHERE id = ?",
-                   (new_status, delivered_at, item_id))
+        delivered_at = delivered_at or now_iso()
+    elif new_status != row["status"]:
+        delivered_at = ""
+
+    db.execute(
+        "UPDATE items SET title = ?, description = ?, category = ?, condition = ?, "
+        "exchange_type = ?, price = ?, campus = ?, faculty = ?, handover_point = ?, "
+        "status = ?, delivered_at = ? WHERE id = ?",
+        (title, description, category, condition, exchange_type, price, campus,
+         faculty, handover_point, new_status, delivered_at, item_id),
+    )
+    if new_status == "entregado" and row["status"] != "entregado":
         # Cerrar también la solicitud aceptada evita intercambios a medias.
         db.execute(
             "UPDATE requests SET status = 'completada' "
             "WHERE item_id = ? AND status = 'aceptada'", (item_id,))
-    else:
-        db.execute("UPDATE items SET status = ?, delivered_at = '' WHERE id = ?",
-                   (new_status, item_id))
     db.commit()
     invalidate_stats()
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
@@ -2223,6 +2317,115 @@ def register():
 
     row = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION}), 201
+
+
+def recycle_expired_demo_accounts(db) -> int:
+    """Caduca cuentas demo conservando sus publicaciones.
+
+    Los objetos se reasignan a la cuenta de muestra (`SEED_OWNER`): el catálogo
+    del congreso sigue mostrando lo que subió cada visitante aunque su sesión
+    temporal ya no exista.
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=DEMO_TTL_HOURS)).isoformat()
+    expired = [r["id"] for r in db.execute(
+        "SELECT id FROM users WHERE email LIKE ? AND created_at < ?",
+        (f"%@{DEMO_EMAIL_DOMAIN}", cutoff)).fetchall()]
+    if not expired:
+        return 0
+    keeper_id = showcase_owner_id(db)
+    for user_id in expired:
+        if keeper_id and keeper_id != user_id:
+            db.execute("UPDATE items SET owner_id = ? WHERE owner_id = ?",
+                       (keeper_id, user_id))
+        db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
+    return len(expired)
+
+
+def showcase_owner_id(db):
+    """Cuenta que conserva lo publicado por los visitantes.
+
+    Es la cuenta de muestra del catálogo (`SEED_OWNER`). Si la base no la tiene
+    todavía se crea aquí, con una contraseña aleatoria que nadie usa, para que
+    ninguna publicación se quede sin dueño.
+    """
+    row = db.execute("SELECT id FROM users WHERE email = ?",
+                     (SEED_OWNER["email"],)).fetchone()
+    if row:
+        return row["id"]
+    ts = now_iso()
+    try:
+        cur = db.execute(
+            "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, ?, ?, ?) RETURNING id",
+            (SEED_OWNER["name"], SEED_OWNER["email"],
+             generate_password_hash(secrets.token_urlsafe(32)),
+             SEED_OWNER["campus"], ts, LEGAL_VERSION, ts),
+        )
+        return inserted_id(cur)
+    except DB_ERRORS:
+        db.rollback()
+        return None
+
+
+@app.post("/api/auth/demo")
+def demo_login():
+    """Cuenta temporal para probar la app en la exposición (CTC).
+
+    Solo existe cuando la app corre con datos de demostración (SEED_DEMO=1).
+    Cada visitante recibe su propia cuenta efímera, así nadie puede tocar el
+    trabajo de otra persona, y se borran solas a las 12 horas: sin cron ni
+    servicios externos.
+    """
+    if not SEED_DEMO:
+        return jsonify({"error": "demo_disabled"}), 404
+    limited = rate_limited("demo")
+    if limited:
+        return limited
+
+    db = get_db()
+    try:
+        # Limpieza perezosa: barata, sin tareas programadas y sin perder nada de
+        # lo que la gente publicó.
+        recycle_expired_demo_accounts(db)
+    except DB_ERRORS:
+        db.rollback()
+
+    stamp = int(time.time())
+    token = secrets.token_urlsafe(32)
+    ts = now_iso()
+    email = f"demo-{stamp}-{secrets.token_hex(3)}@{DEMO_EMAIL_DOMAIN}"
+    try:
+        cur = db.execute(
+            "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, ?, ?, ?) RETURNING id",
+            (DEMO_NAME, email, generate_password_hash(secrets.token_urlsafe(24)),
+             "vigo", ts, LEGAL_VERSION, ts),
+        )
+        user_id = inserted_id(cur)
+        cleanup_expired_sessions(db)
+        db.execute(
+            "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+            (session_token_digest(token), user_id,
+             (datetime.now(timezone.utc) + timedelta(hours=DEMO_TTL_HOURS)).isoformat()),
+        )
+        db.commit()
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudo crear la cuenta de demostración")
+        return jsonify({
+            "error": "storage_unavailable",
+            "message": "No se pudo abrir la demo ahora mismo. Inténtalo de nuevo.",
+        }), 503
+
+    row = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    return jsonify({
+        "token": token,
+        "user": row_to_user(row),
+        "legal_version": LEGAL_VERSION,
+        "demo": True,
+        "ttl_hours": DEMO_TTL_HOURS,
+    }), 201
 
 
 @app.post("/api/auth/login")
