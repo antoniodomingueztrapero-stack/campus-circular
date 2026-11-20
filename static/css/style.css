@@ -2374,3 +2374,19 @@ body.is-scrolled .topbar { box-shadow: 0 6px 20px rgba(20, 37, 27, 0.08); }
   color: var(--amber-700);
 }
 .review-note .icon { width: 14px; height: 14px; flex: 0 0 auto; margin-top: 1px; }
+
+/* 21. QA: textos largos, cabecera de perfil y sin desbordamiento ---------- */
+body {
+  overflow-wrap: break-word;
+}
+h1, h2, h3, .card-title, .list-card-title, .detail-title, .owner-name,
+.detail-desc, .list-card-meta, .empty p, .toast, .slow-notice div span,
+.review-note, .hint-line {
+  /* Nombres de objeto, correos y titulares sin espacios no deben ensanchar
+     la página en móvil. */
+  overflow-wrap: anywhere;
+}
+.page-head-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s3); }
+@media (max-width: 400px) {
+  .page-head-actions .btn { width: 100%; }
+}

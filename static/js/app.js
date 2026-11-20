@@ -281,6 +281,14 @@ const I18N = {
     review_note: "Retirada del catálogo tras {n} reportes. Revísala o elimínala.",
     toast_rate_limited: "Demasiados intentos seguidos. Espera un momento y vuelve a probar.",
     toast_not_found: "Esta publicación ya no está disponible.",
+    profile_edit: "Editar perfil",
+    profile_title: "Editar perfil",
+    profile_email_note: "Puedes cambiar tu nombre y tu campus. El email no se edita: cambiarlo exige verificarlo antes.",
+    profile_name: "Nombre visible",
+    profile_campus: "Campus",
+    profile_campus_hint: "Se usa para filtrar y para proponer puntos de entrega.",
+    profile_save: "Guardar cambios",
+    profile_saved: "Perfil actualizado.",
     lang_name: "Español",
   },
   en: {
@@ -523,6 +531,14 @@ const I18N = {
     review_note: "Removed from the catalogue after {n} reports. Review it or delete it.",
     toast_rate_limited: "Too many attempts in a row. Wait a moment and try again.",
     toast_not_found: "This listing is no longer available.",
+    profile_edit: "Edit profile",
+    profile_title: "Edit profile",
+    profile_email_note: "You can change your name and campus. The email is not editable: changing it requires verification first.",
+    profile_name: "Display name",
+    profile_campus: "Campus",
+    profile_campus_hint: "Used for filters and to suggest handover points.",
+    profile_save: "Save changes",
+    profile_saved: "Profile updated.",
     lang_name: "English",
   },
   gl: {
@@ -765,6 +781,14 @@ const I18N = {
     review_note: "Retirada do catálogo tras {n} reportes. Revísaa ou elimínaa.",
     toast_rate_limited: "Demasiados intentos seguidos. Espera un intre e téntao de novo.",
     toast_not_found: "Esta publicación xa non está dispoñible.",
+    profile_edit: "Editar perfil",
+    profile_title: "Editar perfil",
+    profile_email_note: "Podes cambiar o teu nome e o teu campus. O email non se edita: cambialo esixe verificalo antes.",
+    profile_name: "Nome visible",
+    profile_campus: "Campus",
+    profile_campus_hint: "Úsase para filtrar e para propoñer puntos de entrega.",
+    profile_save: "Gardar cambios",
+    profile_saved: "Perfil actualizado.",
     lang_name: "Galego",
   }
 };
@@ -2433,6 +2457,54 @@ function renderAbout(app) {
 }
 
 /* ---------------- Panel de datos ---------------- */
+function openProfileEdit() {
+  if (!state.user) return;
+  const current = state.user;
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="profile-title">${esc(t("profile_title"))}</h2>
+      <p>${esc(t("profile_email_note"))}</p>
+    </div>
+    <form id="profile-form" aria-labelledby="profile-title">
+      <div class="field">
+        <label for="profile-name">${esc(t("profile_name"))}</label>
+        <input id="profile-name" name="name" type="text" maxlength="60" minlength="2" required value="${esc(current.name || "")}" autocomplete="name" data-autofocus>
+      </div>
+      <div class="field">
+        <label for="profile-campus">${esc(t("profile_campus"))}</label>
+        <select id="profile-campus" name="campus">
+          ${CAMPUSES.map(c => option(c, campusLabel(c), c === current.campus)).join("")}
+        </select>
+        <small>${esc(t("profile_campus_hint"))}</small>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("check")}${esc(t("profile_save"))}</button>
+    </form>`, { labelledBy: "profile-title", sheet: true });
+  $("#profile-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("saving"));
+    try {
+      const data = await api("/api/account/profile", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: String(fd.get("name") || "").trim().replace(/\s+/g, " "),
+          campus: fd.get("campus") || current.campus,
+        }),
+      });
+      state.user = data.user;
+      closeModal();
+      toast(t("profile_saved"));
+      renderAuthArea();
+      render();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
+}
+
 function accountToolsHtml() {
   if (!state.user) {
     return `<div class="privacy-panel">
@@ -2574,6 +2646,9 @@ function renderMy(app) {
         <span>${esc(campusLabel(state.user.campus))} · ${esc(state.user.email)}</span>
         <span class="identity-badge${(state.user.university_verified || state.user.academic_email) ? " academic" : ""}">${icon((state.user.university_verified || state.user.academic_email) ? "check" : "user")}${esc((state.user.university_verified || state.user.academic_email) ? t("verified_badge") : t("personal_email"))}</span>
       </p>
+      <div class="page-head-actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="edit-profile">${icon("user")}${esc(t("profile_edit"))}</button>
+      </div>
     </div>
     <div id="trust-panel" class="mt-4">
       <div class="trust-panel"><div class="skeleton sk-line w-45"></div><div class="skeleton sk-line w-70 mt-3"></div><div class="skeleton sk-line w-60 mt-3"></div></div>
@@ -2586,6 +2661,8 @@ function renderMy(app) {
     </div>
     ${accountToolsHtml()}`);
 
+  const editProfile = $("#edit-profile");
+  if (editProfile) editProfile.onclick = openProfileEdit;
   $$(".segment [data-tab]").forEach(b => {
     b.onclick = () => { state.myTab = b.dataset.tab; state.myTabFocus = true; render(); };
   });

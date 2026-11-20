@@ -165,6 +165,7 @@ RATE_LIMITS = {
     "request": (20, 3600),     # solicitudes enviadas por cuenta
     "report": (10, 3600),      # reportes enviados por cuenta
     "message": (30, 3600),     # mensajes dentro de una solicitud
+    "profile": (10, 3600),     # cambios de perfil por cuenta
 }
 MAX_JSON_BYTES = 64 * 1024
 DEFAULT_CORS_ORIGINS = "https://campus-circular.onrender.com"
@@ -2219,6 +2220,39 @@ def update_consent(user):
         "UPDATE users SET consent_at = ?, consent_version = ? WHERE id = ?",
         (now_iso(), LEGAL_VERSION, user["id"]),
     )
+    db.commit()
+    row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    return jsonify({"user": row_to_user(row)})
+
+
+@app.patch("/api/account/profile")
+@require_auth
+def update_profile(user):
+    """Cambia nombre y campus. El email no se edita: exigiría verificarlo."""
+    limited = rate_limited("profile", str(user["id"]))
+    if limited:
+        return limited
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid_request"}), 400
+
+    name = clean_text(data.get("name"), max_len=60) if "name" in data else None
+    campus = data.get("campus") if "campus" in data else None
+    if name is None and campus is None:
+        return jsonify({"error": "nothing_to_update"}), 400
+    if name is not None and (len(name) < 2 or len(name) > 60):
+        return jsonify({
+            "error": "invalid_name",
+            "message": "El nombre debe tener entre 2 y 60 caracteres.",
+        }), 400
+    if campus is not None and campus not in CAMPUSES:
+        return jsonify({"error": "invalid_campus"}), 400
+
+    db = get_db()
+    if name is not None:
+        db.execute("UPDATE users SET name = ? WHERE id = ?", (name, user["id"]))
+    if campus is not None:
+        db.execute("UPDATE users SET campus = ? WHERE id = ?", (campus, user["id"]))
     db.commit()
     row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
     return jsonify({"user": row_to_user(row)})
