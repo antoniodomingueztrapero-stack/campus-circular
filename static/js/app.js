@@ -1927,6 +1927,19 @@ function categoryChips() {
     .join("");
 }
 
+function operationChips() {
+  return ["", ...TYPES].map(value => {
+    const active = state.filters.type === value;
+    return `<button type="button" class="chip${active ? " active" : ""}" data-operation="${esc(value)}" aria-pressed="${active}">${esc(value ? typeLabel(value) : t("all"))}</button>`;
+  }).join("");
+}
+
+function openQuickGuide() {
+  openModal(`${closeBtn()}<div class="modal-head"><span class="eyebrow">${icon("leaf")}Circular Campus</span><h2 id="quick-guide-title">${esc(t("how_title"))}</h2></div>
+    <div class="steps guide-steps">${[1, 2, 3].map(n => `<div class="step"><span class="step-num" aria-hidden="true">${n}</span><div><strong>${esc(t("how_" + n + "_t"))}</strong><p>${esc(t("how_" + n + "_b"))}</p></div></div>`).join("")}</div>
+    <div class="modal-foot"><button type="button" class="btn btn-primary" data-close>${esc(t("browse_catalog"))}</button></div>`, { labelledBy: "quick-guide-title", sheet: true });
+}
+
 function activeFilterChips() {
   const f = state.filters;
   const items = [];
@@ -1944,6 +1957,11 @@ function activeFilterChips() {
 function syncFilterUI() {
   $$("#cat-filters .chip").forEach(b => {
     const active = (b.dataset.cat || "") === (state.filters.category || "");
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
+  $$("#operation-filters .chip").forEach(b => {
+    const active = b.dataset.operation === state.filters.type;
     b.classList.toggle("active", active);
     b.setAttribute("aria-pressed", String(active));
   });
@@ -2051,7 +2069,7 @@ function itemCard(it) {
         ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, sizes: "(max-width: 480px) 92vw, (max-width: 720px) 45vw, 300px" })}
       </button>
       <div class="card-badges">
-        ${it.status && it.status !== "disponible" ? `<span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>` : ""}
+        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
         <span class="badge badge-cond">${esc(condLabel(it.condition))}</span>
         <span class="badge badge-type${isSale ? " is-sale" : ""}">${esc(typeBadge(it.exchange_type))}</span>
       </div>
@@ -2061,7 +2079,7 @@ function itemCard(it) {
       <h3 class="card-title">${esc(it.title)}</h3>
       <div class="card-meta">
         <span class="pill">${esc(catLabel(it.category))}</span>
-        <span class="card-location">${icon("pin")}${esc(campusLabel(it.campus))}</span>
+        <span class="card-location">${icon("pin")}${esc(campusLabel(it.campus))}${it.faculty ? ` · ${esc(facLabel(it.faculty))}` : ""}</span>
       </div>
       <p class="card-location">${icon("tag")}${esc(handLabel(it.handover_point))}</p>
       ${it.description ? `<p class="card-desc">${esc(it.description)}</p>` : ""}
@@ -2074,6 +2092,20 @@ function itemCard(it) {
       </div>
     </div>
   </article>`;
+}
+
+function congressMetrics(stats) {
+  const s = stats || {};
+  const active = Number(s.available) || 0;
+  // Orientative estimates for active listings, not verified completed exchanges.
+  const kg = active * 2;
+  const euros = active * 15;
+  const labels = state.lang === "en" ? ["active listings", "potential kg reused", "potential student savings"]
+    : state.lang === "gl" ? ["anuncios dispoñibles", "kg potenciais reutilizados", "aforro potencial"]
+    : ["artículos disponibles", "kg potenciales reutilizados", "ahorro potencial"];
+  return `<div class="congress-metrics" role="group" aria-label="${esc(t("impact_title"))}">
+    ${[active, `${kg} kg`, `${euros} €`].map((v, i) => `<div><strong>${esc(String(v))}</strong><span>${esc(labels[i])}</span></div>`).join("")}
+  </div><p class="congress-estimate">${esc(state.lang === "en" ? "Illustrative estimate: 2 kg and €15 per active listing; not completed exchanges." : state.lang === "gl" ? "Estimación ilustrativa: 2 kg e 15 € por anuncio dispoñible; non son intercambios completados." : "Estimación ilustrativa: 2 kg y 15 € por artículo disponible; no son intercambios completados.")}</p>`;
 }
 
 function statsCards(stats) {
@@ -2194,6 +2226,7 @@ async function renderHome(app) {
           <span class="eyebrow">${icon("leaf")}${esc(t("hero_eyebrow"))}</span>
           <h1 id="hero-title">${esc(t("hero_title"))}</h1>
           <p class="lead">${esc(t("hero_lead"))}</p>
+          <div class="hero-ctas"><a class="btn btn-primary" href="#catalog-results">${esc(t("browse_catalog"))}${icon("arrow")}</a><button class="btn btn-ghost" type="button" id="hero-publish">${icon("plus")}${esc(t("publish_cta"))}</button></div>
           <form class="searchbar" id="hero-search" role="search" aria-label="${esc(t("search"))}">
             <div class="search-input">
               ${icon("search")}
@@ -2216,12 +2249,14 @@ async function renderHome(app) {
         </div>
         ${responsiveImage("/static/img/hero-reuse.jpg", { cls: "hero-art", priority: true, lazy: false, fallback: "/static/img/items/placeholder.jpg", sizes: "(max-width: 960px) 92vw, 460px" })}
       </div>
+      <div id="congress-metrics">${state.stats ? congressMetrics(state.stats) : ""}</div>
       <div class="stats-row" id="hero-stats">${state.stats ? statsCards(state.stats) : statSkeleton()}</div>
       <div id="impact-band">${state.stats ? impactBand(state.stats) : ""}</div>
     </section>
 
     <div class="catalog-toolbar">
       <div class="chips-scroll" id="cat-filters" role="group" aria-label="${esc(t("filters"))}">${categoryChips()}</div>
+      <div class="chips-scroll operation-scroll" id="operation-filters" role="group" aria-label="${esc(t("type"))}">${operationChips()}</div>
       <div class="toolbar-actions">
         <button type="button" class="filter-btn" id="open-filters" aria-haspopup="dialog">
           ${icon("sliders")}${esc(t("filters_btn"))}<span class="filter-dot hidden" id="filter-dot" aria-hidden="true"></span>
@@ -2293,11 +2328,15 @@ async function renderHome(app) {
   };
   $("#campus-sel").onchange = () => { readHero(); refreshCatalog(); };
   $("#go-publish").onclick = () => navigate("publish");
+  $("#hero-publish").onclick = () => navigate("publish");
   $$("#cat-filters .chip").forEach(b => {
     b.onclick = () => {
       state.filters.category = b.dataset.cat || "";
       refreshCatalog();
     };
+  });
+  $$("#operation-filters .chip").forEach(b => {
+    b.onclick = () => { state.filters.type = b.dataset.operation; refreshCatalog({ quiet: true }); };
   });
   $("#open-filters").onclick = openFilters;
 
@@ -2307,6 +2346,8 @@ async function renderHome(app) {
     fetchStats().then(stats => {
       const box = $("#hero-stats");
       if (box && stats) box.innerHTML = statsCards(stats);
+      const metrics = $("#congress-metrics");
+      if (metrics && stats) metrics.innerHTML = congressMetrics(stats);
       const impact = $("#impact-band");
       if (impact && stats) impact.innerHTML = impactBand(stats);
     });
@@ -3507,3 +3548,5 @@ async function init() {
   }
 }
 document.addEventListener("DOMContentLoaded", init);
+
+$("#quick-guide").addEventListener("click", openQuickGuide);

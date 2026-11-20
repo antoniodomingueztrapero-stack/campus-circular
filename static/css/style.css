@@ -2466,3 +2466,45 @@ picture { display: contents; }
   letter-spacing: .04em;
   text-transform: uppercase;
 }
+
+/* Congress polish: self-hosted fonts with system fallbacks keep the demo working offline. */
+:root {
+  --bg: #fafaf9; --surface: #ffffff; --line: #e5e7eb;
+  --line-strong: #d1d5db; --green-700: #15803d; --green-600: #166534;
+  --green-50: #dcfce7; --green-100: #dcfce7;
+  --ink: #111827; --ink-2: #374151; --muted: #4b5563;
+  --font: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+}
+.hero { background: radial-gradient(circle at 85% 20%, #dcfce7 0, transparent 46%), #fff; box-shadow: 0 12px 45px rgba(17,24,39,.05); }
+.hero h1 { font-weight: 800; font-size: clamp(2rem, 3.3vw, 3.6rem); letter-spacing: -.045em; }
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; }
+.hero-ctas .btn { text-decoration: none; }
+.congress-metrics { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 20px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.congress-metrics > div { border-right: 1px solid var(--line); padding: 0 12px; }
+.congress-metrics > div:last-child { border: 0; }
+.congress-metrics strong { display: block; font: 800 clamp(1.3rem, 2.6vw, 2.15rem)/1.1 var(--font-display); color: var(--green-700); }
+.congress-metrics span { display: block; margin-top: 5px; font-size: .76rem; font-weight: 600; color: var(--muted); }
+.congress-estimate { margin: 8px 12px 0; font-size: .7rem; color: var(--muted); }
+.grid-items { grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 18px; }
+.card { border-radius: 14px; }
+.card-media, .card-media img { aspect-ratio: 4 / 3; }
+.card-media picture { display: block; height: 100%; }
+.catalog-toolbar { flex-wrap: wrap; }
+.catalog-toolbar #cat-filters { flex: 1 1 65%; }
+.operation-scroll { flex: 1 1 55%; }
+.guide-trigger { white-space: nowrap; font-size: .8rem; }
+.guide-steps { margin: 20px 0; }
+@media (max-width: 720px) {
+  .grid-items { grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+  .card-media { aspect-ratio: 4 / 3; }
+  .catalog-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .catalog-toolbar #cat-filters { grid-column: 1 / -1; }
+  .operation-scroll { grid-column: 1; min-width: 0; }
+  .toolbar-actions { grid-column: 2; }
+  .guide-trigger { font-size: 0; min-width: 44px; }
+  .guide-trigger::before { content: '?'; font-size: 1.1rem; border: 1px solid currentColor; border-radius: 50%; padding: 0 7px; }
+  .hero-ctas .btn { flex: 1 1 auto; justify-content: center; }
+}
+@font-face { font-family: Inter; src: url('/static/fonts/inter-latin.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('/static/fonts/plus-jakarta-sans-latin.woff2') format('woff2'); font-style: normal; font-weight: 200 800; font-display: swap; }
