@@ -96,8 +96,13 @@ HANDOVER_POINTS = ["biblioteca", "conserjeria", "cafeteria", "entrada", "punto",
 FACULTIES = ["ingenieria", "ciencias", "salud", "sociales", "humanidades", "artes"]
 ITEM_STATUSES = ["disponible", "reservado", "entregado"]
 # Cuentas de demostración: efímeras, sin datos personales y solo con SEED_DEMO=1.
+# Lo que publican NO se borra: al caducar la cuenta, sus objetos se transfieren a
+# la cuenta de muestra para que el catálogo siga siendo compartido y visible.
 DEMO_EMAIL_DOMAIN = "demo.circular-campus.local"
-DEMO_TTL_HOURS = 12
+try:
+    DEMO_TTL_HOURS = max(1, int(os.environ.get("DEMO_TTL_HOURS", "24")))
+except ValueError:
+    DEMO_TTL_HOURS = 24
 DEMO_NAME = "Asistente CTC"
 REQUEST_STATUSES = ["pendiente", "aceptada", "rechazada", "cancelada", "completada"]
 RATING_MIN = 1
@@ -160,8 +165,15 @@ UPLOAD_URL_PREFIX = "/static/uploads/"
 # Ventana deslizante en memoria por proceso: con varios workers el límite real
 # es (workers × límite). Suficiente para frenar fuerza bruta y spam sin añadir
 # Redis ni otro servicio externo.
+# En una exposición todos los asistentes comparten la IP del wifi: conviene poder
+# subir el techo global sin tocar el código (API_RATE_LIMIT=900, por ejemplo).
+try:
+    API_RATE_LIMIT = max(60, int(os.environ.get("API_RATE_LIMIT", "300")))
+except ValueError:
+    API_RATE_LIMIT = 300
+
 RATE_LIMITS = {
-    "api": (300, 60),          # techo global por IP para /api/
+    "api": (API_RATE_LIMIT, 60),  # techo global por IP para /api/
     "login": (10, 300),        # intentos de acceso por IP
     "login_account": (6, 300),  # intentos por cuenta, aunque cambie la IP
     "register": (5, 3600),     # cuentas nuevas por IP
@@ -283,6 +295,7 @@ def boot_config(view="home"):
         "pageSize": DEFAULT_PAGE_SIZE,
         "imgManifest": IMG_MANIFEST,
         "demoMode": SEED_DEMO,
+        "demoTtlHours": DEMO_TTL_HOURS,
     }
 
 
@@ -2306,6 +2319,55 @@ def register():
     return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION}), 201
 
 
+def recycle_expired_demo_accounts(db) -> int:
+    """Caduca cuentas demo conservando sus publicaciones.
+
+    Los objetos se reasignan a la cuenta de muestra (`SEED_OWNER`): el catálogo
+    del congreso sigue mostrando lo que subió cada visitante aunque su sesión
+    temporal ya no exista.
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=DEMO_TTL_HOURS)).isoformat()
+    expired = [r["id"] for r in db.execute(
+        "SELECT id FROM users WHERE email LIKE ? AND created_at < ?",
+        (f"%@{DEMO_EMAIL_DOMAIN}", cutoff)).fetchall()]
+    if not expired:
+        return 0
+    keeper_id = showcase_owner_id(db)
+    for user_id in expired:
+        if keeper_id and keeper_id != user_id:
+            db.execute("UPDATE items SET owner_id = ? WHERE owner_id = ?",
+                       (keeper_id, user_id))
+        db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
+    return len(expired)
+
+
+def showcase_owner_id(db):
+    """Cuenta que conserva lo publicado por los visitantes.
+
+    Es la cuenta de muestra del catálogo (`SEED_OWNER`). Si la base no la tiene
+    todavía se crea aquí, con una contraseña aleatoria que nadie usa, para que
+    ninguna publicación se quede sin dueño.
+    """
+    row = db.execute("SELECT id FROM users WHERE email = ?",
+                     (SEED_OWNER["email"],)).fetchone()
+    if row:
+        return row["id"]
+    ts = now_iso()
+    try:
+        cur = db.execute(
+            "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, ?, ?, ?) RETURNING id",
+            (SEED_OWNER["name"], SEED_OWNER["email"],
+             generate_password_hash(secrets.token_urlsafe(32)),
+             SEED_OWNER["campus"], ts, LEGAL_VERSION, ts),
+        )
+        return inserted_id(cur)
+    except DB_ERRORS:
+        db.rollback()
+        return None
+
+
 @app.post("/api/auth/demo")
 def demo_login():
     """Cuenta temporal para probar la app en la exposición (CTC).
@@ -2322,14 +2384,10 @@ def demo_login():
         return limited
 
     db = get_db()
-    cutoff = (datetime.now(timezone.utc) - timedelta(hours=DEMO_TTL_HOURS)).isoformat()
     try:
-        # Limpieza perezosa: barata y sin tareas programadas.
-        db.execute(
-            "DELETE FROM users WHERE email LIKE ? AND created_at < ?",
-            (f"%@{DEMO_EMAIL_DOMAIN}", cutoff),
-        )
-        db.commit()
+        # Limpieza perezosa: barata, sin tareas programadas y sin perder nada de
+        # lo que la gente publicó.
+        recycle_expired_demo_accounts(db)
     except DB_ERRORS:
         db.rollback()
 

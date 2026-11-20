@@ -88,11 +88,14 @@ Notas importantes:
   pasa las claves por variables de entorno (documentadas en `.env.example`).
   Nunca las escribas en el código.
 - **Exposición (coste 0 €)**: con `SEED_DEMO=1` el botón *Probar al instante*
-  del modal de acceso crea una cuenta temporal por visitante, sin registro y
-  sin servicios externos. Sirve para que cualquiera pruebe publicar, editar y
-  cambiar estados en el móvil; las cuentas caducadas se borran solas a las 12 h
-  en la siguiente petición. Las imágenes y el catálogo viajan en el propio
-  repositorio: no hay almacenamiento ni base de datos de pago.
+  crea una cuenta temporal por visitante, sin registro ni servicios externos.
+  El catálogo es compartido: lo que publica una persona lo ve el resto al
+  momento. Al caducar la cuenta (`DEMO_TTL_HOURS`, 24 h por defecto) **sus
+  objetos se conservan** y pasan a la cuenta de muestra, así que la pared de
+  objetos del congreso no se vacía; solo se borra la cuenta y su sesión. Con
+  muchas personas en el mismo wifi, sube `API_RATE_LIMIT` (por ejemplo 900).
+  Las imágenes y el catálogo viajan en el propio repositorio: no hay
+  almacenamiento ni base de datos de pago.
 - **Arranque en frío**: en el plan gratuito el servicio se suspende sin
   tráfico. La primera visita puede tardar decenas de segundos; la web muestra
   «El servidor se está despertando» a partir de 2,5 s y ofrece reintento si

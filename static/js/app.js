@@ -179,8 +179,8 @@ const I18N = {
     edit_saved: "Publicación actualizada.",
     status_quick: "Estado de la publicación",
     demo_cta: "Probar al instante",
-    demo_note: "Abre una cuenta temporal de demostración, sin registro. Se borra sola en 12 horas: no pongas datos personales.",
-    demo_started: "Modo demo: ya puedes publicar, editar y cambiar estados.",
+    demo_note: "Abre una cuenta temporal, sin registro. Lo que publiques lo verá todo el mundo en el catálogo y se queda ahí; la cuenta caduca en {h} h. No pongas datos personales.",
+    demo_started: "Modo demo: publica algo y lo verá todo el mundo en el catálogo.",
     demo_badge: "demo",
     demo_failed: "No se pudo abrir la demo. Inténtalo otra vez.",
     or: "o",
@@ -456,8 +456,8 @@ const I18N = {
     edit_saved: "Listing updated.",
     status_quick: "Listing status",
     demo_cta: "Try it right now",
-    demo_note: "Opens a temporary demo account, no sign-up. It deletes itself after 12 hours: do not enter personal data.",
-    demo_started: "Demo mode: you can now publish, edit and change statuses.",
+    demo_note: "Opens a temporary account, no sign-up. Everything you publish is visible to everyone in the catalogue and stays there; the account expires in {h} h. Do not enter personal data.",
+    demo_started: "Demo mode: publish something and everyone will see it in the catalogue.",
     demo_badge: "demo",
     demo_failed: "Could not open the demo. Please try again.",
     or: "or",
@@ -733,8 +733,8 @@ const I18N = {
     edit_saved: "Publicación actualizada.",
     status_quick: "Estado da publicación",
     demo_cta: "Probar agora mesmo",
-    demo_note: "Abre unha conta temporal de demostración, sen rexistro. Bórrase soa en 12 horas: non poñas datos persoais.",
-    demo_started: "Modo demo: xa podes publicar, editar e cambiar estados.",
+    demo_note: "Abre unha conta temporal, sen rexistro. O que publiques vaino ver todo o mundo no catálogo e queda aí; a conta caduca en {h} h. Non poñas datos persoais.",
+    demo_started: "Modo demo: publica algo e vaino ver todo o mundo no catálogo.",
     demo_badge: "demo",
     demo_failed: "Non se puido abrir a demo. Téntao outra vez.",
     or: "ou",
@@ -1530,7 +1530,7 @@ function openAuth(mode = "login") {
       <div class="auth-demo">
         <span class="auth-demo-sep">${esc(t("or"))}</span>
         <button type="button" class="btn btn-ghost btn-block" id="auth-demo">${icon("refresh")}${esc(t("demo_cta"))}</button>
-        <small>${esc(t("demo_note"))}</small>
+        <small>${esc(t("demo_note").replace("{h}", String(BOOT.demoTtlHours || 24)))}</small>
       </div>` : ""}
     <p class="muted small text-center mt-3">
       ${esc(isLogin ? t("auth_no_account") : t("auth_have_account"))}

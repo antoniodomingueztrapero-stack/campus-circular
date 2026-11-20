@@ -44,6 +44,12 @@ services:
         value: "1"
       - key: REPORT_HIDE_THRESHOLD
         value: "3"
+      # Exposición: cuentas temporales de 24 h y techo global más alto porque
+      # todos los asistentes comparten la IP del wifi del congreso.
+      - key: DEMO_TTL_HOURS
+        value: "24"
+      - key: API_RATE_LIMIT
+        value: "900"
       # Render está detrás de un proxy: 1 salto de confianza para X-Forwarded-*.
       - key: TRUST_PROXY
         value: "1"

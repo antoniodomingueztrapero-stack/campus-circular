@@ -99,6 +99,62 @@ class DemoModeTests(unittest.TestCase):
             db.close()
         self.assertIsNone(row, "la cuenta demo caducada debería haberse borrado")
 
+    def test_published_items_survive_when_the_demo_account_expires(self):
+        """El catálogo es compartido: lo que sube un visitante no desaparece."""
+        visitor = self.client.post("/api/auth/demo").get_json()
+        headers = {"Authorization": f"Bearer {visitor['token']}"}
+        created = self.client.post("/api/items", json={
+            "title": "Estantería del congreso", "category": "muebles",
+            "exchange_type": "regalar", "private_seller": True,
+            "image_url": "/static/img/items/muebles-480.webp",
+        }, headers=headers).get_json()["item"]
+
+        stale = (datetime.now(timezone.utc) - timedelta(hours=backend.DEMO_TTL_HOURS + 2)).isoformat()
+        db = backend.connect_db()
+        try:
+            db.execute("UPDATE users SET created_at = ? WHERE id = ?", (stale, visitor["user"]["id"]))
+            db.commit()
+        finally:
+            db.close()
+
+        self.client.post("/api/auth/demo")  # dispara la limpieza
+
+        public = self.client.get("/api/items?limit=60").get_json()["items"]
+        self.assertIn(created["id"], [i["id"] for i in public],
+                      "el objeto debe seguir en el catálogo después de caducar la cuenta")
+
+        db = backend.connect_db()
+        try:
+            row = db.execute("SELECT u.email FROM items i JOIN users u ON u.id = i.owner_id "
+                             "WHERE i.id = ?", (created["id"],)).fetchone()
+        finally:
+            db.close()
+        self.assertEqual(row["email"], backend.SEED_OWNER["email"],
+                         "el objeto pasa a la cuenta de muestra, no se borra")
+
+    def test_everyone_sees_what_others_publish(self):
+        first = self.client.post("/api/auth/demo").get_json()
+        second = self.client.post("/api/auth/demo").get_json()
+        created = self.client.post("/api/items", json={
+            "title": "Apuntes compartidos en la demo", "category": "libros",
+            "exchange_type": "regalar", "private_seller": True,
+            "image_url": "/static/img/items/libros-480.webp",
+        }, headers={"Authorization": f"Bearer {first['token']}"}).get_json()["item"]
+
+        # Sin sesión y con la sesión de otra persona: el catálogo es el mismo.
+        for headers in ({}, {"Authorization": f"Bearer {second['token']}"}):
+            page = self.client.get("/api/items?limit=60", headers=headers).get_json()
+            self.assertIn(created["id"], [i["id"] for i in page["items"]])
+
+        detail = self.client.get(f"/api/items/{created['id']}").get_json()["item"]
+        self.assertEqual(detail["title"], "Apuntes compartidos en la demo")
+
+        # Pero solo el dueño lo puede editar.
+        res = self.client.patch(f"/api/items/{created['id']}",
+                                json={"title": "Secuestrado"},
+                                headers={"Authorization": f"Bearer {second['token']}"})
+        self.assertEqual(res.status_code, 403)
+
     def test_demo_rate_limited(self):
         backend.app.config["RATE_LIMIT_ENABLED"] = True
         backend.reset_rate_limits()
