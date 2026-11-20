@@ -6,9 +6,11 @@ services:
     runtime: python
     # La app puede usar PostgreSQL externo gratuito mediante DATABASE_URL.
     plan: free
-    healthCheckPath: /api/health
+    healthCheckPath: /healthz
     buildCommand: pip install -r requirements.txt
-    startCommand: python3 app.py
+    # Un worker con 8 hilos: menos RAM y límites de seguridad exactos, porque
+    # el contador de peticiones vive en memoria del proceso.
+    startCommand: gunicorn app:app --workers 1 --threads 8 --timeout 60 --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.0
@@ -26,6 +28,25 @@ services:
       - key: CONTROLLER_NAME
         value: Equipo Circular Campus (proyecto académico independiente)
       - key: LEGAL_VERSION
-        value: 2026-11-17
+        value: 2026-11-20
       - key: LEGAL_UPDATED
-        value: 2026-11-17
+        value: 2026-11-20
+      # Dominios de correo institucional aceptados para la insignia informativa
+      # (separados por comas). Si se omite, se usa la lista interna del código.
+      - key: UNIVERSITY_DOMAINS
+        sync: false
+      # CORS restringido al dominio propio. Si añades otro (por ejemplo, un
+      # dominio personalizado), sepáralos por comas.
+      - key: CORS_ORIGINS
+        value: https://campus-circular.onrender.com
+      # Límites de peticiones en memoria y umbral de retirada por reportes.
+      - key: RATE_LIMIT_ENABLED
+        value: "1"
+      - key: REPORT_HIDE_THRESHOLD
+        value: "3"
+      # Render está detrás de un proxy: 1 salto de confianza para X-Forwarded-*.
+      - key: TRUST_PROXY
+        value: "1"
+      # La app no debe poder embeberse en webs de terceros en producción.
+      - key: ALLOW_EMBED
+        value: "0"

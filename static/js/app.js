@@ -68,13 +68,13 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Acordad un lugar seguro y marcado como entregado cuando terminéis.",
     trust_title: "Diseñado con criterios claros", trust_1: "Consentimiento explícito, aviso legal, privacidad y condiciones en tres idiomas.",
     trust_2: "Exportación y supresión de cuenta desde Mi área; sin analítica, cookies de terceros ni rastreadores.",
-    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones, sin fondos retenidos y sin métricas de impacto.",
+    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones ni fondos retenidos. Las cifras de impacto son estimaciones transparentes por categoría.",
     login: "Iniciar sesión", register: "Crear cuenta", logout: "Cerrar sesión", my_area: "Mi área",
     my_items: "Mis objetos", my_requests: "Mis solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Circular Campus no gestiona cobros.",
     f_title: "Título", f_desc: "Descripción", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Precio orientativo (€)", f_price_hint: "No se cobra aquí. El importe se acuerda directamente y fuera de la plataforma.",
-    f_image: "Foto del objeto", f_image_hint: "Sube una imagen real. No se permiten URL externas; evita que aparezcan datos personales.",
+    f_image: "Foto del objeto", f_image_hint: "Sube una imagen real. Se reescala a 1200 px, se convierte a WebP y se eliminan los metadatos EXIF (incluida la ubicación).",
     upload: "Subir imagen", f_private: "Confirmo que publico como particular", f_private_hint: "No se admiten vendedores profesionales ni actividad comercial habitual.",
     desc_hint: "Describe marcas, defectos y qué incluye. No escribas teléfonos, direcciones ni datos de contacto.",
     publish_btn: "Publicar objeto", cancel: "Cancelar", payment_notice_title: "Pago fuera de Circular Campus",
@@ -156,6 +156,152 @@ const I18N = {
     legal_title: "Aviso legal", legal_lead: "Información general sobre Circular Campus, su naturaleza independiente y el uso de este sitio.",
     privacy_title: "Política de privacidad y datos", privacy_lead: "Aviso en capas: aquí tienes el resumen y el detalle del tratamiento de datos personales.",
     terms_title: "Condiciones de uso", terms_lead: "Reglas para participar como particular en un prototipo de reutilización sin pagos gestionados por la plataforma.",
+    hero_chip_1: "Sin pagos ni comisiones", hero_chip_2: "Datos mínimos", hero_chip_3: "Proyecto independiente",
+    type_badge_regalar: "Regalar", type_badge_prestar: "Prestar", type_badge_intercambiar: "Intercambiar", type_badge_vender: "Vender",
+    nav_my: "Mi área", nav_points_short: "Puntos", nav_rules_short: "Normas",
+    filters_btn: "Filtros", filters_title: "Filtros y orden", filters_subtitle: "Ajusta campus, estado, tipo y orden de los resultados.",
+    filters_apply: "Ver resultados", filters_clear: "Limpiar todo", sort_by: "Ordenar por",
+    loading_items: "Cargando objetos…", retry: "Reintentar", catalog_eyebrow: "Catálogo",
+    results_found: "objetos encontrados", results_one: "objeto encontrado",
+    empty_catalog_t: "Aún no hay objetos publicados", empty_catalog_b: "Sé la primera persona en dar una segunda vida a algo que ya no usas.",
+    empty_filter_t: "Ningún objeto coincide", empty_filter_b: "Prueba a quitar algún filtro o a buscar con otras palabras.",
+    empty_fav_t: "Todavía no guardas nada", empty_fav_b: "Toca el corazón de un objeto para guardarlo y verlo aquí.",
+    empty_my_items_t: "Aún no has publicado nada", empty_my_items_b: "Publica tu primer objeto: con una foto real y un estado honesto basta.",
+    empty_req_t: "Sin solicitudes enviadas", empty_req_b: "Cuando solicites un objeto, verás aquí su estado.",
+    empty_recv_t: "Sin solicitudes recibidas", empty_recv_b: "Cuando alguien se interese por tus objetos, aparecerá en esta lista.",
+    publish_first: "Publicar el primero", browse_catalog: "Explorar el catálogo", close_toast: "Cerrar notificación",
+    detail_description: "Descripción", detail_handover_h: "Entrega y seguridad", detail_payment_h: "Pago fuera de la plataforma",
+    detail_unavailable: "Este objeto ya no está disponible.", detail_manage: "Gestionar en Mi área", status_change: "Cambiar estado",
+    confirm_delete_t: "¿Eliminar este objeto?", confirm_delete_b: "Se borrará la publicación y sus datos asociados. Esta acción no se puede deshacer.",
+    confirm_delete_btn: "Sí, eliminar",
+    photo_drop_t: "Toca para elegir una foto", photo_drop_b: "JPG, PNG o WebP · máximo 5 MB · se optimiza al subir",
+    photo_remove: "Quitar foto", photo_upload: "Subir foto", photo_uploading: "Subiendo foto…",
+    photo_ready: "Foto subida y lista", photo_change: "Cambiar foto",
+    form_sec_1: "Lo esencial", form_sec_2: "Detalles del intercambio", form_sec_3: "Foto y publicación",
+    publishing: "Publicando…", sending: "Enviando…", saving: "Guardando…",
+    title_ph: "Ej.: Lámpara de escritorio LED",
+    my_area_subtitle: "Tus publicaciones, solicitudes y datos.",
+    faculty: "Facultad",
+    fac_none: "Sin especificar",
+    fac_ingenieria: "Ingeniería",
+    fac_ciencias: "Ciencias",
+    fac_salud: "Salud",
+    fac_sociales: "Ciencias sociales",
+    fac_humanidades: "Humanidades",
+    fac_artes: "Artes",
+    f_faculty: "Facultad (opcional)",
+    hand_conserjeria: "Conserjería",
+    points_conserjeria_t: "Conserjería",
+    points_conserjeria_b: "Punto de información a la entrada, con personal y zona de paso.",
+    impact_title: "Impacto de la comunidad",
+    impact_lead: "Estimación a partir de los objetos que ya han cambiado de manos.",
+    impact_reused: "objetos reutilizados",
+    impact_kg: "kg de residuos evitados (est.)",
+    impact_savings: "€ de ahorro estimado",
+    impact_note: "Cifras orientativas por categoría: no son una medición ni una auditoría.",
+    impact_my_title: "Tu impacto",
+    impact_item: "Reutilizarlo evita unos {kg} kg de residuos y {eur} € de gasto (estimación).",
+    estimate_word: "estimación",
+    trust_panel_title: "Confianza y trayectoria",
+    verified_badge: "Estudiante verificado",
+    rating_aria: "Valoración: {n} de 5 ({c} valoraciones)",
+    rating_none: "Sin valoraciones todavía",
+    rating_none_short: "sin valoraciones",
+    ratings_received: "Valoraciones recibidas",
+    ratings_none: "Todavía no hay valoraciones de este perfil.",
+    exchanges_completed: "Intercambios completados",
+    given_label: "Entregados",
+    received_label: "Recibidos",
+    level_label: "Nivel",
+    level_semilla: "Semilla",
+    level_brote: "Brote",
+    level_arbol: "Árbol",
+    level_bosque: "Bosque",
+    level_next: "Siguiente:",
+    level_max: "Nivel máximo alcanzado",
+    exchanges_short: "intercambios",
+    badges_title: "Insignias",
+    badge_verified: "Estudiante verificado",
+    badge_first_delivery: "Primera entrega",
+    badge_five_exchanges: "Cinco intercambios",
+    badge_ten_kg: "10 kg evitados",
+    badge_rated: "Perfil valorado",
+    badge_earned: "conseguida",
+    badge_locked: "pendiente",
+    rate_title: "Valora el intercambio",
+    rate_lead: "Tu valoración ayuda a otras personas a decidir con quién intercambiar.",
+    rate_score_legend: "Tu valoración",
+    rate_comment: "Comentario (opcional)",
+    rate_comment_ph: "¿Cómo fue la entrega? Sin datos personales.",
+    rate_submit: "Enviar valoración",
+    rate_later: "Ahora no",
+    rate_cta: "Valorar",
+    rate_yours: "Tu valoración",
+    rate_note: "La valoración es pública y no se puede editar una vez enviada.",
+    rate_item_label: "Objeto",
+    toast_rated: "Gracias por valorar",
+    form_quick: "Lo esencial",
+    form_quick_hint: "Foto, título, categoría y tipo. Publicar lleva menos de un minuto.",
+    form_optional: "Detalles opcionales",
+    form_optional_hint: "Descripción, estado, campus y punto de entrega. Puedes publicar sin rellenarlos.",
+    f_desc_optional: "Descripción (opcional)",
+    detail_no_desc: "Sin descripción adicional.",
+    image_required_hint: "Obligatoria: es la foto que verá quien reciba el objeto.",
+    toast_image_required: "Añade una foto para publicar.",
+    required_word: "obligatorio",
+    status_help: "Reservado indica que ya hay un acuerdo; entregado cierra el intercambio y suma a tu impacto.",
+    req_handover: "Punto propuesto",
+    request_point: "Punto de encuentro",
+    request_point_hint: "Elige un sitio público y concurrido; podéis ajustarlo al aceptar.",
+    req_rated: "Valorado con {n}/5",
+    my_impact_error: "No se pudo cargar tu impacto.",
+    searching: "Buscando…",
+    cold_title: "El servidor se está despertando",
+    cold_body: "El plan gratuito se suspende por inactividad: la primera petición puede tardar unos segundos.",
+    cold_offline: "No hay conexión con el servidor. Vuelve a intentarlo en unos segundos.",
+    load_more: "Cargar más objetos",
+    results_partial: "{shown} de {total} objetos encontrados",
+    report_open: "Reportar publicación",
+    report_title: "Reportar esta publicación",
+    report_privacy: "El reporte queda guardado con tu cuenta para revisión. No se avisa a la otra persona.",
+    report_reason: "Motivo",
+    report_reason_spam: "Spam o publicidad",
+    report_reason_inapropiado: "Contenido inapropiado",
+    report_reason_estafa: "Posible estafa",
+    report_reason_duplicado: "Publicación duplicada",
+    report_reason_otro: "Otro motivo",
+    report_comment: "Comentario (opcional)",
+    report_comment_ph: "Cuéntanos qué ocurre; ayuda a revisarlo antes.",
+    report_note: "Tres reportes de cuentas distintas retiran la publicación del catálogo hasta su revisión.",
+    report_send: "Enviar reporte",
+    report_sent: "Reporte enviado. Gracias por cuidar el tablón.",
+    report_sent_hidden: "Reporte enviado. La publicación se ha retirado hasta revisión.",
+    report_already: "Ya has reportado esta publicación.",
+    status_review: "En revisión",
+    review_note: "Retirada del catálogo tras {n} reportes. Revísala o elimínala.",
+    toast_rate_limited: "Demasiados intentos seguidos. Espera un momento y vuelve a probar.",
+    toast_not_found: "Esta publicación ya no está disponible.",
+    profile_edit: "Editar perfil",
+    profile_title: "Editar perfil",
+    profile_email_note: "Puedes cambiar tu nombre y tu campus. El email no se edita: cambiarlo exige verificarlo antes.",
+    profile_name: "Nombre visible",
+    profile_campus: "Campus",
+    profile_campus_hint: "Se usa para filtrar y para proponer puntos de entrega.",
+    profile_save: "Guardar cambios",
+    profile_saved: "Perfil actualizado.",
+    menu_password: "Cambiar contraseña",
+    password_title: "Cambiar contraseña",
+    password_lead: "Al cambiarla se cerrarán las demás sesiones abiertas con la contraseña anterior; esta seguirá activa.",
+    password_current: "Contraseña actual",
+    password_new: "Contraseña nueva",
+    password_repeat: "Repite la contraseña nueva",
+    password_save: "Guardar contraseña",
+    password_changed: "Contraseña actualizada. Las demás sesiones se han cerrado.",
+    password_mismatch: "Las dos contraseñas nuevas no coinciden.",
+    password_hint: "Mínimo 8 caracteres y que no sea una contraseña común.",
+    password_weak: "Esa contraseña es demasiado común. Prueba con una frase larga.",
+    password_bad_current: "La contraseña actual no es correcta.",
+    password_same: "La contraseña nueva debe ser distinta de la actual.",
     lang_name: "Español",
   },
   en: {
@@ -185,13 +331,13 @@ const I18N = {
     how_3_t: "3. Meet in public", how_3_b: "Choose a safe public place and mark the item as handed over when you are done.",
     trust_title: "Built with clear choices", trust_1: "Explicit consent, legal notice, privacy policy and terms in three languages.",
     trust_2: "Account export and deletion in My area; no analytics, third-party cookies or trackers.",
-    trust_3: "Local images, no payment gateway, no fees, no held funds and no impact metrics.",
+    trust_3: "Local images, no payment gateway, no fees or held funds. Impact figures are transparent estimates by category.",
     login: "Log in", register: "Create account", logout: "Log out", my_area: "My area",
     my_items: "My items", my_requests: "My requests", received: "Received requests", favorites: "Favorites",
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Circular Campus does not handle payments.",
     f_title: "Title", f_desc: "Description", f_category: "Category", f_condition: "Condition", f_type: "Exchange type",
     f_campus: "Campus", f_handover: "Handover point", f_price: "Indicative price (€)", f_price_hint: "No payment happens here. Settle any amount directly, outside the platform.",
-    f_image: "Item photo", f_image_hint: "Upload a real image. External URLs are not allowed; avoid visible personal data.",
+    f_image: "Item photo", f_image_hint: "Upload a real image. It is resized to 1200 px, converted to WebP and stripped of EXIF metadata (including location).",
     upload: "Upload image", f_private: "I confirm I am listing as a private individual", f_private_hint: "Professional sellers and regular commercial activity are not allowed.",
     desc_hint: "Describe marks, defects and what is included. Do not add phone numbers, addresses or contact details.",
     publish_btn: "List item", cancel: "Cancel", payment_notice_title: "Payment outside Circular Campus",
@@ -273,6 +419,152 @@ const I18N = {
     legal_title: "Legal notice", legal_lead: "General information about Circular Campus, its independent nature and the use of this site.",
     privacy_title: "Privacy & data policy", privacy_lead: "Layered notice: here you have both the summary and the detail of personal-data processing.",
     terms_title: "Terms of use", terms_lead: "Rules for taking part as a private individual in a reuse prototype with no platform-managed payments.",
+    hero_chip_1: "No payments or fees", hero_chip_2: "Minimal data", hero_chip_3: "Independent project",
+    type_badge_regalar: "Give away", type_badge_prestar: "Lend", type_badge_intercambiar: "Exchange", type_badge_vender: "Sell",
+    nav_my: "My area", nav_points_short: "Points", nav_rules_short: "Rules",
+    filters_btn: "Filters", filters_title: "Filters & sorting", filters_subtitle: "Adjust campus, condition, type and result order.",
+    filters_apply: "Show results", filters_clear: "Clear all", sort_by: "Sort by",
+    loading_items: "Loading items…", retry: "Try again", catalog_eyebrow: "Catalogue",
+    results_found: "items found", results_one: "item found",
+    empty_catalog_t: "No items listed yet", empty_catalog_b: "Be the first to give a second life to something you no longer use.",
+    empty_filter_t: "Nothing matches", empty_filter_b: "Try removing a filter or searching with different words.",
+    empty_fav_t: "Nothing saved yet", empty_fav_b: "Tap the heart on an item to save it and find it here.",
+    empty_my_items_t: "You haven't listed anything yet", empty_my_items_b: "List your first item: a real photo and an honest condition are enough.",
+    empty_req_t: "No sent requests", empty_req_b: "When you request an item, its status will appear here.",
+    empty_recv_t: "No received requests", empty_recv_b: "When someone is interested in your items, it will show up in this list.",
+    publish_first: "List the first one", browse_catalog: "Browse the catalogue", close_toast: "Dismiss notification",
+    detail_description: "Description", detail_handover_h: "Handover & safety", detail_payment_h: "Payment outside the platform",
+    detail_unavailable: "This item is no longer available.", detail_manage: "Manage in My area", status_change: "Change status",
+    confirm_delete_t: "Delete this item?", confirm_delete_b: "The listing and its related data will be deleted. This cannot be undone.",
+    confirm_delete_btn: "Yes, delete",
+    photo_drop_t: "Tap to choose a photo", photo_drop_b: "JPG, PNG or WebP · 5 MB max · optimised on upload",
+    photo_remove: "Remove photo", photo_upload: "Upload photo", photo_uploading: "Uploading photo…",
+    photo_ready: "Photo uploaded and ready", photo_change: "Change photo",
+    form_sec_1: "The essentials", form_sec_2: "Exchange details", form_sec_3: "Photo & publishing",
+    publishing: "Publishing…", sending: "Sending…", saving: "Saving…",
+    title_ph: "E.g. LED desk lamp",
+    my_area_subtitle: "Your listings, requests and data.",
+    faculty: "Faculty",
+    fac_none: "Not specified",
+    fac_ingenieria: "Engineering",
+    fac_ciencias: "Sciences",
+    fac_salud: "Health",
+    fac_sociales: "Social sciences",
+    fac_humanidades: "Humanities",
+    fac_artes: "Arts",
+    f_faculty: "Faculty (optional)",
+    hand_conserjeria: "Reception desk",
+    points_conserjeria_t: "Reception desk",
+    points_conserjeria_b: "Information desk at the entrance, staffed and with foot traffic.",
+    impact_title: "Community impact",
+    impact_lead: "Estimate based on the items that have already changed hands.",
+    impact_reused: "items reused",
+    impact_kg: "kg of waste avoided (est.)",
+    impact_savings: "estimated savings",
+    impact_note: "Indicative figures by category: not a measurement or an audit.",
+    impact_my_title: "Your impact",
+    impact_item: "Reusing it avoids about {kg} kg of waste and {eur} € of spending (estimate).",
+    estimate_word: "estimate",
+    trust_panel_title: "Trust and track record",
+    verified_badge: "Verified student",
+    rating_aria: "Rating: {n} out of 5 ({c} reviews)",
+    rating_none: "No ratings yet",
+    rating_none_short: "no ratings",
+    ratings_received: "Reviews received",
+    ratings_none: "This profile has no reviews yet.",
+    exchanges_completed: "Completed exchanges",
+    given_label: "Given",
+    received_label: "Received",
+    level_label: "Level",
+    level_semilla: "Seed",
+    level_brote: "Sprout",
+    level_arbol: "Tree",
+    level_bosque: "Forest",
+    level_next: "Next:",
+    level_max: "Top level reached",
+    exchanges_short: "exchanges",
+    badges_title: "Badges",
+    badge_verified: "Verified student",
+    badge_first_delivery: "First handover",
+    badge_five_exchanges: "Five exchanges",
+    badge_ten_kg: "10 kg avoided",
+    badge_rated: "Reviewed profile",
+    badge_earned: "earned",
+    badge_locked: "locked",
+    rate_title: "Rate the exchange",
+    rate_lead: "Your rating helps other people decide who to exchange with.",
+    rate_score_legend: "Your rating",
+    rate_comment: "Comment (optional)",
+    rate_comment_ph: "How was the handover? No personal data.",
+    rate_submit: "Send rating",
+    rate_later: "Not now",
+    rate_cta: "Rate",
+    rate_yours: "Your rating",
+    rate_note: "Reviews are public and cannot be edited once sent.",
+    rate_item_label: "Item",
+    toast_rated: "Thanks for rating",
+    form_quick: "The essentials",
+    form_quick_hint: "Photo, title, category and type. Publishing takes under a minute.",
+    form_optional: "Optional details",
+    form_optional_hint: "Description, condition, campus and handover point. You can publish without filling them in.",
+    f_desc_optional: "Description (optional)",
+    detail_no_desc: "No further description.",
+    image_required_hint: "Required: this is the photo the receiver will see.",
+    toast_image_required: "Add a photo to publish.",
+    required_word: "required",
+    status_help: "Reserved means a deal is in place; delivered closes the exchange and adds to your impact.",
+    req_handover: "Proposed point",
+    request_point: "Handover point",
+    request_point_hint: "Choose a public, busy place; you can adjust it when accepting.",
+    req_rated: "Rated {n}/5",
+    my_impact_error: "Could not load your impact.",
+    searching: "Searching…",
+    cold_title: "The server is waking up",
+    cold_body: "The free plan sleeps when idle: the first request may take a few seconds.",
+    cold_offline: "No connection to the server. Try again in a few seconds.",
+    load_more: "Load more items",
+    results_partial: "{shown} of {total} items found",
+    report_open: "Report this listing",
+    report_title: "Report this listing",
+    report_privacy: "The report is stored with your account for review. The other person is not notified.",
+    report_reason: "Reason",
+    report_reason_spam: "Spam or advertising",
+    report_reason_inapropiado: "Inappropriate content",
+    report_reason_estafa: "Possible scam",
+    report_reason_duplicado: "Duplicate listing",
+    report_reason_otro: "Other reason",
+    report_comment: "Comment (optional)",
+    report_comment_ph: "Tell us what is wrong; it helps us review it faster.",
+    report_note: "Three reports from different accounts remove the listing from the catalogue until review.",
+    report_send: "Send report",
+    report_sent: "Report sent. Thanks for looking after the board.",
+    report_sent_hidden: "Report sent. The listing has been removed until review.",
+    report_already: "You already reported this listing.",
+    status_review: "Under review",
+    review_note: "Removed from the catalogue after {n} reports. Review it or delete it.",
+    toast_rate_limited: "Too many attempts in a row. Wait a moment and try again.",
+    toast_not_found: "This listing is no longer available.",
+    profile_edit: "Edit profile",
+    profile_title: "Edit profile",
+    profile_email_note: "You can change your name and campus. The email is not editable: changing it requires verification first.",
+    profile_name: "Display name",
+    profile_campus: "Campus",
+    profile_campus_hint: "Used for filters and to suggest handover points.",
+    profile_save: "Save changes",
+    profile_saved: "Profile updated.",
+    menu_password: "Change password",
+    password_title: "Change password",
+    password_lead: "Changing it closes the other sessions opened with the old password; this one stays active.",
+    password_current: "Current password",
+    password_new: "New password",
+    password_repeat: "Repeat the new password",
+    password_save: "Save password",
+    password_changed: "Password updated. The other sessions have been closed.",
+    password_mismatch: "The two new passwords do not match.",
+    password_hint: "At least 8 characters and not a common password.",
+    password_weak: "That password is too common. Try a longer phrase.",
+    password_bad_current: "The current password is not correct.",
+    password_same: "The new password must be different from the current one.",
     lang_name: "English",
   },
   gl: {
@@ -302,13 +594,13 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Escollede un lugar seguro e marcade como entregado ao rematar.",
     trust_title: "Deseñado con criterios claros", trust_1: "Consentimento explícito, aviso legal, privacidade e condicións en tres idiomas.",
     trust_2: "Exportación e supresión de conta na Miña área; sen analítica, cookies de terceiros nin rastrexadores.",
-    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións, sen fondos retidos e sen métricas de impacto.",
+    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións nin fondos retidos. As cifras de impacto son estimacións transparentes por categoría.",
     login: "Iniciar sesión", register: "Crear conta", logout: "Pechar sesión", my_area: "A miña área",
     my_items: "Os meus obxectos", my_requests: "As miñas solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Circular Campus non xestiona cobros.",
     f_title: "Título", f_desc: "Descrición", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Prezo orientativo (€)", f_price_hint: "Aquí non se cobra. O importe acórdase directamente e fóra da plataforma.",
-    f_image: "Foto do obxecto", f_image_hint: "Sube unha imaxe real. Non se permiten URL externas; evita datos persoais visibles.",
+    f_image: "Foto do obxecto", f_image_hint: "Sube unha imaxe real. Redimensiónase a 1200 px, convértese a WebP e elimínanse os metadatos EXIF (incluída a localización).",
     upload: "Subir imaxe", f_private: "Confirmo que publico como particular", f_private_hint: "Non se admiten vendedores profesionais nin actividade comercial habitual.",
     desc_hint: "Describe marcas, defectos e que inclúe. Non escribas teléfonos, enderezos nin datos de contacto.",
     publish_btn: "Publicar obxecto", cancel: "Cancelar", payment_notice_title: "Pago fóra de Circular Campus",
@@ -390,6 +682,152 @@ const I18N = {
     legal_title: "Aviso legal", legal_lead: "Información xeral sobre Circular Campus, a súa natureza independente e o uso deste sitio.",
     privacy_title: "Política de privacidade e datos", privacy_lead: "Aviso por capas: aquí tes o resumo e o detalle do tratamento de datos persoais.",
     terms_title: "Condicións de uso", terms_lead: "Regras para participar como particular nun prototipo de reutilización sen pagos xestionados pola plataforma.",
+    hero_chip_1: "Sen pagos nin comisións", hero_chip_2: "Datos mínimos", hero_chip_3: "Proxecto independente",
+    type_badge_regalar: "Regalar", type_badge_prestar: "Prestar", type_badge_intercambiar: "Intercambiar", type_badge_vender: "Vender",
+    nav_my: "A miña área", nav_points_short: "Puntos", nav_rules_short: "Normas",
+    filters_btn: "Filtros", filters_title: "Filtros e orde", filters_subtitle: "Axusta campus, estado, tipo e orde dos resultados.",
+    filters_apply: "Ver resultados", filters_clear: "Limpar todo", sort_by: "Ordenar por",
+    loading_items: "Cargando obxectos…", retry: "Reintentar", catalog_eyebrow: "Catálogo",
+    results_found: "obxectos atopados", results_one: "obxecto atopado",
+    empty_catalog_t: "Aínda non hai obxectos publicados", empty_catalog_b: "Sé a primeira persoa en darlle unha segunda vida a algo que xa non usas.",
+    empty_filter_t: "Ningún obxecto coincide", empty_filter_b: "Proba a quitar algún filtro ou a buscar con outras palabras.",
+    empty_fav_t: "Aínda non gardas nada", empty_fav_b: "Toca o corazón dun obxecto para gardalo e velo aquí.",
+    empty_my_items_t: "Aínda non publicaches nada", empty_my_items_b: "Publica o teu primeiro obxecto: cunha foto real e un estado honesto abonda.",
+    empty_req_t: "Sen solicitudes enviadas", empty_req_b: "Cando solicites un obxecto, verás aquí o seu estado.",
+    empty_recv_t: "Sen solicitudes recibidas", empty_recv_b: "Cando alguén se interese polos teus obxectos, aparecerá nesta lista.",
+    publish_first: "Publicar o primeiro", browse_catalog: "Explorar o catálogo", close_toast: "Pechar notificación",
+    detail_description: "Descrición", detail_handover_h: "Entrega e seguridade", detail_payment_h: "Pago fóra da plataforma",
+    detail_unavailable: "Este obxecto xa non está dispoñible.", detail_manage: "Xestionar na Miña área", status_change: "Cambiar estado",
+    confirm_delete_t: "Eliminar este obxecto?", confirm_delete_b: "Borrarase a publicación e os seus datos asociados. Esta acción non se pode desfacer.",
+    confirm_delete_btn: "Si, eliminar",
+    photo_drop_t: "Toca para escoller unha foto", photo_drop_b: "JPG, PNG ou WebP · máximo 5 MB · optimízase ao subir",
+    photo_remove: "Quitar foto", photo_upload: "Subir foto", photo_uploading: "Subindo foto…",
+    photo_ready: "Foto subida e lista", photo_change: "Cambiar foto",
+    form_sec_1: "O esencial", form_sec_2: "Detalles do intercambio", form_sec_3: "Foto e publicación",
+    publishing: "Publicando…", sending: "Enviando…", saving: "Gardando…",
+    title_ph: "Ex.: Lámpara de escritorio LED",
+    my_area_subtitle: "As túas publicacións, solicitudes e datos.",
+    faculty: "Facultade",
+    fac_none: "Sen especificar",
+    fac_ingenieria: "Enxeñaría",
+    fac_ciencias: "Ciencias",
+    fac_salud: "Saúde",
+    fac_sociales: "Ciencias sociais",
+    fac_humanidades: "Humanidades",
+    fac_artes: "Artes",
+    f_faculty: "Facultade (opcional)",
+    hand_conserjeria: "Conserxería",
+    points_conserjeria_t: "Conserxería",
+    points_conserjeria_b: "Punto de información á entrada, con persoal e zona de paso.",
+    impact_title: "Impacto da comunidade",
+    impact_lead: "Estimación a partir dos obxectos que xa cambiaron de mans.",
+    impact_reused: "obxectos reutilizados",
+    impact_kg: "kg de residuos evitados (est.)",
+    impact_savings: "€ de aforro estimado",
+    impact_note: "Cifras orientativas por categoría: non son unha medición nin unha auditoría.",
+    impact_my_title: "O teu impacto",
+    impact_item: "Reutilizalo evita uns {kg} kg de residuos e {eur} € de gasto (estimación).",
+    estimate_word: "estimación",
+    trust_panel_title: "Confianza e traxectoria",
+    verified_badge: "Estudante verificado",
+    rating_aria: "Valoración: {n} de 5 ({c} valoracións)",
+    rating_none: "Sen valoracións aínda",
+    rating_none_short: "sen valoracións",
+    ratings_received: "Valoracións recibidas",
+    ratings_none: "Aínda non hai valoracións deste perfil.",
+    exchanges_completed: "Intercambios completados",
+    given_label: "Entregados",
+    received_label: "Recibidos",
+    level_label: "Nivel",
+    level_semilla: "Semente",
+    level_brote: "Brote",
+    level_arbol: "Árbore",
+    level_bosque: "Bosque",
+    level_next: "Seguinte:",
+    level_max: "Nivel máximo acadado",
+    exchanges_short: "intercambios",
+    badges_title: "Insignias",
+    badge_verified: "Estudante verificado",
+    badge_first_delivery: "Primeira entrega",
+    badge_five_exchanges: "Cinco intercambios",
+    badge_ten_kg: "10 kg evitados",
+    badge_rated: "Perfil valorado",
+    badge_earned: "acadada",
+    badge_locked: "pendente",
+    rate_title: "Valora o intercambio",
+    rate_lead: "A túa valoración axuda a outras persoas a decidir con quen intercambiar.",
+    rate_score_legend: "A túa valoración",
+    rate_comment: "Comentario (opcional)",
+    rate_comment_ph: "Como foi a entrega? Sen datos persoais.",
+    rate_submit: "Enviar valoración",
+    rate_later: "Agora non",
+    rate_cta: "Valorar",
+    rate_yours: "A túa valoración",
+    rate_note: "A valoración é pública e non se pode editar unha vez enviada.",
+    rate_item_label: "Obxecto",
+    toast_rated: "Grazas por valorar",
+    form_quick: "O esencial",
+    form_quick_hint: "Foto, título, categoría e tipo. Publicar leva menos dun minuto.",
+    form_optional: "Detalles opcionais",
+    form_optional_hint: "Descrición, estado, campus e punto de entrega. Podes publicar sen enchelos.",
+    f_desc_optional: "Descrición (opcional)",
+    detail_no_desc: "Sen descrición adicional.",
+    image_required_hint: "Obrigatoria: é a foto que verá quen reciba o obxecto.",
+    toast_image_required: "Engade unha foto para publicar.",
+    required_word: "obrigatorio",
+    status_help: "Reservado indica que xa hai un acordo; entregado pecha o intercambio e suma ao teu impacto.",
+    req_handover: "Punto proposto",
+    request_point: "Punto de encontro",
+    request_point_hint: "Escolle un sitio público e concorrido; podedes axustalo ao aceptar.",
+    req_rated: "Valorado con {n}/5",
+    my_impact_error: "Non se puido cargar o teu impacto.",
+    searching: "Buscando…",
+    cold_title: "O servidor está espertando",
+    cold_body: "O plan gratuíto suspéndese por inactividade: a primeira petición pode tardar uns segundos.",
+    cold_offline: "Non hai conexión co servidor. Téntao de novo nuns segundos.",
+    load_more: "Cargar máis obxectos",
+    results_partial: "{shown} de {total} obxectos atopados",
+    report_open: "Reportar a publicación",
+    report_title: "Reportar esta publicación",
+    report_privacy: "O reporte gárdase coa túa conta para revisión. Non se avisa á outra persoa.",
+    report_reason: "Motivo",
+    report_reason_spam: "Spam ou publicidade",
+    report_reason_inapropiado: "Contido inapropiado",
+    report_reason_estafa: "Posible estafa",
+    report_reason_duplicado: "Publicación duplicada",
+    report_reason_otro: "Outro motivo",
+    report_comment: "Comentario (opcional)",
+    report_comment_ph: "Cóntanos que ocorre; axuda a revisalo antes.",
+    report_note: "Tres reportes de contas distintas retiran a publicación do catálogo ata a súa revisión.",
+    report_send: "Enviar reporte",
+    report_sent: "Reporte enviado. Grazas por coidar o taboleiro.",
+    report_sent_hidden: "Reporte enviado. A publicación retirouse ata a revisión.",
+    report_already: "Xa reportaches esta publicación.",
+    status_review: "En revisión",
+    review_note: "Retirada do catálogo tras {n} reportes. Revísaa ou elimínaa.",
+    toast_rate_limited: "Demasiados intentos seguidos. Espera un intre e téntao de novo.",
+    toast_not_found: "Esta publicación xa non está dispoñible.",
+    profile_edit: "Editar perfil",
+    profile_title: "Editar perfil",
+    profile_email_note: "Podes cambiar o teu nome e o teu campus. O email non se edita: cambialo esixe verificalo antes.",
+    profile_name: "Nome visible",
+    profile_campus: "Campus",
+    profile_campus_hint: "Úsase para filtrar e para propoñer puntos de entrega.",
+    profile_save: "Gardar cambios",
+    profile_saved: "Perfil actualizado.",
+    menu_password: "Cambiar contrasinal",
+    password_title: "Cambiar contrasinal",
+    password_lead: "Ao cambialo pecharanse as demais sesións abertas co contrasinal anterior; esta seguirá activa.",
+    password_current: "Contrasinal actual",
+    password_new: "Contrasinal novo",
+    password_repeat: "Repite o contrasinal novo",
+    password_save: "Gardar contrasinal",
+    password_changed: "Contrasinal actualizado. As demais sesións pecháronse.",
+    password_mismatch: "Os dous contrasinais novos non coinciden.",
+    password_hint: "Mínimo 8 caracteres e que non sexa un contrasinal común.",
+    password_weak: "Ese contrasinal é demasiado común. Proba cunha frase longa.",
+    password_bad_current: "O contrasinal actual non é correcto.",
+    password_same: "O contrasinal novo debe ser distinto do actual.",
     lang_name: "Galego",
   }
 };
@@ -416,7 +854,8 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["El servicio está pensado para personas adultas. No se recoge fecha de nacimiento y no se admite el registro de menores de 14 años. Si eres menor de edad, no publiques datos personales ni quedes sin acompañamiento."] },
       { h: "10. Cookies, analítica y recursos de terceros", p: ["No se usan cookies de sesión, cookies publicitarias, analítica, píxeles ni rastreadores. El idioma y el token se guardan en el almacenamiento local del navegador; puedes borrarlos desde su configuración.", "Las imágenes de ejemplo y de categoría se sirven desde este mismo dominio. Para privacidad, no se aceptan URL de imágenes externas en las publicaciones."] },
       { h: "11. Fotografías", p: ["Las fotos de objetos que subas pueden contener datos personales si muestras cartas, pantallas, etiquetas o documentos: revísalas antes de publicar.", "La fotografía de grupo de la página del proyecto forma parte de los materiales del proyecto. Las imágenes de personas son datos personales; si apareces en ella y deseas que se retire, escribe a {contact}."] },
-      { h: "12. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
+      { h: "12. Valoraciones e impacto", p: ["Tras una entrega completada, ambas partes pueden puntuar de 1 a 5 y dejar un comentario opcional. Se guardan la puntuación, el comentario, la fecha y el vínculo con el intercambio; la media aparece en el perfil público junto al nombre visible de quien valora.", "Las cifras de impacto (objetos reutilizados, kilos evitados y ahorro estimado) se calculan en el servidor a partir de estimaciones por categoría. No proceden de mediciones ni de terceros y no se usan para publicidad ni para decisiones automatizadas."] },
+      { h: "13. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
     ],
     terms: [
       { h: "1. Qué es el servicio", p: ["Circular Campus es un prototipo independiente para que personas particulares publiquen, busquen y soliciten objetos de segunda vida: regalar, prestar, intercambiar o indicar un precio orientativo.", "No es una tienda, un marketplace profesional, un servicio de mensajería, una entidad de pago ni un servicio oficial de ninguna institución."] },
@@ -428,7 +867,8 @@ const LEGAL_DOCS = {
       { h: "7. Usos prohibidos", p: ["Prohibido publicar datos de contacto en abierto, suplantar identidades, acosar, estafar, vender como profesional, eludir la validación de imágenes, introducir URL externas o intentar usar la plataforma como monedero, escrow o sistema de comisiones.", "Prohibido subir contenido ilegal, peligroso, discriminatorio o que vulnere derechos de terceros."] },
       { h: "8. Responsabilidad", p: ["Circular Campus ofrece una herramienta técnica de publicación y solicitud, pero no verifica objetos, no participa en los acuerdos y no responde por su cumplimiento, estado, precio, pago, devolución o daños.", "El prototipo puede tener errores, reiniciarse o perder datos en un alojamiento gratuito efímero. No lo uses como único repositorio de información importante."] },
       { h: "9. Datos y supresión", p: ["El tratamiento de datos se describe en {privacyLink}. Puedes descargar una copia y eliminar la cuenta desde Mi área, o escribir a {contact}.", "La supresión elimina perfil, sesiones, publicaciones, favoritos y solicitudes propias; no crea una copia de respaldo."] },
-      { h: "10. Cambios y ley aplicable", p: ["Podemos actualizar estas condiciones para reflejar cambios técnicos o legales; la versión vigente es {version}, de {updated}.", "Estas condiciones se interpretan conforme a la normativa española y europea aplicable, en particular RGPD, LOPDGDD y LSSI cuando corresponda. No constituyen asesoramiento jurídico, fiscal o de consumo."] },
+      { h: "11. Valoraciones e impacto", p: ["Solo se puede valorar un intercambio cuando la entrega figura como completada. Las valoraciones son públicas, no se editan y deben describir la entrega sin insultos, datos personales ni acusaciones no contrastadas.", "Las cifras de impacto son orientativas y no constituyen una certificación ambiental ni económica."] },
+      { h: "11. Cambios y ley aplicable", p: ["Podemos actualizar estas condiciones para reflejar cambios técnicos o legales; la versión vigente es {version}, de {updated}.", "Estas condiciones se interpretan conforme a la normativa española y europea aplicable, en particular RGPD, LOPDGDD y LSSI cuando corresponda. No constituyen asesoramiento jurídico, fiscal o de consumo."] },
     ],
   },
   en: {
@@ -451,7 +891,8 @@ const LEGAL_DOCS = {
       { h: "9. Minors", p: ["The service is intended for adults. No date of birth is collected and registration by children under 14 is not accepted. Minors should not post personal data or attend handovers unaccompanied."] },
       { h: "10. Cookies, analytics and third-party resources", p: ["No session cookies, advertising cookies, analytics, pixels or trackers are used. Language and token are stored in browser local storage and can be cleared in browser settings.", "Sample and category images are served from this same domain. For privacy, external image URLs are not accepted in listings."] },
       { h: "11. Photographs", p: ["Photos you upload may contain personal data if they show letters, screens, labels or documents: check them before publishing.", "The group photo on the project page is part of the project materials. Images of people are personal data; if you appear in it and want it removed, write to {contact}."] },
-      { h: "12. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
+      { h: "12. Ratings and impact", p: ["After a completed handover, both parties may rate from 1 to 5 and leave an optional comment. The score, comment, date and link to the exchange are stored; the average appears on the public profile next to the rater's display name.", "Impact figures (items reused, kilograms avoided and estimated savings) are calculated on the server from category estimates. They do not come from measurements or third parties and are not used for advertising or automated decisions."] },
+      { h: "13. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
     ],
     terms: [
       { h: "1. What the service is", p: ["Circular Campus is an independent prototype for private individuals to list, find and request second-life items: give away, lend, exchange or show an indicative price.", "It is not a shop, a professional marketplace, a courier service, a payment entity or an official service of any institution."] },
@@ -463,7 +904,8 @@ const LEGAL_DOCS = {
       { h: "7. Prohibited uses", p: ["Do not post open contact details, impersonate others, harass, defraud, sell professionally, bypass image validation, insert external URLs or try to use the platform as a wallet, escrow or commission system.", "Do not upload illegal, dangerous, discriminatory content or material that infringes third-party rights."] },
       { h: "8. Liability", p: ["Circular Campus provides a technical listing and request tool, but does not verify items, take part in agreements or answer for their performance, condition, price, payment, return or damages.", "The prototype may contain errors, restart or lose data on a free ephemeral host. Do not use it as the only repository for important information."] },
       { h: "9. Data and erasure", p: ["Data processing is described in {privacyLink}. You can download a copy and delete your account from My area, or write to {contact}.", "Erasure removes the profile, sessions, listings, favorites and own requests; it does not create a backup copy."] },
-      { h: "10. Changes and applicable law", p: ["These terms may be updated to reflect technical or legal changes; the current version is {version}, dated {updated}.", "They are interpreted under applicable Spanish and EU law, in particular GDPR, LOPDGDD and LSSI where relevant. They are not legal, tax or consumer advice."] },
+      { h: "11. Ratings and impact", p: ["An exchange can only be rated once the handover is marked as completed. Ratings are public, cannot be edited and must describe the handover without insults, personal data or unverified accusations.", "Impact figures are indicative and are not an environmental or economic certification."] },
+      { h: "11. Changes and applicable law", p: ["These terms may be updated to reflect technical or legal changes; the current version is {version}, dated {updated}.", "They are interpreted under applicable Spanish and EU law, in particular GDPR, LOPDGDD and LSSI where relevant. They are not legal, tax or consumer advice."] },
     ],
   },
   gl: {
@@ -486,7 +928,8 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["O servizo está pensado para persoas adultas. Non se recolle data de nacemento e non se admite o rexistro de menores de 14 anos. Se es menor, non publiques datos persoais nin quedes sen acompañamento."] },
       { h: "10. Cookies, analítica e recursos de terceiros", p: ["Non se usan cookies de sesión, cookies publicitarias, analítica, píxeles nin rastrexadores. O idioma e o token gárdanse no almacenamento local do navegador; podes borralos desde a súa configuración.", "As imaxes de exemplo e de categoría sírvense desde este mesmo dominio. Para privacidade, non se aceptan URL de imaxes externas nas publicacións."] },
       { h: "11. Fotografías", p: ["As fotos de obxectos que subas poden conter datos persoais se amosan cartas, pantallas, etiquetas ou documentos: revísaas antes de publicar.", "A fotografía de grupo da páxina do proxecto forma parte dos materiais do proxecto. As imaxes de persoas son datos persoais; se apareces nela e desexas que se retire, escribe a {contact}."] },
-      { h: "12. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
+      { h: "12. Valoracións e impacto", p: ["Tras unha entrega completada, ambas as partes poden puntuar de 1 a 5 e deixar un comentario opcional. Gárdanse a puntuación, o comentario, a data e o vínculo co intercambio; a media aparece no perfil público xunto ao nome visible de quen valora.", "As cifras de impacto (obxectos reutilizados, quilos evitados e aforro estimado) calcúlanse no servidor a partir de estimacións por categoría. Non proceden de medicións nin de terceiros e non se usan para publicidade nin para decisións automatizadas."] },
+      { h: "13. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
     ],
     terms: [
       { h: "1. Que é o servizo", p: ["Circular Campus é un prototipo independente para que persoas particulares publiquen, busquen e soliciten obxectos de segunda vida: regalar, prestar, intercambiar ou indicar un prezo orientativo.", "Non é unha tenda, un marketplace profesional, un servizo de mensaxaría, unha entidade de pago nin un servizo oficial de ningunha institución."] },
@@ -498,7 +941,8 @@ const LEGAL_DOCS = {
       { h: "7. Usos prohibidos", p: ["Prohíbese publicar datos de contacto en aberto, suplantar identidades, acosar, estafar, vender como profesional, eludir a validación de imaxes, introducir URL externas ou intentar usar a plataforma como moedeiro, escrow ou sistema de comisións.", "Prohíbese subir contido ilegal, perigoso, discriminatorio ou que vulnere dereitos de terceiros."] },
       { h: "8. Responsabilidade", p: ["Circular Campus ofrece unha ferramenta técnica de publicación e solicitude, pero non verifica obxectos, non participa nos acordos e non responde polo seu cumprimento, estado, prezo, pago, devolución ou danos.", "O prototipo pode ter erros, reiniciarse ou perder datos nun aloxamento gratuíto efémero. Non o uses como único repositorio de información importante."] },
       { h: "9. Datos e supresión", p: ["O tratamento de datos descríbese en {privacyLink}. Podes descargar unha copia e eliminar a conta na Miña área, ou escribir a {contact}.", "A supresión elimina perfil, sesións, publicacións, favoritos e solicitudes propias; non crea unha copia de respaldo."] },
-      { h: "10. Cambios e lei aplicable", p: ["Podemos actualizar estas condicións para reflectir cambios técnicos ou legais; a versión vixente é {version}, de {updated}.", "Estas condicións interprétanse conforme á normativa española e europea aplicable, en particular RGPD, LOPDGDD e LSSI cando corresponda. Non constitúen asesoramento xurídico, fiscal ou de consumo."] },
+      { h: "11. Valoracións e impacto", p: ["Só se pode valorar un intercambio cando a entrega figura como completada. As valoracións son públicas, non se editan e deben describir a entrega sen insultos, datos persoais nin acusacións non contrastadas.", "As cifras de impacto son orientativas e non constitúen unha certificación ambiental nin económica."] },
+      { h: "11. Cambios e lei aplicable", p: ["Podemos actualizar estas condicións para reflectir cambios técnicos ou legais; a versión vixente é {version}, de {updated}.", "Estas condicións interprétanse conforme á normativa española e europea aplicable, en particular RGPD, LOPDGDD e LSSI cando corresponda. Non constitúen asesoramento xurídico, fiscal ou de consumo."] },
     ],
   }
 };
@@ -507,7 +951,8 @@ const CATEGORIES = ["libros", "ropa", "muebles", "estudio", "electronica", "coci
 const CONDITIONS = ["nuevo", "como_nuevo", "bueno", "usable"];
 const TYPES = ["regalar", "prestar", "intercambiar", "vender"];
 const CAMPUSES = ["vigo", "pontevedra", "ourense"];
-const HANDOVERS = ["biblioteca", "entrada", "cafeteria", "punto", "acordado"];
+const HANDOVERS = ["biblioteca", "conserjeria", "cafeteria", "entrada", "punto", "acordado"];
+const FACULTIES = ["ingenieria", "ciencias", "salud", "sociales", "humanidades", "artes"];
 
 const initialLang = ["es", "en", "gl"].includes(localStorage.getItem("cc_lang"))
   ? localStorage.getItem("cc_lang") : "es";
@@ -517,7 +962,7 @@ const state = {
   token: localStorage.getItem("cc_token") || null,
   view: BOOT.view || PATH_VIEWS[location.pathname] || "home",
   myTab: "items",
-  filters: { q: "", category: "", campus: "", condition: "", type: "", sort: "recent" },
+  filters: { q: "", category: "", campus: "", condition: "", type: "", faculty: "", sort: "recent" },
   items: [],
   stats: null,
   pendingConsent: false,
@@ -527,12 +972,63 @@ const t = (k) => (I18N[state.lang] && I18N[state.lang][k]) || I18N.es[k] || k;
 const catLabel = (c) => t("cat_" + c);
 const condLabel = (c) => t("cond_" + c);
 const typeLabel = (c) => t("type_" + c);
+const typeBadge = (c) => t("type_badge_" + c);
 const campusLabel = (c) => t("campus_" + c);
 const handLabel = (c) => t("hand_" + c);
+const facLabel = (c) => t("fac_" + c);
+const levelLabel = (k) => t("level_" + k);
 const statusLabel = (s) => t("status_" + s);
 const reqLabel = (s) => t("req_" + s);
 const categoryImage = (c) => `/static/img/items/${CATEGORIES.includes(c) ? c : "placeholder"}.jpg`;
 const itemImage = (it) => it.image_url || categoryImage(it.category);
+
+/* Manifiesto de variantes generado por tools/optimize_images.py. Se inyecta en
+   el boot para no añadir peticiones: { "<url>": { webp, src, width, height } }. */
+const IMG_MANIFEST = BOOT.imgManifest || {};
+
+/* <picture> con WebP y srcset cuando el asset tiene variantes; si no, <img> de
+   siempre. `sizes` debe reflejar el ancho real de pintado. */
+function responsiveImage(src, opts = {}) {
+  const {
+    alt = "", sizes = "(max-width: 720px) 92vw, 300px", cls = "",
+    lazy = true, priority = false, fallback = "", category = "",
+  } = opts;
+  const attrs = [];
+  if (cls) attrs.push(`class="${esc(cls)}"`);
+  attrs.push(`alt="${esc(alt)}"`);
+  if (lazy) attrs.push('loading="lazy"');
+  attrs.push('decoding="async"');
+  if (priority) attrs.push('fetchpriority="high"');
+  let extra = " data-fallback";
+  if (fallback) extra += ` data-fallback-src="${esc(fallback)}"`;
+  if (category) extra += ` data-category="${esc(category)}"`;
+  const variants = IMG_MANIFEST[src];
+  if (!variants || !variants.webp) {
+    return `<img src="${esc(src)}" ${attrs.join(" ")}${extra}>`;
+  }
+  const dims = variants.width && variants.height
+    ? `width="${variants.width}" height="${variants.height}" ` : "";
+  const source = `<source type="image/webp" srcset="${esc(variants.webp)}" sizes="${esc(sizes)}">`;
+  return `<picture>${source}<img src="${esc(variants.src || src)}" ${dims}${attrs.join(" ")}${extra}></picture>`;
+}
+const POINT_ICONS = { biblioteca: "inbox", conserjeria: "info", cafeteria: "clock", entrada: "pin", punto: "tag", acordado: "shield" };
+const MY_TABS = [
+  { id: "items", label: "my_items" },
+  { id: "requests", label: "my_requests" },
+  { id: "received", label: "received" },
+  { id: "favorites", label: "favorites" }
+];
+const TOAST_ICONS = { success: "check-circle", error: "alert", info: "info" };
+const TOAST_DURATION = 4600;
+const PAGE_SIZE = Number(BOOT.pageSize) || 24;
+const REPORT_REASONS = ["spam", "inapropiado", "estafa", "duplicado", "otro"];
+const COLD_START_MS = 2500;
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+
+/* ---------------- Iconos y utilidades ---------------- */
+function icon(name, extra = "") {
+  return `<svg class="icon${extra ? " " + extra : ""}" aria-hidden="true" focusable="false"><use href="#i-${name}"></use></svg>`;
+}
 
 function legalText(s = "") {
   let out = esc(s);
@@ -552,18 +1048,80 @@ function legalText(s = "") {
   return out;
 }
 
+function setBusy(btn, busy, label) {
+  if (!btn) return;
+  if (busy) {
+    if (!btn.dataset.idleLabel) btn.dataset.idleLabel = btn.innerHTML;
+    btn.classList.add("btn-loading");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner" aria-hidden="true"></span><span>${esc(label || t("saving"))}</span>`;
+  } else {
+    btn.classList.remove("btn-loading");
+    btn.disabled = false;
+    if (btn.dataset.idleLabel) {
+      btn.innerHTML = btn.dataset.idleLabel;
+      delete btn.dataset.idleLabel;
+    }
+  }
+}
+
 /* ---------------- API y errores ---------------- */
+let coldSeq = 0;
+const slowRequests = new Set();
+
+function showColdStart() {
+  if ($("#slow-notice")) return;
+  const el = document.createElement("div");
+  el.id = "slow-notice";
+  el.className = "slow-notice";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<span class="spinner" aria-hidden="true"></span>
+    <div><strong>${esc(t("cold_title"))}</strong><span>${esc(t("cold_body"))}</span></div>`;
+  document.body.appendChild(el);
+}
+
+function hideColdStart() {
+  const el = $("#slow-notice");
+  if (el) el.remove();
+}
+
+function markSlow(id) {
+  slowRequests.add(id);
+  showColdStart();
+}
+
+function unmarkSlow(id) {
+  slowRequests.delete(id);
+  if (!slowRequests.size) hideColdStart();
+}
+
 async function api(path, opts = {}) {
   const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
   if (state.token) headers.Authorization = "Bearer " + state.token;
-  const res = await fetch(API + path, { ...opts, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err = new Error(data.message || data.error || "error");
-    err.data = data;
+  // Si Render está despertando el servicio, se avisa en lugar de dejar la
+  // pantalla congelada.
+  const id = ++coldSeq;
+  const timer = setTimeout(() => markSlow(id), COLD_START_MS);
+  try {
+    const res = await fetch(API + path, { ...opts, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.message || data.error || "error");
+      err.data = data;
+      throw err;
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof TypeError || (err && err.name === "TypeError")) {
+      const offline = new Error(t("cold_offline"));
+      offline.data = { error: "network_error" };
+      throw offline;
+    }
     throw err;
+  } finally {
+    clearTimeout(timer);
+    unmarkSlow(id);
   }
-  return data;
 }
 
 const ERROR_KEYS = {
@@ -572,8 +1130,14 @@ const ERROR_KEYS = {
   invalid_image_url: "toast_invalid_image",
   unauthorized: "toast_unauthorized",
   email_taken: "toast_email_taken",
+  already_reported: "report_already",
+  rate_limited: "toast_rate_limited",
+  not_found: "toast_not_found",
   invalid_credentials: "toast_invalid_credentials",
   invalid_password: "toast_invalid_password",
+  weak_password: "password_weak",
+  invalid_current_password: "password_bad_current",
+  same_password: "password_same",
 };
 function errorMessage(err) {
   const code = err && err.data && err.data.error;
@@ -581,14 +1145,83 @@ function errorMessage(err) {
   return (err && err.message) || t("toast_error");
 }
 
-function toast(msg, isError = false) {
+/* ---------------- Toasts ---------------- */
+function toast(message, type = "success") {
   const root = $("#toast-root");
-  if (!root) return;
+  if (!root || !message) return;
+  let kind = type === true ? "error" : type;
+  if (!TOAST_ICONS[kind]) kind = "success";
+  while (root.children.length >= 3) root.firstElementChild.remove();
   const el = document.createElement("div");
-  el.className = "toast" + (isError ? " error" : "");
-  el.textContent = msg;
+  el.className = `toast toast-${kind}`;
+  el.innerHTML = `<span class="toast-icon">${icon(TOAST_ICONS[kind])}</span>
+    <span class="toast-msg"></span>
+    <button type="button" class="toast-close" aria-label="${esc(t("close_toast"))}">${icon("close")}</button>
+    <span class="toast-progress" style="animation-duration:${TOAST_DURATION}ms" aria-hidden="true"></span>`;
+  el.querySelector(".toast-msg").textContent = message;
+  const dismiss = () => {
+    if (!el.isConnected || el.classList.contains("is-leaving")) return;
+    el.classList.add("is-leaving");
+    setTimeout(() => el.remove(), 220);
+  };
+  el.querySelector(".toast-close").onclick = dismiss;
   root.appendChild(el);
-  setTimeout(() => el.remove(), 4200);
+  const timer = setTimeout(dismiss, TOAST_DURATION);
+  el.addEventListener("mouseenter", () => clearTimeout(timer), { once: true });
+  return el;
+}
+
+/* ---------------- Estados vacíos / esqueletos ---------------- */
+function emptyState({ iconName = "leaf", title = "", text = "", actions = [] }) {
+  return `<div class="empty">
+    <span class="empty-icon" aria-hidden="true">${icon(iconName)}</span>
+    <h3>${esc(title)}</h3>
+    ${text ? `<p>${esc(text)}</p>` : ""}
+    ${actions.length ? `<div class="empty-actions">${actions.map(a =>
+      `<button type="button" class="btn ${a.variant || "btn-primary"}" data-empty="${esc(a.id)}">${a.icon ? icon(a.icon) : ""}${esc(a.label)}</button>`
+    ).join("")}</div>` : ""}
+  </div>`;
+}
+
+function bindEmptyActions(scope, handlers) {
+  $$("[data-empty]", scope).forEach(btn => {
+    const fn = handlers[btn.dataset.empty];
+    if (fn) btn.onclick = fn;
+  });
+}
+
+function skeletonCards(n = 6) {
+  return Array.from({ length: n }, () => `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="skeleton sk-media"></div>
+      <div class="sk-body">
+        <div class="skeleton sk-line w-90"></div>
+        <div class="skeleton sk-line w-45"></div>
+        <div class="sk-row"><div class="skeleton sk-pill"></div><div class="skeleton sk-pill short"></div></div>
+        <div class="skeleton sk-line w-70"></div>
+      </div>
+    </div>`).join("");
+}
+
+function skeletonRows(n = 3) {
+  return Array.from({ length: n }, () => `
+    <div class="skeleton-card sk-card-row" aria-hidden="true">
+      <div class="skeleton sk-thumb"></div>
+      <div class="sk-stack">
+        <div class="skeleton sk-line w-70"></div>
+        <div class="skeleton sk-line w-45"></div>
+        <div class="skeleton sk-line w-90"></div>
+      </div>
+    </div>`).join("");
+}
+
+function statSkeleton() {
+  return Array.from({ length: 4 }, () => `
+    <div class="stat-card" aria-hidden="true">
+      <div class="skeleton sk-stat-icon"></div>
+      <div class="sk-stat-body"><div class="skeleton sk-line sk-num"></div>
+      <div class="skeleton sk-line sk-stat-label"></div></div>
+    </div>`).join("");
 }
 
 /* ---------------- Enlaces y mejoras de DOM ---------------- */
@@ -602,21 +1235,42 @@ function bindImageFallbacks(root = document) {
     img.addEventListener("error", () => {
       if (img.dataset.fallbackApplied) return;
       img.dataset.fallbackApplied = "1";
+      // Dentro de <picture> el <source> tiene prioridad: hay que quitarlo o el
+      // navegador seguiría intentando la variante que acaba de fallar.
+      const picture = img.closest("picture");
+      if (picture) $$("source", picture).forEach(s => s.remove());
       img.src = img.dataset.fallbackSrc || categoryImage(img.dataset.category || "otros");
     });
   });
 }
 function bindViewButtons(root = document) {
-  $$("[data-view]", root).forEach(b => { b.onclick = () => openItem(Number(b.dataset.view)); });
+  $$("[data-view]", root).forEach(b => {
+    b.onclick = (e) => { e.stopPropagation(); openItem(Number(b.dataset.view)); };
+  });
 }
 function bindFavButtons(root = document) {
-  $$("[data-fav]", root).forEach(b => b.onclick = async () => {
-    if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
-    try {
-      const d = await api(`/api/items/${b.dataset.fav}/favorite`, { method: "POST" });
-      toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
-      render();
-    } catch (e) { toast(errorMessage(e), true); }
+  $$("[data-fav]", root).forEach(b => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
+      if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+      b.disabled = true;
+      try {
+        const d = await api(`/api/items/${b.dataset.fav}/favorite`, { method: "POST" });
+        toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
+        b.classList.toggle("active", d.is_favorite);
+        b.setAttribute("aria-pressed", String(d.is_favorite));
+        b.setAttribute("aria-label", d.is_favorite ? t("detail_faved") : t("detail_fav"));
+        b.disabled = false;
+        if (state.view === "my" && state.myTab === "favorites" && !d.is_favorite) {
+          const card = b.closest(".card");
+          if (card) card.remove();
+          if ($("#my-panel") && !$("#my-panel .card")) loadMyTab("favorites");
+        }
+      } catch (err) {
+        toast(errorMessage(err), "error");
+        b.disabled = false;
+      }
+    };
   });
 }
 function bindAccountTools(root = document) {
@@ -624,7 +1278,7 @@ function bindAccountTools(root = document) {
   $$('[data-action="delete"]', root).forEach(b => { b.onclick = openDeleteAccount; });
   $$('[data-action="login"]', root).forEach(b => { b.onclick = () => openAuth("login"); });
 }
-function enhance(root) {
+function enhance(root = document) {
   bindRouteLinks(root);
   bindImageFallbacks(root);
   bindViewButtons(root);
@@ -639,44 +1293,64 @@ function setApp(app, html) {
 }
 
 /* ---------------- Auth UI ---------------- */
+function closeUserMenu() {
+  const menu = $("#user-menu");
+  const chip = $("#user-chip");
+  if (menu && !menu.classList.contains("hidden")) {
+    menu.classList.add("hidden");
+    if (chip) chip.setAttribute("aria-expanded", "false");
+  }
+}
+
 function renderAuthArea() {
   const area = $("#auth-area");
+  if (!area) return;
+  if (state.token && !state.user) {
+    area.innerHTML = `<span class="skeleton sk-auth" aria-hidden="true"></span>`;
+    return;
+  }
   if (!state.user) {
     area.innerHTML = `
-      <button class="btn btn-ghost btn-sm" id="btn-login">${esc(t("login"))}</button>
-      <button class="btn btn-primary btn-sm" id="btn-register">${esc(t("register"))}</button>`;
+      <button type="button" class="btn btn-ghost btn-sm auth-login" id="btn-login" aria-label="${esc(t("login"))}">
+        ${icon("user", "icon-only")}<span class="label-lg">${esc(t("login"))}</span>
+      </button>
+      <button type="button" class="btn btn-primary btn-sm auth-register" id="btn-register">${esc(t("register"))}</button>`;
     $("#btn-login").onclick = () => openAuth("login");
     $("#btn-register").onclick = () => openAuth("register");
   } else {
-    const initials = esc(state.user.name.trim().charAt(0).toUpperCase());
+    const initials = esc((state.user.name || "?").trim().charAt(0).toUpperCase() || "?");
+    const firstName = esc((state.user.name || "").trim().split(/\s+/)[0] || t("my_area"));
     area.innerHTML = `
       <div class="dropdown">
-        <button class="user-chip" id="user-chip" aria-haspopup="true" aria-expanded="false">
-          <span class="avatar">${initials}</span><span>${esc(state.user.name)}</span>
+        <button type="button" class="user-chip" id="user-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
+          <span class="avatar" aria-hidden="true">${initials}</span>
+          <span class="user-name">${firstName}</span>
+          ${icon("chevron")}
         </button>
-        <div class="dropdown-menu hidden" id="user-menu">
-          <button id="menu-my">${esc(t("my_area"))}</button>
-          <button id="menu-publish">${esc(t("nav_publish"))}</button>
-          <button id="menu-privacy">${esc(t("footer_privacy"))}</button>
-          <button id="menu-logout">${esc(t("logout"))}</button>
+        <div class="dropdown-menu hidden" id="user-menu" role="menu" aria-labelledby="user-chip">
+          <button type="button" role="menuitem" id="menu-my">${icon("grid")}${esc(t("my_area"))}</button>
+          <button type="button" role="menuitem" id="menu-publish">${icon("plus")}${esc(t("nav_publish"))}</button>
+          <button type="button" role="menuitem" id="menu-password">${icon("shield")}${esc(t("menu_password"))}</button>
+          <button type="button" role="menuitem" id="menu-privacy">${icon("shield")}${esc(t("footer_privacy"))}</button>
+          <div class="menu-sep" role="separator"></div>
+          <button type="button" role="menuitem" id="menu-logout" class="danger">${icon("logout")}${esc(t("logout"))}</button>
         </div>
       </div>`;
-    $("#user-chip").onclick = (e) => {
-      e.stopPropagation();
-      const menu = $("#user-menu");
-      menu.classList.toggle("hidden");
-      $("#user-chip").setAttribute("aria-expanded", String(!menu.classList.contains("hidden")));
+    const chip = $("#user-chip");
+    const menu = $("#user-menu");
+    const setOpen = (open) => {
+      menu.classList.toggle("hidden", !open);
+      chip.setAttribute("aria-expanded", String(open));
     };
-    document.addEventListener("click", () => {
-      const m = $("#user-menu");
-      if (m) m.classList.add("hidden");
-      const chip = $("#user-chip");
-      if (chip) chip.setAttribute("aria-expanded", "false");
-    }, { once: true });
-    $("#menu-my").onclick = () => navigate("my");
-    $("#menu-publish").onclick = () => navigate("publish");
-    $("#menu-privacy").onclick = () => navigate("privacy");
-    $("#menu-logout").onclick = logout;
+    chip.onclick = (e) => {
+      e.stopPropagation();
+      setOpen(menu.classList.contains("hidden"));
+    };
+    $("#menu-my").onclick = () => { setOpen(false); navigate("my"); };
+    $("#menu-publish").onclick = () => { setOpen(false); navigate("publish"); };
+    $("#menu-password").onclick = () => { setOpen(false); openPasswordChange(); };
+    $("#menu-privacy").onclick = () => { setOpen(false); navigate("privacy"); };
+    $("#menu-logout").onclick = () => { setOpen(false); logout(); };
   }
 }
 
@@ -684,24 +1358,71 @@ async function logout() {
   try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {}
   state.token = null; state.user = null; state.pendingConsent = false;
   localStorage.removeItem("cc_token");
-  renderAuthArea(); toast(t("toast_logout")); navigate("home");
+  renderAuthArea();
+  toast(t("toast_logout"));
+  navigate("home");
+}
+
+/* ---------------- Modales ---------------- */
+let lastFocused = null;
+
+function trapFocus(e) {
+  if (e.key !== "Tab") return;
+  const modal = e.currentTarget;
+  const items = $$(FOCUSABLE, modal).filter(el => el.offsetParent !== null);
+  if (!items.length) { e.preventDefault(); modal.focus(); return; }
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || document.activeElement === modal)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 function openModal(html, opts = {}) {
   const dismissible = opts.dismissible !== false;
-  $("#modal-root").innerHTML = `<div class="modal-backdrop" id="backdrop"><div class="modal${opts.wide ? " modal-wide" : ""}" role="dialog" aria-modal="true">${html}</div></div>`;
+  lastFocused = document.activeElement;
+  const root = $("#modal-root");
+  const labelAttr = opts.labelledBy
+    ? `aria-labelledby="${esc(opts.labelledBy)}"`
+    : opts.label ? `aria-label="${esc(opts.label)}"` : "";
+  root.innerHTML = `<div class="modal-backdrop" id="backdrop">
+    <div class="modal${opts.wide ? " modal-wide" : ""}${opts.sheet ? " modal-sheet" : ""}" role="dialog" aria-modal="true" ${labelAttr} tabindex="-1">
+      <span class="sheet-handle" aria-hidden="true"></span>
+      ${html}
+    </div>
+  </div>`;
   const backdrop = $("#backdrop");
+  const modal = $(".modal", backdrop);
   if (dismissible) {
-    backdrop.addEventListener("click", (e) => { if (e.target.id === "backdrop") closeModal(); });
+    backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
   }
-  enhance(backdrop);
+  modal.addEventListener("keydown", trapFocus);
+  document.body.classList.add("is-locked");
+  enhance(modal);
+  const target = $("[data-autofocus]", modal) || modal;
+  requestAnimationFrame(() => {
+    try { target.focus({ preventScroll: true }); } catch (e) {}
+  });
+  return modal;
 }
+
 function closeModal() {
   if (state.pendingConsent) return;
-  $("#modal-root").innerHTML = "";
+  const root = $("#modal-root");
+  if (!root || !root.firstElementChild) return;
+  root.innerHTML = "";
+  document.body.classList.remove("is-locked");
+  if (lastFocused && lastFocused.isConnected) {
+    try { lastFocused.focus({ preventScroll: true }); } catch (e) {}
+  }
+  lastFocused = null;
 }
 function closeBtn() {
-  return state.pendingConsent ? "" : `<button class="close" data-close aria-label="${esc(t("close"))}">✕</button>`;
+  return state.pendingConsent ? "" : `<button type="button" class="close" data-close aria-label="${esc(t("close"))}">${icon("close")}</button>`;
 }
 window.closeModal = closeModal;
 
@@ -709,69 +1430,100 @@ function openAuth(mode = "login") {
   const isLogin = mode === "login";
   openModal(`
     ${closeBtn()}
-    <h2>${esc(isLogin ? t("auth_login_title") : t("auth_register_title"))}</h2>
-    <p class="muted">${esc(t("demo_hint"))}</p>
-    <form id="auth-form">
-      ${isLogin ? "" : `<div class="field"><label>${esc(t("auth_name"))}</label><input name="name" required minlength="2" maxlength="60" autocomplete="name"></div>`}
-      <div class="field"><label>${esc(t("auth_email"))}</label><input name="email" type="email" required autocomplete="email"><small>${esc(t("auth_email_hint"))}</small></div>
-      <div class="field"><label>${esc(t("auth_password"))}</label><input name="password" type="password" required minlength="8" autocomplete="${isLogin ? "current-password" : "new-password"}"><small>${esc(t("auth_password_hint"))}</small></div>
+    <div class="modal-head">
+      <h2 id="auth-title">${esc(isLogin ? t("auth_login_title") : t("auth_register_title"))}</h2>
+      <p>${esc(t("demo_hint"))}</p>
+    </div>
+    <form id="auth-form" aria-labelledby="auth-title">
+      ${isLogin ? "" : `<div class="field"><label for="auth-name">${esc(t("auth_name"))}</label><input id="auth-name" name="name" required minlength="2" maxlength="60" autocomplete="name"></div>`}
+      <div class="field">
+        <label for="auth-email">${esc(t("auth_email"))}</label>
+        <input id="auth-email" name="email" type="email" required autocomplete="email" ${isLogin ? "data-autofocus" : ""}>
+        <small>${esc(t("auth_email_hint"))}</small>
+      </div>
+      <div class="field">
+        <label for="auth-password">${esc(t("auth_password"))}</label>
+        <input id="auth-password" name="password" type="password" required minlength="8" autocomplete="${isLogin ? "current-password" : "new-password"}">
+        <small>${esc(t("auth_password_hint"))}</small>
+      </div>
       ${isLogin ? "" : `
-        <div class="field"><label>${esc(t("auth_campus"))}</label>
-          <select name="campus">${CAMPUSES.map(c => `<option value="${c}">${esc(campusLabel(c))}</option>`).join("")}</select></div>
+        <div class="field">
+          <label for="auth-campus">${esc(t("auth_campus"))}</label>
+          <select id="auth-campus" name="campus">${CAMPUSES.map(c => `<option value="${c}">${esc(campusLabel(c))}</option>`).join("")}</select>
+        </div>
         <div class="consent-box">
           <label class="check-row"><input type="checkbox" name="consent" required><span>${legalText(t("auth_consent"))}</span></label>
-          <p class="muted">${esc(t("auth_minimum"))}</p>
+          <p>${esc(t("auth_minimum"))}</p>
         </div>`}
-      <div style="margin-top:16px"><button class="btn btn-primary btn-block" type="submit">${esc(isLogin ? t("auth_btn_login") : t("auth_btn_register"))}</button></div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${esc(isLogin ? t("auth_btn_login") : t("auth_btn_register"))}</button>
     </form>
-    <p style="text-align:center;margin-top:12px">
+    <p class="muted small text-center mt-3">
       ${esc(isLogin ? t("auth_no_account") : t("auth_have_account"))}
-      <button class="btn btn-ghost btn-sm" id="switch-auth">${esc(isLogin ? t("register") : t("login"))}</button>
-    </p>`);
+      <button type="button" class="btn-link" id="switch-auth">${esc(isLogin ? t("register") : t("login"))}</button>
+    </p>`, { labelledBy: "auth-title" });
+
   $("#switch-auth").onclick = () => openAuth(isLogin ? "register" : "login");
   $("#auth-form").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    const form = e.target;
+    const submit = $("[data-submit]", form);
+    const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
     if (!isLogin) {
       payload.consent = fd.get("consent") === "on";
       payload.legal_version = CONFIG.legalVersion;
     }
+    setBusy(submit, true);
     try {
       const data = await api(isLogin ? "/api/auth/login" : "/api/auth/register", {
         method: "POST", body: JSON.stringify(payload)
       });
-      state.token = data.token; state.user = data.user;
+      state.token = data.token;
+      state.user = data.user;
       localStorage.setItem("cc_token", data.token);
-      closeModal(); renderAuthArea();
+      closeModal();
+      renderAuthArea();
       toast(isLogin ? t("toast_login") : t("toast_register"));
       render();
-    } catch (err) { toast(errorMessage(err), true); }
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
 function openConsentUpdate() {
   state.pendingConsent = true;
   openModal(`
-    <h2>${esc(t("consent_update_title"))}</h2>
-    <p>${legalText(t("consent_update_body"))}</p>
-    <form id="consent-update-form">
+    <div class="modal-head">
+      <h2 id="consent-title">${esc(t("consent_update_title"))}</h2>
+      <p>${legalText(t("consent_update_body"))}</p>
+    </div>
+    <form id="consent-update-form" aria-labelledby="consent-title">
       <div class="consent-box">
         <label class="check-row"><input type="checkbox" name="consent" required><span>${legalText(t("consent_update_check"))}</span></label>
       </div>
-      <button class="btn btn-primary btn-block" type="submit">${esc(t("consent_update_btn"))}</button>
-    </form>`, { dismissible: false });
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${esc(t("consent_update_btn"))}</button>
+    </form>`, { dismissible: false, labelledBy: "consent-title" });
   $("#consent-update-form").onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true);
     try {
       const data = await api("/api/account/consent", {
         method: "POST", body: JSON.stringify({ consent: fd.get("consent") === "on", legal_version: CONFIG.legalVersion })
       });
       state.user = data.user;
       state.pendingConsent = false;
-      closeModal(); renderAuthArea(); toast(t("toast_consent_updated")); render();
-    } catch (err) { toast(errorMessage(err), true); }
+      closeModal();
+      renderAuthArea();
+      toast(t("toast_consent_updated"));
+      render();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
@@ -780,27 +1532,37 @@ function navigate(view, opts = {}) {
   state.view = view;
   const path = ROUTE_PATHS[view] || "/";
   if (!opts.fromPopState && location.pathname !== path) {
-    history.pushState({ view }, "", path);
+    try { history.pushState({ view }, "", path); } catch (e) { location.hash = path; }
   }
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  closeUserMenu();
+  try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) {}
   render();
 }
 window.navigate = navigate;
 
 async function render() {
   const app = $("#app");
+  if (!app) return;
+  closeUserMenu();
   document.documentElement.lang = state.lang;
   document.title = `${t("title_" + state.view) || CONFIG.service} · ${CONFIG.service}`;
-  $$(".lang-switch button").forEach(b => b.classList.toggle("active", b.dataset.lang === state.lang));
+  $$(".lang-switch button").forEach(b => {
+    const active = b.dataset.lang === state.lang;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
   $$("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
-  $$("[data-nav]").forEach(b => {
-    b.onclick = (e) => { e.preventDefault(); navigate(b.dataset.nav); };
-    b.classList.toggle("active", b.dataset.nav === state.view);
+  $$("[data-nav]").forEach(el => {
+    el.onclick = (e) => { e.preventDefault(); navigate(el.dataset.nav); };
+    if (el.classList.contains("brand")) return;
+    const active = el.dataset.nav === state.view;
+    el.classList.toggle("active", active);
+    if (active) el.setAttribute("aria-current", "page");
+    else el.removeAttribute("aria-current");
   });
   $$("a[data-route]").forEach(a => a.classList.toggle("active", a.dataset.route === state.view));
   bindRouteLinks(document);
 
-  if (state.view === "home") return renderHome(app);
   if (state.view === "publish") return renderPublish(app);
   if (state.view === "points") return renderPoints(app);
   if (state.view === "rules") return renderRules(app);
@@ -812,10 +1574,19 @@ async function render() {
   return renderHome(app);
 }
 
-async function loadStats() {
-  try { state.stats = await api("/api/stats"); } catch (e) { state.stats = null; }
+/* ---------------- Datos ---------------- */
+let statsPromise = null;
+function fetchStats() {
+  if (!statsPromise) {
+    statsPromise = api("/api/stats")
+      .then(data => { state.stats = data; return data; })
+      .catch(() => null)
+      .finally(() => { statsPromise = null; });
+  }
+  return statsPromise;
 }
-async function loadItems() {
+
+function filterParams() {
   const f = state.filters;
   const params = new URLSearchParams();
   if (f.q) params.set("q", f.q);
@@ -823,272 +1594,938 @@ async function loadItems() {
   if (f.campus) params.set("campus", f.campus);
   if (f.condition) params.set("condition", f.condition);
   if (f.type) params.set("type", f.type);
+  if (f.faculty) params.set("faculty", f.faculty);
   if (f.sort) params.set("sort", f.sort);
-  try {
-    const data = await api("/api/items?" + params.toString());
-    state.items = data.items || [];
-  } catch (e) {
-    state.items = [];
-    toast(errorMessage(e), true);
+  return params;
+}
+
+async function fetchItemsPage(offset = 0) {
+  const params = filterParams();
+  params.set("limit", String(PAGE_SIZE));
+  params.set("offset", String(offset));
+  return api("/api/items?" + params.toString());
+}
+
+function setCatalogCount(shown, total) {
+  const el = $("#results-count");
+  if (!el) return;
+  if (total > shown) {
+    el.textContent = t("results_partial")
+      .replace("{shown}", String(shown))
+      .replace("{total}", String(total));
+  } else {
+    el.textContent = `${shown} ${shown === 1 ? t("results_one") : t("results_found")}`;
   }
+}
+
+function loadMoreHtml(page) {
+  if (!page.has_more) return "";
+  return `<div class="load-more">
+    <button type="button" class="btn btn-ghost" id="load-more">${icon("refresh")}${esc(t("load_more"))}</button>
+  </div>`;
+}
+
+async function loadMoreItems(btn) {
+  if (btn.dataset.busy) return;
+  btn.dataset.busy = "1";
+  setBusy(btn, true, t("loading_items"));
+  try {
+    const page = await fetchItemsPage(state.items.length);
+    state.items = state.items.concat(page.items);
+    const grid = $("#catalog-results .grid-items");
+    if (grid && page.items.length) {
+      grid.insertAdjacentHTML("beforeend", page.items.map(itemCard).join(""));
+      enhance(grid);
+    }
+    const wrapper = btn.closest(".load-more");
+    if (page.has_more) {
+      btn.dataset.busy = "";
+      setBusy(btn, false);
+    } else if (wrapper) {
+      wrapper.remove();
+    }
+    setCatalogCount(state.items.length, page.total);
+  } catch (err) {
+    btn.dataset.busy = "";
+    setBusy(btn, false);
+    toast(errorMessage(err), "error");
+  }
+}
+
+function hasFilters() {
+  const f = state.filters;
+  return Boolean(f.q || f.category || f.campus || f.condition || f.type || f.faculty);
+}
+
+function clearFilters() {
+  state.filters.q = "";
+  state.filters.category = "";
+  state.filters.campus = "";
+  state.filters.condition = "";
+  state.filters.type = "";
+  state.filters.faculty = "";
+  state.filters.sort = "recent";
+  syncHeroSearch();
+}
+
+function syncHeroSearch() {
+  const q = $("#q");
+  const campus = $("#campus-sel");
+  const sort = $("#f-sort");
+  if (q) q.value = state.filters.q;
+  if (campus) campus.value = state.filters.campus;
+  if (sort) sort.value = state.filters.sort;
+}
+
+/* ---------------- Impacto y confianza ---------------- */
+function fmtNum(value, digits = 1) {
+  const n = Number(value) || 0;
+  const factor = Math.pow(10, digits);
+  const rounded = Math.round(n * factor) / factor;
+  const text = String(rounded);
+  return state.lang === "en" ? text : text.replace(".", ",");
+}
+
+function starsHtml(average, count, opts = {}) {
+  const avg = Number(average) || 0;
+  const filled = Math.round(avg);
+  const stars = [1, 2, 3, 4, 5]
+    .map(n => `<span class="star${n <= filled ? " is-on" : ""}" aria-hidden="true">${icon("star")}</span>`)
+    .join("");
+  const label = count
+    ? t("rating_aria").replace("{n}", fmtNum(avg, 1)).replace("{c}", String(count))
+    : t("rating_none");
+  const text = count
+    ? `<span class="stars-count">${fmtNum(avg, 1)} (${count})</span>`
+    : `<span class="stars-count is-empty">${esc(t("rating_none_short"))}</span>`;
+  return `<span class="stars" role="img" aria-label="${esc(label)}">${stars}${opts.withCount === false ? "" : text}</span>`;
+}
+
+function impactBand(stats) {
+  const imp = (stats && stats.impact) || { reused: 0, kg: 0, savings: 0 };
+  const cells = [
+    { icon: "refresh", value: fmtNum(imp.reused, 0), label: t("impact_reused") },
+    { icon: "leaf", value: `${fmtNum(imp.kg, 1)} kg`, label: t("impact_kg") },
+    { icon: "tag", value: `${fmtNum(imp.savings, 0)} €`, label: t("impact_savings") }
+  ];
+  return `<section class="impact-band" aria-labelledby="impact-title">
+    <div class="impact-head">
+      <h2 id="impact-title">${icon("leaf")}${esc(t("impact_title"))}</h2>
+      <p>${esc(t("impact_lead"))}</p>
+    </div>
+    <div class="impact-grid">
+      ${cells.map(c => `<div class="impact-cell">
+        <span class="impact-icon" aria-hidden="true">${icon(c.icon)}</span>
+        <div><strong>${esc(c.value)}</strong><span>${esc(c.label)}</span></div>
+      </div>`).join("")}
+    </div>
+    <p class="impact-note">${icon("info")}<span>${esc(t("impact_note"))}</span></p>
+  </section>`;
+}
+
+function impactCells(impact) {
+  const imp = impact || { reused: 0, kg: 0, savings: 0 };
+  return [
+    { icon: "refresh", value: fmtNum(imp.reused, 0), label: t("impact_reused") },
+    { icon: "leaf", value: `${fmtNum(imp.kg, 1)} kg`, label: t("impact_kg") },
+    { icon: "tag", value: `${fmtNum(imp.savings, 0)} €`, label: t("impact_savings") }
+  ].map(c => `<div class="impact-cell">
+      <span class="impact-icon" aria-hidden="true">${icon(c.icon)}</span>
+      <div><strong>${esc(c.value)}</strong><span>${esc(c.label)}</span></div>
+    </div>`).join("");
+}
+
+function trustPanel(data) {
+  const rating = data.rating || { count: 0, average: 0 };
+  const ex = data.exchanges || { completed: 0, given: 0, received: 0 };
+  const level = data.level || { key: "semilla", progress: 0, next: null, next_at: null, count: 0 };
+  const badges = data.badges || [];
+  const remaining = level.next_at ? level.next_at - level.count : 0;
+  return `<section class="trust-panel" aria-labelledby="trust-panel-title">
+    <div class="trust-head">
+      <h2 id="trust-panel-title">${esc(t("trust_panel_title"))}</h2>
+      <span class="identity-badge${data.verified ? " academic" : ""}">${icon(data.verified ? "check" : "user")}${esc(data.verified ? t("verified_badge") : t("personal_email"))}</span>
+    </div>
+    <div class="trust-top">
+      <div class="trust-rating">
+        ${starsHtml(rating.average, rating.count)}
+        <span class="trust-meta">${esc(t("exchanges_completed"))}: <strong>${ex.completed}</strong> · ${esc(t("given_label"))}: ${ex.given} · ${esc(t("received_label"))}: ${ex.received}</span>
+      </div>
+      <div class="trust-level">
+        <span class="level-pill">${icon("leaf")}${esc(t("level_label"))}: <strong>${esc(levelLabel(level.key))}</strong></span>
+        <div class="level-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${level.progress}" aria-label="${esc(t("level_label"))}">
+          <span data-level-bar></span>
+        </div>
+        <small>${level.next ? `${esc(t("level_next"))} ${esc(levelLabel(level.next))} · ${remaining} ${esc(t("exchanges_short"))}` : esc(t("level_max"))}</small>
+      </div>
+    </div>
+    <h3 class="trust-sub">${esc(t("impact_my_title"))}</h3>
+    <div class="impact-grid impact-grid-inline">${impactCells(data.impact)}</div>
+    <h3 class="trust-sub">${esc(t("badges_title"))}</h3>
+    <ul class="badge-row">
+      ${badges.map(b => `<li class="badge-chip${b.earned ? " is-earned" : ""}">
+        ${icon(b.earned ? "check-circle" : "shield")}${esc(t("badge_" + b.key))}
+        <span class="sr-only"> — ${esc(b.earned ? t("badge_earned") : t("badge_locked"))}</span>
+      </li>`).join("")}
+    </ul>
+    <p class="impact-note">${icon("info")}<span>${esc(t("impact_note"))}</span></p>
+  </section>`;
+}
+
+function ratingList(rating) {
+  const list = (rating && rating.recent) || [];
+  if (!list.length) return `<p class="muted small">${esc(t("ratings_none"))}</p>`;
+  return `<ul class="rating-list">
+    ${list.map(r => `<li class="rating-item">
+      <p class="rating-row">${starsHtml(r.score, 0, { withCount: false })}<span class="rating-score">${r.score}/5</span><span class="rating-author">${esc(r.rater_name)}</span></p>
+      ${r.comment ? `<p class="rating-comment">${esc(r.comment)}</p>` : ""}
+    </li>`).join("")}
+  </ul>`;
+}
+
+function openRate(requestId, itemTitle, onDone) {
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="rate-title">${esc(t("rate_title"))}</h2>
+      <p>${esc(t("rate_lead"))}</p>
+    </div>
+    <form id="rate-form" aria-labelledby="rate-title">
+      <p class="rate-item"><span>${esc(t("rate_item_label"))}:</span> ${esc(itemTitle)}</p>
+      <fieldset class="rate-field">
+        <legend>${esc(t("rate_score_legend"))}</legend>
+        <div class="rate-options">
+          ${[1, 2, 3, 4, 5].map(n => `<label class="rate-option">
+            <input type="radio" name="score" value="${n}"${n === 5 ? " checked" : ""}>
+            <span class="rate-option-inner">${icon("star")}<span>${n}</span></span>
+          </label>`).join("")}
+        </div>
+      </fieldset>
+      <div class="field">
+        <label for="rate-comment">${esc(t("rate_comment"))}</label>
+        <textarea id="rate-comment" name="comment" maxlength="300" placeholder="${esc(t("rate_comment_ph"))}"></textarea>
+      </div>
+      <p class="field-hint">${esc(t("rate_note"))}</p>
+      <div class="modal-foot">
+        <button class="btn btn-primary" type="submit" data-submit>${icon("star")}${esc(t("rate_submit"))}</button>
+        <button class="btn btn-ghost" type="button" data-close>${esc(t("rate_later"))}</button>
+      </div>
+    </form>`, { labelledBy: "rate-title", sheet: true });
+
+  $("#rate-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const submit = $("[data-submit]", e.target);
+    const fd = new FormData(e.target);
+    setBusy(submit, true, t("saving"));
+    try {
+      state.stats = null;
+      await api(`/api/requests/${requestId}/rate`, {
+        method: "POST",
+        body: JSON.stringify({
+          score: Number(fd.get("score")),
+          comment: String(fd.get("comment") || "")
+        })
+      });
+      closeModal();
+      toast(t("toast_rated"));
+      if (onDone) onDone();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
+}
+
+/* ---------------- Catálogo ---------------- */
+function categoryChips() {
+  const f = state.filters;
+  const chip = (value, label) => {
+    const active = (f.category || "") === value;
+    return `<button type="button" class="chip${active ? " active" : ""}" data-cat="${esc(value)}" aria-pressed="${active}">${esc(label)}</button>`;
+  };
+  return [chip("", t("all"))]
+    .concat(CATEGORIES.map(c => chip(c, catLabel(c))))
+    .join("");
+}
+
+function activeFilterChips() {
+  const f = state.filters;
+  const items = [];
+  if (f.q) items.push(`<span class="active-filter">«${esc(f.q)}»<button type="button" data-remove-filter="q" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.campus) items.push(`<span class="active-filter">${esc(campusLabel(f.campus))}<button type="button" data-remove-filter="campus" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.condition) items.push(`<span class="active-filter">${esc(condLabel(f.condition))}<button type="button" data-remove-filter="condition" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.type) items.push(`<span class="active-filter">${esc(typeLabel(f.type))}<button type="button" data-remove-filter="type" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (f.faculty) items.push(`<span class="active-filter">${esc(facLabel(f.faculty))}<button type="button" data-remove-filter="faculty" aria-label="${esc(t("filters_clear"))}">${icon("close")}</button></span>`);
+  if (items.length > 1 || f.q) {
+    items.push(`<button type="button" class="clear-link" id="clear-all-filters">${esc(t("filters_clear"))}</button>`);
+  }
+  return items.join("");
+}
+
+function syncFilterUI() {
+  $$("#cat-filters .chip").forEach(b => {
+    const active = (b.dataset.cat || "") === (state.filters.category || "");
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
+  const count = ["campus", "condition", "type", "faculty"].filter(k => state.filters[k]).length;
+  const dot = $("#filter-dot");
+  if (dot) {
+    dot.textContent = count ? String(count) : "";
+    dot.classList.toggle("hidden", !count);
+  }
+  const box = $("#active-filters");
+  if (box) {
+    box.innerHTML = activeFilterChips();
+    $$("[data-remove-filter]", box).forEach(btn => {
+      btn.onclick = () => {
+        state.filters[btn.dataset.removeFilter] = "";
+        if (btn.dataset.removeFilter === "q") { const q = $("#q"); if (q) q.value = ""; }
+        refreshCatalog();
+      };
+    });
+    const clear = $("#clear-all-filters", box);
+    if (clear) clear.onclick = () => { clearFilters(); refreshCatalog(); };
+  }
+}
+
+let catalogRequest = 0;
+
+async function refreshCatalog(opts = {}) {
+  const box = $("#catalog-results");
+  if (!box) return;
+  const request = ++catalogRequest;
+  syncFilterUI();
+  const countEl = $("#results-count");
+  const quiet = Boolean(opts.quiet) && Boolean($(".grid-items", box));
+  if (countEl) countEl.textContent = quiet ? t("searching") : t("loading_items");
+  box.setAttribute("aria-busy", "true");
+  if (quiet) {
+    box.classList.add("is-loading");
+  } else {
+    box.classList.remove("is-loading");
+    box.innerHTML = `<div class="grid grid-items">${skeletonCards(6)}</div>`;
+  }
+  let page;
+  try {
+    page = await fetchItemsPage(0);
+  } catch (err) {
+    if (request !== catalogRequest || !$("#catalog-results")) return;
+    box.innerHTML = emptyState({
+      iconName: "alert",
+      title: t("toast_error"),
+      text: errorMessage(err),
+      actions: [{ id: "retry", label: t("retry"), icon: "refresh", variant: "btn-ghost" }]
+    });
+    bindEmptyActions(box, { retry: () => refreshCatalog() });
+    box.removeAttribute("aria-busy");
+    box.classList.remove("is-loading");
+    if (countEl) countEl.textContent = "";
+    return;
+  }
+  if (request !== catalogRequest || !$("#catalog-results")) return;
+  const items = page.items || [];
+  state.items = items;
+  if (!items.length) {
+    const onlyCategory = !state.filters.q && !state.filters.campus && !state.filters.condition && !state.filters.type && state.filters.category;
+    box.innerHTML = hasFilters()
+      ? emptyState({
+          iconName: "search",
+          title: t("empty_filter_t"),
+          text: t("empty_filter_b"),
+          actions: [
+            { id: "clear", label: t("filters_clear"), icon: "close", variant: "btn-ghost" },
+            { id: "publish", label: onlyCategory ? t("publish_first") : t("publish_cta"), icon: "plus" }
+          ]
+        })
+      : emptyState({
+          iconName: "leaf",
+          title: t("empty_catalog_t"),
+          text: t("empty_catalog_b"),
+          actions: [{ id: "publish", label: t("publish_first"), icon: "plus" }]
+        });
+    bindEmptyActions(box, {
+      clear: () => { clearFilters(); refreshCatalog(); },
+      publish: () => navigate("publish")
+    });
+  } else {
+    box.innerHTML = `<div class="grid grid-items">${items.map(itemCard).join("")}</div>${loadMoreHtml(page)}`;
+    enhance(box);
+    const more = $("#load-more", box);
+    if (more) more.onclick = () => loadMoreItems(more);
+  }
+  box.removeAttribute("aria-busy");
+  box.classList.remove("is-loading");
+  if (countEl) setCatalogCount(items.length, page.total);
 }
 
 function itemCard(it) {
   const isSale = it.exchange_type === "vender";
-  const price = isSale ? `€${Number(it.price).toFixed(0)}` : esc(t("free"));
+  const price = isSale ? `€${Number(it.price || 0).toFixed(0)}` : esc(t("free"));
+  const saved = Boolean(it.is_favorite);
+  const openLabel = `${t("view_item")}: ${it.title}`;
   return `
   <article class="card">
-    <div class="card-img">
-      <img src="${esc(itemImage(it))}" alt="${esc(it.title)}" loading="lazy" data-fallback data-category="${esc(it.category)}">
-      <span class="badge">${esc(condLabel(it.condition))}</span>
-      <span class="badge badge-type${isSale ? " sale" : ""}">${esc(typeLabel(it.exchange_type))}</span>
-      <button class="fav-btn ${it.is_favorite ? "active" : ""}" data-fav="${it.id}" aria-label="${esc(t("detail_fav"))}">${it.is_favorite ? "♥" : "♡"}</button>
+    <div class="card-media">
+      <button type="button" class="card-media-open" data-view="${it.id}" aria-label="${esc(openLabel)}">
+        ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, sizes: "(max-width: 480px) 92vw, (max-width: 720px) 45vw, 300px" })}
+      </button>
+      <div class="card-badges">
+        ${it.status && it.status !== "disponible" ? `<span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>` : ""}
+        <span class="badge badge-cond">${esc(condLabel(it.condition))}</span>
+        <span class="badge badge-type${isSale ? " is-sale" : ""}">${esc(typeBadge(it.exchange_type))}</span>
+      </div>
+      <button type="button" class="fav-btn${saved ? " active" : ""}" data-fav="${it.id}" aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}: ${esc(it.title)}">${icon("heart")}</button>
     </div>
     <div class="card-body">
-      <h3>${esc(it.title)}</h3>
+      <h3 class="card-title">${esc(it.title)}</h3>
       <div class="card-meta">
         <span class="pill">${esc(catLabel(it.category))}</span>
-        <span class="pill grey">${esc(campusLabel(it.campus))}</span>
-        <span>${esc(handLabel(it.handover_point))}</span>
+        <span class="card-location">${icon("pin")}${esc(campusLabel(it.campus))}</span>
       </div>
-      <p class="card-desc">${esc(it.description)}</p>
+      <p class="card-location">${icon("tag")}${esc(handLabel(it.handover_point))}</p>
+      ${it.description ? `<p class="card-desc">${esc(it.description)}</p>` : ""}
       <div class="card-foot">
-        <div><span class="price">${price}</span>${isSale ? `<small class="price-sub">${esc(t("price_orientative"))}</small>` : ""}</div>
-        <button class="btn btn-primary btn-sm" data-view="${it.id}">${esc(t("view_item"))}</button>
+        <div>
+          <span class="price${isSale ? "" : " is-free"}">${price}</span>
+          ${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}
+        </div>
+        <button type="button" class="card-cta" data-view="${it.id}">${esc(t("view_item"))}${icon("arrow")}</button>
       </div>
     </div>
   </article>`;
 }
 
+function statsCards(stats) {
+  const s = stats || { total_items: 0, available: 0, delivered: 0, users: 0 };
+  const cells = [
+    { icon: "leaf", value: s.total_items, label: t("stat_items") },
+    { icon: "check-circle", value: s.available, label: t("stat_available") },
+    { icon: "shield", value: s.delivered, label: t("stat_delivered") },
+    { icon: "user", value: s.users, label: t("stat_users") }
+  ];
+  return cells.map(c => `
+    <div class="stat-card">
+      <span class="stat-icon" aria-hidden="true">${icon(c.icon)}</span>
+      <div><strong>${Number(c.value) || 0}</strong><span>${esc(c.label)}</span></div>
+    </div>`).join("");
+}
+
+function option(value, label, selected) {
+  return `<option value="${esc(value)}"${selected ? " selected" : ""}>${esc(label)}</option>`;
+}
+
+function openFilters() {
+  const f = state.filters;
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="filters-title">${esc(t("filters_title"))}</h2>
+      <p>${esc(t("filters_subtitle"))}</p>
+    </div>
+    <form id="filters-form" aria-labelledby="filters-title">
+      <div class="field">
+        <label for="fl-campus">${esc(t("campus"))}</label>
+        <select id="fl-campus" name="campus">
+          ${option("", `${t("campus")}: ${t("all")}`, !f.campus)}
+          ${CAMPUSES.map(c => option(c, campusLabel(c), f.campus === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-condition">${esc(t("condition"))}</label>
+        <select id="fl-condition" name="condition">
+          ${option("", `${t("condition")}: ${t("all")}`, !f.condition)}
+          ${CONDITIONS.map(c => option(c, condLabel(c), f.condition === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-type">${esc(t("type"))}</label>
+        <select id="fl-type" name="type">
+          ${option("", `${t("type")}: ${t("all")}`, !f.type)}
+          ${TYPES.map(c => option(c, typeLabel(c), f.type === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-faculty">${esc(t("faculty"))}</label>
+        <select id="fl-faculty" name="faculty">
+          ${option("", `${t("faculty")}: ${t("all")}`, !f.faculty)}
+          ${FACULTIES.map(c => option(c, facLabel(c), f.faculty === c)).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label for="fl-sort">${esc(t("sort_by"))}</label>
+        <select id="fl-sort" name="sort">
+          ${option("recent", t("sort_recent"), f.sort === "recent")}
+          ${option("price_asc", t("sort_price_asc"), f.sort === "price_asc")}
+          ${option("price_desc", t("sort_price_desc"), f.sort === "price_desc")}
+        </select>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-primary" type="submit">${esc(t("filters_apply"))}</button>
+        <button class="btn btn-ghost" type="button" id="filters-reset">${esc(t("filters_clear"))}</button>
+      </div>
+    </form>`, { labelledBy: "filters-title", sheet: true });
+
+  $("#filters-form").onsubmit = (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    state.filters.campus = fd.get("campus") || "";
+    state.filters.condition = fd.get("condition") || "";
+    state.filters.type = fd.get("type") || "";
+    state.filters.faculty = fd.get("faculty") || "";
+    state.filters.sort = fd.get("sort") || "recent";
+    closeModal();
+    syncHeroSearch();
+    refreshCatalog();
+  };
+  $("#filters-reset").onclick = () => {
+    clearFilters();
+    closeModal();
+    refreshCatalog();
+  };
+}
+
+/* ---------------- Home ---------------- */
 async function renderHome(app) {
-  await loadStats();
-  await loadItems();
-  const s = state.stats || { total_items: 0, available: 0, delivered: 0, users: 0 };
   const f = state.filters;
   setApp(app, `
-    <section class="hero">
+    <section class="hero" aria-labelledby="hero-title">
       <div class="hero-grid">
-        <div>
-          <span class="eyebrow">${esc(t("hero_eyebrow"))}</span>
-          <h1>${esc(t("hero_title"))}</h1>
+        <div class="hero-copy">
+          <span class="eyebrow">${icon("leaf")}${esc(t("hero_eyebrow"))}</span>
+          <h1 id="hero-title">${esc(t("hero_title"))}</h1>
           <p class="lead">${esc(t("hero_lead"))}</p>
-          <form class="searchbar" id="hero-search">
-            <input id="q" type="search" placeholder="${esc(t("hero_search_ph"))}" value="${esc(f.q)}">
-            <select id="campus-sel" aria-label="${esc(t("campus"))}">
-              <option value="">${esc(t("campus"))}: ${esc(t("all"))}</option>
-              ${CAMPUSES.map(c => `<option value="${c}" ${f.campus === c ? "selected" : ""}>${esc(campusLabel(c))}</option>`).join("")}
+          <form class="searchbar" id="hero-search" role="search" aria-label="${esc(t("search"))}">
+            <div class="search-input">
+              ${icon("search")}
+              <label class="sr-only" for="q">${esc(t("search"))}</label>
+              <input id="q" type="search" placeholder="${esc(t("hero_search_ph"))}" value="${esc(f.q)}" autocomplete="off">
+            </div>
+            <label class="sr-only" for="campus-sel">${esc(t("campus"))}</label>
+            <select id="campus-sel">
+              ${option("", `${t("campus")}: ${t("all")}`, !f.campus)}
+              ${CAMPUSES.map(c => option(c, campusLabel(c), f.campus === c)).join("")}
             </select>
             <button class="btn btn-primary" type="submit">${esc(t("hero_search_btn"))}</button>
-            <button class="btn btn-ghost" type="button" id="go-publish">${esc(t("publish_cta"))}</button>
+            <button class="btn btn-ghost" type="button" id="go-publish">${icon("plus")}${esc(t("publish_cta"))}</button>
           </form>
+          <ul class="hero-badges">
+            <li>${icon("shield")}${esc(t("hero_chip_1"))}</li>
+            <li>${icon("user")}${esc(t("hero_chip_2"))}</li>
+            <li>${icon("leaf")}${esc(t("hero_chip_3"))}</li>
+          </ul>
         </div>
-        <img class="hero-art" src="/static/img/hero-reuse.jpg" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
+        ${responsiveImage("/static/img/hero-reuse.jpg", { cls: "hero-art", priority: true, lazy: false, fallback: "/static/img/items/placeholder.jpg", sizes: "(max-width: 960px) 92vw, 460px" })}
       </div>
-      <div class="notice payment-banner" role="note">
-        <span class="notice-icon" aria-hidden="true">€</span>
-        <div><strong>${esc(t("payment_banner_title"))}</strong><p>${esc(t("payment_banner_body"))}</p></div>
-      </div>
-      <div class="hero-stats">
-        <div class="stat"><strong>${s.total_items}</strong><span>${esc(t("stat_items"))}</span></div>
-        <div class="stat"><strong>${s.available}</strong><span>${esc(t("stat_available"))}</span></div>
-        <div class="stat"><strong>${s.delivered}</strong><span>${esc(t("stat_delivered"))}</span></div>
-        <div class="stat"><strong>${s.users}</strong><span>${esc(t("stat_users"))}</span></div>
-      </div>
+      <div class="stats-row" id="hero-stats">${state.stats ? statsCards(state.stats) : statSkeleton()}</div>
+      <div id="impact-band">${state.stats ? impactBand(state.stats) : ""}</div>
     </section>
 
-    <div class="section-title">
-      <h2>${esc(t("nav_home"))}</h2>
-      <p>${state.items.length} ${esc(t("results"))}</p>
+    <div class="catalog-toolbar">
+      <div class="chips-scroll" id="cat-filters" role="group" aria-label="${esc(t("filters"))}">${categoryChips()}</div>
+      <div class="toolbar-actions">
+        <button type="button" class="filter-btn" id="open-filters" aria-haspopup="dialog">
+          ${icon("sliders")}${esc(t("filters_btn"))}<span class="filter-dot hidden" id="filter-dot" aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
-    <div class="filters" id="cat-filters">
-      <button class="chip ${!f.category ? "active" : ""}" data-cat="">${esc(t("all"))}</button>
-      ${CATEGORIES.map(c => `<button class="chip ${f.category === c ? "active" : ""}" data-cat="${c}">${esc(catLabel(c))}</button>`).join("")}
+    <div class="catalog-meta">
+      <p class="results-count" id="results-count" role="status" aria-live="polite">${esc(t("loading_items"))}</p>
+      <div class="active-filters" id="active-filters"></div>
     </div>
-    <div class="filter-row">
-      <select id="f-condition" aria-label="${esc(t("condition"))}">
-        <option value="">${esc(t("condition"))}: ${esc(t("all"))}</option>
-        ${CONDITIONS.map(c => `<option value="${c}" ${f.condition === c ? "selected" : ""}>${esc(condLabel(c))}</option>`).join("")}
-      </select>
-      <select id="f-type" aria-label="${esc(t("type"))}">
-        <option value="">${esc(t("type"))}: ${esc(t("all"))}</option>
-        ${TYPES.map(c => `<option value="${c}" ${f.type === c ? "selected" : ""}>${esc(typeLabel(c))}</option>`).join("")}
-      </select>
-      <select id="f-sort" aria-label="${esc(t("sort"))}">
-        <option value="recent" ${f.sort === "recent" ? "selected" : ""}>${esc(t("sort_recent"))}</option>
-        <option value="price_asc" ${f.sort === "price_asc" ? "selected" : ""}>${esc(t("sort_price_asc"))}</option>
-        <option value="price_desc" ${f.sort === "price_desc" ? "selected" : ""}>${esc(t("sort_price_desc"))}</option>
-      </select>
-    </div>
-    ${state.items.length ? `<div class="grid">${state.items.map(itemCard).join("")}</div>` : `<div class="empty">${esc(t("no_results"))}</div>`}
 
-    <div class="two-col" style="margin-top:28px">
+    <div id="catalog-results"><div class="grid grid-items">${skeletonCards(6)}</div></div>
+
+    <div class="two-col mt-8">
       <div class="info-card">
         <h3>${esc(t("how_title"))}</h3>
-        <p><strong>${esc(t("how_1_t"))}</strong> — ${esc(t("how_1_b"))}</p>
-        <p><strong>${esc(t("how_2_t"))}</strong> — ${esc(t("how_2_b"))}</p>
-        <p><strong>${esc(t("how_3_t"))}</strong> — ${esc(t("how_3_b"))}</p>
+        <div class="steps">
+          ${[1, 2, 3].map(n => `<div class="step">
+            <span class="step-num" aria-hidden="true">${n}</span>
+            <div><strong>${esc(t("how_" + n + "_t"))}</strong><p>${esc(t("how_" + n + "_b"))}</p></div>
+          </div>`).join("")}
+        </div>
       </div>
       <div class="info-card">
         <h3>${esc(t("trust_title"))}</h3>
         <ul class="clean-list">
-          <li>${esc(t("trust_1"))}</li><li>${esc(t("trust_2"))}</li><li>${esc(t("trust_3"))}</li>
+          <li>${icon("check")}${esc(t("trust_1"))}</li>
+          <li>${icon("check")}${esc(t("trust_2"))}</li>
+          <li>${icon("check")}${esc(t("trust_3"))}</li>
         </ul>
         <p class="legal-inline">${legalText(t("about_p3"))}</p>
       </div>
+    </div>
+
+    <div class="notice payment-banner" role="note">
+      <span class="notice-icon" aria-hidden="true">€</span>
+      <div><strong>${esc(t("payment_banner_title"))}</strong><p>${esc(t("payment_banner_body"))}</p></div>
     </div>`);
+
+  const readHero = () => {
+    const q = $("#q");
+    const campus = $("#campus-sel");
+    state.filters.q = q ? q.value.trim() : "";
+    state.filters.campus = campus ? campus.value : "";
+  };
+
+  let searchTimer = null;
+  const qInput = $("#q");
+  if (qInput) {
+    qInput.addEventListener("input", () => {
+      state.filters.q = qInput.value.trim();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => refreshCatalog({ quiet: true }), 320);
+    });
+  }
 
   $("#hero-search").onsubmit = (e) => {
     e.preventDefault();
-    state.filters.q = $("#q").value.trim();
-    state.filters.campus = $("#campus-sel").value;
-    render();
+    clearTimeout(searchTimer);
+    readHero();
+    refreshCatalog();
+    const toolbar = $(".catalog-toolbar");
+    if (toolbar) {
+      const top = toolbar.getBoundingClientRect().top + window.scrollY - 12;
+      if (window.scrollY < top - 80) window.scrollTo({ top, behavior: "smooth" });
+    }
+    const q = $("#q");
+    if (q && window.innerWidth < 720) q.blur();
   };
+  $("#campus-sel").onchange = () => { readHero(); refreshCatalog(); };
   $("#go-publish").onclick = () => navigate("publish");
-  $$("#cat-filters .chip").forEach(b => b.onclick = () => { state.filters.category = b.dataset.cat; render(); });
-  $("#f-condition").onchange = (e) => { state.filters.condition = e.target.value; render(); };
-  $("#f-type").onchange = (e) => { state.filters.type = e.target.value; render(); };
-  $("#f-sort").onchange = (e) => { state.filters.sort = e.target.value; render(); };
+  $$("#cat-filters .chip").forEach(b => {
+    b.onclick = () => {
+      state.filters.category = b.dataset.cat || "";
+      refreshCatalog();
+    };
+  });
+  $("#open-filters").onclick = openFilters;
+
+  syncFilterUI();
+  refreshCatalog();
+  if (!state.stats) {
+    fetchStats().then(stats => {
+      const box = $("#hero-stats");
+      if (box && stats) box.innerHTML = statsCards(stats);
+      const impact = $("#impact-band");
+      if (impact && stats) impact.innerHTML = impactBand(stats);
+    });
+  }
 }
 
+/* ---------------- Publicar ---------------- */
 function renderPublish(app) {
   if (!state.user) {
-    setApp(app, `<div class="empty" style="margin-top:30px"><p>${esc(t("need_login_publish"))}</p>
-      <button class="btn btn-primary" id="pub-login">${esc(t("login"))}</button></div>`);
-    $("#pub-login").onclick = () => openAuth("login");
+    setApp(app, `
+      <div class="page-head">
+        <span class="eyebrow">${icon("plus")}${esc(t("nav_publish"))}</span>
+        <h1>${esc(t("publish_title"))}</h1>
+      </div>
+      ${emptyState({
+        iconName: "camera",
+        title: t("need_login_publish"),
+        text: t("publish_intro"),
+        actions: [{ id: "login", label: t("login"), icon: "user" }]
+      })}`);
+    bindEmptyActions(app, { login: () => openAuth("login") });
     return;
   }
+
   setApp(app, `
-    <div class="section-title"><h2>${esc(t("publish_title"))}</h2></div>
-    <p class="muted" style="max-width:820px">${esc(t("publish_intro"))}</p>
-    <div class="info-card" style="max-width:820px">
-      <form id="publish-form">
-        <div class="field"><label>${esc(t("f_title"))}</label><input name="title" required minlength="3" maxlength="80" placeholder="Ej.: Lámpara de escritorio LED"></div>
-        <div class="field"><label>${esc(t("f_desc"))}</label><textarea name="description" required minlength="10" maxlength="2000"></textarea><small>${esc(t("desc_hint"))}</small></div>
+    <div class="page-head">
+      <span class="eyebrow">${icon("plus")}${esc(t("nav_publish"))}</span>
+      <h1>${esc(t("publish_title"))}</h1>
+      <p class="lead">${esc(t("publish_intro"))}</p>
+    </div>
+    <form class="form-shell" id="publish-form">
+      <div class="form-section">
+        <div class="section-head">
+          <h3>${esc(t("form_quick"))}</h3>
+          <span class="time-chip">${icon("clock")}${esc(t("form_quick_hint"))}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">${esc(t("f_image"))} <span class="req-mark" aria-hidden="true">*</span><span class="sr-only">${esc(t("required_word"))}</span></span>
+          <label class="upload-zone" id="upload-zone" for="img-file">
+            ${icon("camera")}
+            <strong>${esc(t("photo_drop_t"))}</strong>
+            <span>${esc(t("photo_drop_b"))}</span>
+            <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp">
+          </label>
+          <input type="hidden" id="img-url" value="">
+          <div class="upload-preview-wrap" id="preview-wrap">
+            <img id="img-preview" class="upload-preview" alt="">
+            <button type="button" class="upload-remove" id="img-remove">${icon("trash")}${esc(t("photo_remove"))}</button>
+          </div>
+          <div class="upload-status hidden" id="upload-status" role="status" aria-live="polite"></div>
+          <small>${esc(t("image_required_hint"))}</small>
+        </div>
+        <div class="field">
+          <label for="p-title">${esc(t("f_title"))} <span class="req-mark" aria-hidden="true">*</span></label>
+          <input id="p-title" name="title" required minlength="3" maxlength="80" placeholder="${esc(t("title_ph"))}" autocomplete="off">
+        </div>
         <div class="form-grid">
-          <div class="field"><label>${esc(t("f_category"))}</label><select name="category">${CATEGORIES.map(c => `<option value="${c}">${esc(catLabel(c))}</option>`).join("")}</select></div>
-          <div class="field"><label>${esc(t("f_condition"))}</label><select name="condition">${CONDITIONS.map(c => `<option value="${c}">${esc(condLabel(c))}</option>`).join("")}</select></div>
-          <div class="field"><label>${esc(t("f_type"))}</label><select name="exchange_type" id="pub-type">${TYPES.map(c => `<option value="${c}">${esc(typeLabel(c))}</option>`).join("")}</select></div>
-          <div class="field hidden" id="price-field"><label>${esc(t("f_price"))}</label><input name="price" type="number" min="0" max="10000" step="1" value="0"><small>${esc(t("f_price_hint"))}</small></div>
-          <div class="field"><label>${esc(t("f_campus"))}</label><select name="campus">${CAMPUSES.map(c => `<option value="${c}" ${state.user.campus === c ? "selected" : ""}>${esc(campusLabel(c))}</option>`).join("")}</select></div>
-          <div class="field"><label>${esc(t("f_handover"))}</label><select name="handover_point">${HANDOVERS.map(c => `<option value="${c}">${esc(handLabel(c))}</option>`).join("")}</select></div>
+          <div class="field">
+            <label for="p-category">${esc(t("f_category"))} <span class="req-mark" aria-hidden="true">*</span></label>
+            <select id="p-category" name="category">${CATEGORIES.map(c => option(c, catLabel(c))).join("")}</select>
+          </div>
+          <div class="field">
+            <label for="p-type">${esc(t("f_type"))} <span class="req-mark" aria-hidden="true">*</span></label>
+            <select id="p-type" name="exchange_type">${TYPES.map(c => option(c, typeLabel(c))).join("")}</select>
+          </div>
+          <div class="field hidden" id="price-field">
+            <label for="p-price">${esc(t("f_price"))}</label>
+            <input id="p-price" name="price" type="number" min="0" max="10000" step="1" value="0" inputmode="numeric">
+            <small>${esc(t("f_price_hint"))}</small>
+          </div>
         </div>
         <div class="notice hidden" id="payment-notice" role="note">
           <span class="notice-icon" aria-hidden="true">€</span>
           <div><strong>${esc(t("payment_notice_title"))}</strong><p>${esc(t("payment_notice_body"))}</p></div>
         </div>
-        <div class="field"><label>${esc(t("f_image"))}</label>
-          <input type="hidden" id="img-url" value="">
-          <input type="file" id="img-file" accept="image/*">
-          <div style="margin-top:8px"><button type="button" class="btn btn-ghost btn-sm" id="upload-btn">${esc(t("upload"))}</button></div>
-          <small>${esc(t("f_image_hint"))}</small>
-          <img id="img-preview" class="hidden upload-preview" alt="" data-fallback data-fallback-src="/static/img/items/placeholder.jpg">
+      </div>
+
+      <details class="form-optional" id="optional-details">
+        <summary>
+          ${icon("sliders")}
+          <span class="summary-text"><strong>${esc(t("form_optional"))}</strong><small>${esc(t("form_optional_hint"))}</small></span>
+          ${icon("chevron")}
+        </summary>
+        <div class="form-section form-section-flush">
+          <div class="field">
+            <label for="p-desc">${esc(t("f_desc_optional"))}</label>
+            <textarea id="p-desc" name="description" maxlength="2000"></textarea>
+            <div class="field-hint"><span>${esc(t("desc_hint"))}</span><span class="counter" id="desc-counter">0/2000</span></div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="p-condition">${esc(t("f_condition"))}</label>
+              <select id="p-condition" name="condition">${CONDITIONS.map(c => option(c, condLabel(c), c === "bueno")).join("")}</select>
+            </div>
+            <div class="field">
+              <label for="p-campus">${esc(t("f_campus"))}</label>
+              <select id="p-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), state.user.campus === c)).join("")}</select>
+            </div>
+            <div class="field">
+              <label for="p-faculty">${esc(t("f_faculty"))}</label>
+              <select id="p-faculty" name="faculty">${option("", t("fac_none"), true)}${FACULTIES.map(c => option(c, facLabel(c))).join("")}</select>
+            </div>
+            <div class="field">
+              <label for="p-handover">${esc(t("f_handover"))}</label>
+              <select id="p-handover" name="handover_point">${HANDOVERS.map(c => option(c, handLabel(c), c === "acordado")).join("")}</select>
+            </div>
+          </div>
         </div>
+      </details>
+
+      <div class="form-section">
         <div class="consent-box">
-          <label class="check-row"><input type="checkbox" name="private_seller" required><span>${esc(t("f_private"))}</span></label>
-          <p class="muted">${esc(t("f_private_hint"))}</p>
+          <label class="check-row"><input type="checkbox" name="private_seller" id="p-private" required><span>${esc(t("f_private"))}</span></label>
+          <p>${esc(t("f_private_hint"))}</p>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-primary" type="submit">${esc(t("publish_btn"))}</button>
-          <button class="btn btn-ghost" type="button" id="pub-cancel">${esc(t("cancel"))}</button>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" type="submit" id="publish-submit">${icon("plus")}${esc(t("publish_btn"))}</button>
+          <button class="btn btn-ghost btn-lg" type="button" id="pub-cancel">${esc(t("cancel"))}</button>
         </div>
-      </form>
-    </div>`);
+      </div>
+    </form>`);
+
+  const counter = $("#desc-counter");
+  const desc = $("#p-desc");
+  const updateCounter = () => {
+    const n = desc.value.length;
+    counter.textContent = `${n}/2000`;
+    counter.classList.toggle("is-near", n > 1700);
+  };
+  desc.addEventListener("input", updateCounter);
+  updateCounter();
 
   const syncType = () => {
-    const sale = $("#pub-type").value === "vender";
+    const sale = $("#p-type").value === "vender";
     $("#price-field").classList.toggle("hidden", !sale);
     $("#payment-notice").classList.toggle("hidden", !sale);
   };
-  $("#pub-type").onchange = syncType;
+  $("#p-type").onchange = syncType;
   syncType();
-  $("#img-file").onchange = () => {
-    const file = $("#img-file").files[0];
-    const preview = $("#img-preview");
-    if (!file) { preview.classList.add("hidden"); return; }
+
+  const zone = $("#upload-zone");
+  const fileInput = $("#img-file");
+  const previewWrap = $("#preview-wrap");
+  const preview = $("#img-preview");
+  const status = $("#upload-status");
+
+  const uploadFile = async (file) => {
+    if (!file) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      toast(t("toast_invalid_image"), "error");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast(t("photo_drop_b"), "error");
+      return;
+    }
+    status.classList.remove("hidden");
+    status.innerHTML = `<span class="spinner" aria-hidden="true"></span>${esc(t("photo_uploading"))}`;
     preview.src = URL.createObjectURL(file);
-    preview.classList.remove("hidden");
-  };
-  $("#upload-btn").onclick = async () => {
-    const file = $("#img-file").files[0];
-    if (!file) { toast(t("toast_error"), true); return; }
-    const fd = new FormData(); fd.append("file", file);
+    previewWrap.classList.add("is-visible");
+    const fd = new FormData();
+    fd.append("file", file);
     try {
       const res = await fetch("/api/upload", {
-        method: "POST", headers: state.token ? { Authorization: "Bearer " + state.token } : {}, body: fd
+        method: "POST",
+        headers: state.token ? { Authorization: "Bearer " + state.token } : {},
+        body: fd
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const err = new Error(data.message || data.error || "error"); err.data = data; throw err;
+        const err = new Error(data.message || data.error || "error");
+        err.data = data;
+        throw err;
       }
       $("#img-url").value = data.url;
-      $("#img-preview").src = data.url;
-      $("#img-preview").classList.remove("hidden");
+      preview.src = data.url;
+      status.innerHTML = `${icon("check-circle")}${esc(t("photo_ready"))}`;
       toast(t("toast_upload"));
-    } catch (err) { toast(errorMessage(err), true); }
+    } catch (err) {
+      status.classList.add("hidden");
+      previewWrap.classList.remove("is-visible");
+      $("#img-url").value = "";
+      toast(errorMessage(err), "error");
+    }
+  };
+
+  fileInput.onchange = () => uploadFile(fileInput.files[0]);
+  ["dragenter", "dragover"].forEach(evt => zone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    zone.classList.add("is-dragging");
+  }));
+  ["dragleave", "drop"].forEach(evt => zone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    zone.classList.remove("is-dragging");
+  }));
+  zone.addEventListener("drop", (e) => {
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) uploadFile(file);
+  });
+  $("#img-remove").onclick = () => {
+    $("#img-url").value = "";
+    fileInput.value = "";
+    previewWrap.classList.remove("is-visible");
+    preview.removeAttribute("src");
+    status.classList.add("hidden");
   };
   $("#pub-cancel").onclick = () => navigate("home");
+
   $("#publish-form").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    const form = e.target;
+    const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
     payload.private_seller = fd.get("private_seller") === "on";
     payload.image_url = $("#img-url").value || "";
     payload.price = payload.exchange_type === "vender" ? Number(payload.price || 0) : 0;
+    const submit = $("#publish-submit");
+    if (!payload.image_url) {
+      toast(t("toast_image_required"), "error");
+      const zone = $("#upload-zone");
+      if (zone) {
+        zone.classList.add("is-missing");
+        zone.scrollIntoView({ block: "center", behavior: "smooth" });
+        setTimeout(() => zone.classList.remove("is-missing"), 1400);
+      }
+      return;
+    }
+    setBusy(submit, true, t("publishing"));
     try {
       await api("/api/items", { method: "POST", body: JSON.stringify(payload) });
-      toast(t("toast_published")); navigate("home");
-    } catch (err) { toast(errorMessage(err), true); }
+      toast(t("toast_published"));
+      navigate("home");
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
+/* ---------------- Puntos de entrega ---------------- */
 function renderPoints(app) {
-  const pts = HANDOVERS;
   setApp(app, `
-    <div class="section-title"><h2>${esc(t("points_title"))}</h2></div>
-    <p class="muted" style="max-width:820px">${esc(t("points_lead"))}</p>
-    <div class="notice" role="note"><span class="notice-icon" aria-hidden="true">i</span><div><p>${esc(t("points_notice"))}</p></div></div>
-    <div class="grid" style="margin-top:18px">
-      ${pts.map(p => `
-        <div class="point-card">
-          <h3>📍 ${esc(t("points_" + p + "_t"))}</h3>
-          <p class="muted">${esc(t("points_" + p + "_b"))}</p>
-          <p><span class="pill">${esc(campusLabel("vigo"))}</span> <span class="pill grey">${esc(campusLabel("pontevedra"))}</span> <span class="pill grey">${esc(campusLabel("ourense"))}</span></p>
-        </div>`).join("")}
-    </div>`);
-}
-
-function renderRules(app) {
-  const rules = [1, 2, 3, 4, 5, 6];
-  setApp(app, `
-    <div class="section-title"><h2>${esc(t("rules_title"))}</h2></div>
-    <p class="muted" style="max-width:820px">${esc(t("rules_lead"))}</p>
-    <div class="grid" style="margin-top:18px">
-      ${rules.map(n => `
-        <div class="info-card"><h3>${esc(t("rules_" + n + "_t"))}</h3><p class="muted">${esc(t("rules_" + n + "_b"))}</p></div>`).join("")}
+    <div class="page-head">
+      <span class="eyebrow">${icon("pin")}${esc(t("nav_points"))}</span>
+      <h1>${esc(t("points_title"))}</h1>
+      <p class="lead">${esc(t("points_lead"))}</p>
     </div>
-    <div class="two-col" style="margin-top:18px">
-      <div class="info-card"><span class="eyebrow">${esc(t("payment_eyebrow"))}</span><h3>${esc(t("rules_payment_title"))}</h3><p>${esc(t("rules_payment_body"))}</p></div>
-      <div class="info-card"><span class="eyebrow">RGPD · LOPDGDD</span><h3>${esc(t("rules_data_title"))}</h3><p>${esc(t("rules_data_body"))}</p></div>
+    <div class="notice is-soft" role="note">
+      <span class="notice-icon" aria-hidden="true">${icon("info")}</span>
+      <div><p>${esc(t("points_notice"))}</p></div>
+    </div>
+    <div class="grid mt-4">
+      ${HANDOVERS.map(p => `
+        <article class="point-card">
+          <span class="point-icon" aria-hidden="true">${icon(POINT_ICONS[p] || "pin")}</span>
+          <h3>${esc(t("points_" + p + "_t"))}</h3>
+          <p>${esc(t("points_" + p + "_b"))}</p>
+          <p class="card-meta mt-auto">${CAMPUSES.map(c => `<span class="pill grey">${esc(campusLabel(c))}</span>`).join("")}</p>
+        </article>`).join("")}
     </div>`);
 }
 
+/* ---------------- Normas y confianza ---------------- */
+function renderRules(app) {
+  setApp(app, `
+    <div class="page-head">
+      <span class="eyebrow">${icon("shield")}${esc(t("nav_rules"))}</span>
+      <h1>${esc(t("rules_title"))}</h1>
+      <p class="lead">${esc(t("rules_lead"))}</p>
+    </div>
+    <div class="rules-grid">
+      ${[1, 2, 3, 4, 5, 6].map(n => `
+        <article class="info-card rule-card">
+          <span class="rule-icon" aria-hidden="true">${n}</span>
+          <div>
+            <h3>${esc(t("rules_" + n + "_t"))}</h3>
+            <p>${esc(t("rules_" + n + "_b"))}</p>
+          </div>
+        </article>`).join("")}
+    </div>
+    <div class="two-col mt-4">
+      <div class="info-card">
+        <span class="eyebrow">${esc(t("payment_eyebrow"))}</span>
+        <h3>${esc(t("rules_payment_title"))}</h3>
+        <p>${esc(t("rules_payment_body"))}</p>
+      </div>
+      <div class="info-card">
+        <span class="eyebrow">${esc(t("account_rights"))}</span>
+        <h3>${esc(t("rules_data_title"))}</h3>
+        <p>${esc(t("rules_data_body"))}</p>
+      </div>
+    </div>`);
+}
+
+/* ---------------- El proyecto ---------------- */
 function renderAbout(app) {
   setApp(app, `
-    <div class="section-title"><h2>${esc(t("about_title"))}</h2></div>
-    <p class="lead-block">${esc(t("about_lead"))}</p>
+    <div class="page-head">
+      <span class="eyebrow">${icon("info")}${esc(t("nav_about"))}</span>
+      <h1>${esc(t("about_title"))}</h1>
+      <p class="lead">${esc(t("about_lead"))}</p>
+    </div>
     <div class="about-layout">
       <div class="info-card">
         <p>${esc(t("about_p1"))}</p>
         <p>${esc(t("about_p2"))}</p>
         <p>${esc(t("about_p3"))}</p>
-        <h3>${esc(t("about_pillars_title"))}</h3>
+        <h3 class="mt-5">${esc(t("about_pillars_title"))}</h3>
         <ul class="clean-list">
-          <li>${esc(t("about_pillar_1"))}</li><li>${esc(t("about_pillar_2"))}</li><li>${esc(t("about_pillar_3"))}</li>
+          <li>${icon("shield")}${esc(t("about_pillar_1"))}</li>
+          <li>${icon("user")}${esc(t("about_pillar_2"))}</li>
+          <li>${icon("tag")}${esc(t("about_pillar_3"))}</li>
         </ul>
         <p class="team-list"><strong>${esc(t("credit_label"))}</strong>${TEAM_NAMES.map(esc).join(" · ")}</p>
       </div>
       <figure class="team-photo">
-        <img src="/static/img/equipo-ctc.jpg" alt="${esc(t("photo_caption"))}" loading="lazy" data-fallback data-fallback-src="/static/img/ctc-congress.png">
+        ${responsiveImage("/static/img/equipo-ctc.jpg", { alt: t("photo_caption"), fallback: "/static/img/ctc-congress.png", sizes: "(max-width: 960px) 92vw, 420px" })}
         <figcaption>
           <span>${esc(t("photo_caption"))}</span>
           <span class="muted">${esc(t("photo_privacy"))} <a href="/privacidad" data-route="privacy">${esc(t("footer_privacy"))}</a></span>
@@ -1097,12 +2534,112 @@ function renderAbout(app) {
     </div>`);
 }
 
+/* ---------------- Panel de datos ---------------- */
+function openPasswordChange() {
+  if (!state.user) return;
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="password-title">${esc(t("password_title"))}</h2>
+      <p>${esc(t("password_lead"))}</p>
+    </div>
+    <form id="password-form" aria-labelledby="password-title">
+      <div class="field">
+        <label for="password-current">${esc(t("password_current"))}</label>
+        <input id="password-current" name="current_password" type="password" required autocomplete="current-password" data-autofocus>
+      </div>
+      <div class="field">
+        <label for="password-new">${esc(t("password_new"))}</label>
+        <input id="password-new" name="new_password" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+        <small>${esc(t("password_hint"))}</small>
+      </div>
+      <div class="field">
+        <label for="password-repeat">${esc(t("password_repeat"))}</label>
+        <input id="password-repeat" name="repeat_password" type="password" required minlength="8" maxlength="128" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("check")}${esc(t("password_save"))}</button>
+    </form>`, { labelledBy: "password-title", sheet: true });
+  $("#password-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const next = String(fd.get("new_password") || "");
+    if (next !== String(fd.get("repeat_password") || "")) {
+      toast(t("password_mismatch"), "error");
+      return;
+    }
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("saving"));
+    try {
+      await api("/api/account/password", {
+        method: "POST",
+        body: JSON.stringify({
+          current_password: String(fd.get("current_password") || ""),
+          new_password: next,
+        }),
+      });
+      closeModal();
+      toast(t("password_changed"));
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
+}
+
+function openProfileEdit() {
+  if (!state.user) return;
+  const current = state.user;
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="profile-title">${esc(t("profile_title"))}</h2>
+      <p>${esc(t("profile_email_note"))}</p>
+    </div>
+    <form id="profile-form" aria-labelledby="profile-title">
+      <div class="field">
+        <label for="profile-name">${esc(t("profile_name"))}</label>
+        <input id="profile-name" name="name" type="text" maxlength="60" minlength="2" required value="${esc(current.name || "")}" autocomplete="name" data-autofocus>
+      </div>
+      <div class="field">
+        <label for="profile-campus">${esc(t("profile_campus"))}</label>
+        <select id="profile-campus" name="campus">
+          ${CAMPUSES.map(c => option(c, campusLabel(c), c === current.campus)).join("")}
+        </select>
+        <small>${esc(t("profile_campus_hint"))}</small>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("check")}${esc(t("profile_save"))}</button>
+    </form>`, { labelledBy: "profile-title", sheet: true });
+  $("#profile-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("saving"));
+    try {
+      const data = await api("/api/account/profile", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: String(fd.get("name") || "").trim().replace(/\s+/g, " "),
+          campus: fd.get("campus") || current.campus,
+        }),
+      });
+      state.user = data.user;
+      closeModal();
+      toast(t("profile_saved"));
+      renderAuthArea();
+      render();
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
+}
+
 function accountToolsHtml() {
   if (!state.user) {
     return `<div class="privacy-panel">
       <h3>${esc(t("account_data_title"))}</h3>
       <p>${esc(t("privacy_login_manage"))}</p>
-      <button class="btn btn-primary btn-sm" data-action="login">${esc(t("login"))}</button>
+      <button type="button" class="btn btn-primary btn-sm" data-action="login">${icon("user")}${esc(t("login"))}</button>
     </div>`;
   }
   return `<div class="privacy-panel">
@@ -1112,8 +2649,8 @@ function accountToolsHtml() {
         <p>${esc(t("account_data_body"))}</p>
       </div>
       <div class="account-actions">
-        <button class="btn btn-ghost btn-sm" data-action="export">${esc(t("privacy_export"))}</button>
-        <button class="btn btn-danger btn-sm" data-action="delete">${esc(t("privacy_delete"))}</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="export">${icon("download")}${esc(t("privacy_export"))}</button>
+        <button type="button" class="btn btn-danger btn-sm" data-action="delete">${icon("trash")}${esc(t("privacy_delete"))}</button>
       </div>
     </div>
     <dl class="account-meta">
@@ -1122,7 +2659,7 @@ function accountToolsHtml() {
       <div><dt>${esc(t("account_consent"))}</dt><dd>${state.user.consent_ok ? esc(t("account_consent_ok")) : esc(t("account_consent_old"))} · ${esc(CONFIG.legalVersion)}</dd></div>
       <div><dt>${esc(t("account_rights"))}</dt><dd>${esc(t("account_rights_body"))}</dd></div>
     </dl>
-    <p class="muted">${legalText(t("account_note"))}</p>
+    <p class="muted small">${legalText(t("account_note"))}</p>
   </div>`;
 }
 
@@ -1134,34 +2671,51 @@ async function downloadAccountExport() {
     const a = document.createElement("a");
     a.href = url;
     a.download = `circular-campus-export-${(state.user && state.user.id) || "account"}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast(t("toast_account_exported"));
-  } catch (e) { toast(errorMessage(e), true); }
+  } catch (e) { toast(errorMessage(e), "error"); }
 }
 
 function openDeleteAccount() {
   openModal(`
     ${closeBtn()}
-    <h2>${esc(t("delete_account_title"))}</h2>
-    <p class="danger-text">${esc(t("delete_warning"))}</p>
-    <form id="delete-account-form">
-      <div class="field"><label>${esc(t("delete_password"))}</label><input name="password" type="password" required autocomplete="current-password"></div>
-      <button class="btn btn-danger btn-block" type="submit">${esc(t("delete_confirm_btn"))}</button>
-      <button class="btn btn-ghost btn-block" type="button" data-close style="margin-top:8px">${esc(t("cancel"))}</button>
-    </form>`);
+    <div class="modal-head">
+      <h2 id="delete-title">${esc(t("delete_account_title"))}</h2>
+      <p class="danger-text">${esc(t("delete_warning"))}</p>
+    </div>
+    <form id="delete-account-form" aria-labelledby="delete-title">
+      <div class="field">
+        <label for="delete-password">${esc(t("delete_password"))}</label>
+        <input id="delete-password" name="password" type="password" required autocomplete="current-password" data-autofocus>
+      </div>
+      <button class="btn btn-danger-solid btn-block" type="submit" data-submit>${icon("trash")}${esc(t("delete_confirm_btn"))}</button>
+    </form>`, { labelledBy: "delete-title" });
   $("#delete-account-form").onsubmit = async (e) => {
     e.preventDefault();
     const password = new FormData(e.target).get("password") || "";
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("saving"));
     try {
       await api("/api/account/delete", { method: "DELETE", body: JSON.stringify({ password }) });
-      state.token = null; state.user = null; state.pendingConsent = false;
+      state.token = null;
+      state.user = null;
+      state.pendingConsent = false;
       localStorage.removeItem("cc_token");
-      closeModal(); renderAuthArea(); toast(t("toast_account_deleted")); navigate("home");
-    } catch (err) { toast(errorMessage(err), true); }
+      closeModal();
+      renderAuthArea();
+      toast(t("toast_account_deleted"));
+      navigate("home");
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
+/* ---------------- Documentos legales ---------------- */
 function renderLegalPage(app, kind) {
   const docs = LEGAL_DOCS[state.lang] || LEGAL_DOCS.es;
   const sections = docs[kind] || [];
@@ -1174,186 +2728,502 @@ function renderLegalPage(app, kind) {
   setApp(app, `
     <article class="legal-doc">
       <header class="legal-head">
-        <img src="/static/img/circular-campus-lockup.png" alt="" data-fallback data-fallback-src="/static/img/circular-campus-mark-white.png">
+        ${responsiveImage("/static/img/circular-campus-lockup.png", { fallback: "/static/img/circular-campus-mark-white.png", sizes: "260px" })}
         <div>
-          <span class="eyebrow">${esc(t("legal_kicker"))} · ${esc(CONFIG.service)}</span>
+          <span class="eyebrow">${icon("shield")}${esc(t("legal_kicker"))} · ${esc(CONFIG.service)}</span>
           <h1>${esc(t(kind + "_title"))}</h1>
           <p class="lead">${esc(t(kind + "_lead"))}</p>
           <p class="muted">${esc(t("legal_updated"))}: ${esc(CONFIG.legalUpdated)} · ${esc(t("legal_version"))}: ${esc(CONFIG.legalVersion)} · ${esc(t("legal_contact_label"))}: <a href="mailto:${esc(CONFIG.contactEmail)}">${esc(CONFIG.contactEmail)}</a></p>
         </div>
-        <button class="btn btn-ghost btn-sm" data-print>${esc(t("legal_print"))}</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-print>${icon("download")}${esc(t("legal_print"))}</button>
       </header>
       ${rendered}
       ${kind === "privacy" ? accountToolsHtml() : ""}
-      <p class="legal-back"><a href="/" data-route="home">← ${esc(t("back_home"))}</a></p>
+      <p class="legal-back"><a href="/" data-route="home">${icon("arrow", "icon-sm")} ${esc(t("back_home"))}</a></p>
     </article>`);
 }
 
-async function renderMy(app) {
+/* ---------------- Mi área ---------------- */
+function renderMy(app) {
   if (!state.user) {
-    setApp(app, `<div class="empty" style="margin-top:30px"><p>${esc(t("need_login"))}</p>
-      <button class="btn btn-primary" id="my-login">${esc(t("login"))}</button></div>`);
-    $("#my-login").onclick = () => openAuth("login");
+    setApp(app, `
+      <div class="page-head">
+        <span class="eyebrow">${icon("user")}${esc(t("my_area"))}</span>
+        <h1>${esc(t("my_area"))}</h1>
+      </div>
+      ${emptyState({
+        iconName: "user",
+        title: t("need_login"),
+        text: t("account_data_body"),
+        actions: [
+          { id: "login", label: t("login"), icon: "user" },
+          { id: "register", label: t("register"), variant: "btn-ghost" }
+        ]
+      })}`);
+    bindEmptyActions(app, { login: () => openAuth("login"), register: () => openAuth("register") });
     return;
   }
-  const tab = state.myTab;
-  let content = "";
-  if (tab === "items") {
-    const data = await api("/api/items?status=&sort=recent").catch(() => ({ items: [] }));
-    const mine = (data.items || []).filter(i => i.owner_id === state.user.id);
-    content = mine.length ? mine.map(it => `
-      <div class="list-item">
-        <img src="${esc(itemImage(it))}" alt="" data-fallback data-category="${esc(it.category)}">
-        <div class="grow"><strong>${esc(it.title)}</strong><br><span class="muted">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))}</span></div>
-        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
-        <button class="btn btn-ghost btn-sm" data-view="${it.id}">${esc(t("view_item"))}</button>
-        <select data-status="${it.id}" aria-label="${esc(t("status_disponible"))}">
-          <option value="disponible" ${it.status === "disponible" ? "selected" : ""}>${esc(t("status_disponible"))}</option>
-          <option value="reservado" ${it.status === "reservado" ? "selected" : ""}>${esc(t("status_reservado"))}</option>
-          <option value="entregado" ${it.status === "entregado" ? "selected" : ""}>${esc(t("status_entregado"))}</option>
-        </select>
-        <button class="btn btn-danger btn-sm" data-del="${it.id}">${esc(t("delete_item"))}</button>
-      </div>`).join("") : `<div class="empty">${esc(t("my_empty_items"))}</div>`;
-  } else if (tab === "requests") {
-    const data = await api("/api/requests/mine").catch(() => ({ requests: [] }));
-    content = data.requests.length ? data.requests.map(r => `
-      <div class="list-item">
-        <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" data-fallback data-category="otros">
-        <div class="grow"><strong>${esc(r.item_title)}</strong><br><span class="muted">${esc(r.message || "—")}</span></div>
-        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
-        ${r.status === "pendiente" ? `<button class="btn btn-ghost btn-sm" data-cancelreq="${r.id}">${esc(t("cancel_req"))}</button>` : ""}
-      </div>`).join("") : `<div class="empty">${esc(t("my_empty_requests"))}</div>`;
-  } else if (tab === "received") {
-    const data = await api("/api/requests/received").catch(() => ({ requests: [] }));
-    content = data.requests.length ? data.requests.map(r => `
-      <div class="list-item">
-        <img src="${esc(r.item_image || categoryImage("otros"))}" alt="" data-fallback data-category="otros">
-        <div class="grow"><strong>${esc(r.item_title)}</strong> · ${esc(r.requester_name)}<br><span class="muted">${esc(r.message || "—")}</span></div>
-        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
-        ${r.status === "pendiente" ? `<button class="btn btn-primary btn-sm" data-accept="${r.id}">${esc(t("accept"))}</button><button class="btn btn-ghost btn-sm" data-reject="${r.id}">${esc(t("reject"))}</button>` : ""}
-        ${r.status === "aceptada" ? `<button class="btn btn-primary btn-sm" data-complete="${r.id}">${esc(t("complete"))}</button>` : ""}
-      </div>`).join("") : `<div class="empty">${esc(t("my_empty_received"))}</div>`;
-  } else if (tab === "favorites") {
-    const data = await api("/api/favorites").catch(() => ({ items: [] }));
-    content = data.items.length ? `<div class="grid">${data.items.map(itemCard).join("")}</div>` : `<div class="empty">${esc(t("my_empty_favs"))}</div>`;
-  }
 
+  const tab = state.myTab;
+  const initials = esc((state.user.name || "?").trim().charAt(0).toUpperCase() || "?");
   setApp(app, `
-    <div class="section-title">
-      <h2>${esc(t("my_area"))} · ${esc(state.user.name)}</h2>
-      <p>${state.user.academic_email ? esc(t("academic_email")) : esc(t("personal_email"))} · ${esc(t("identity_note"))}</p>
+    <div class="page-head mb-4">
+      <span class="eyebrow">${icon("user")}${esc(t("my_area"))}</span>
+      <h1>${esc(state.user.name)}</h1>
+      <p class="lead lead-inline">
+        <span class="avatar avatar-sm" aria-hidden="true">${initials}</span>
+        <span>${esc(campusLabel(state.user.campus))} · ${esc(state.user.email)}</span>
+        <span class="identity-badge${(state.user.university_verified || state.user.academic_email) ? " academic" : ""}">${icon((state.user.university_verified || state.user.academic_email) ? "check" : "user")}${esc((state.user.university_verified || state.user.academic_email) ? t("verified_badge") : t("personal_email"))}</span>
+      </p>
+      <div class="page-head-actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="edit-profile">${icon("user")}${esc(t("profile_edit"))}</button>
+      </div>
     </div>
-    <div class="tabs">
-      <button data-tab="items" class="${tab === "items" ? "active" : ""}">${esc(t("my_items"))}</button>
-      <button data-tab="requests" class="${tab === "requests" ? "active" : ""}">${esc(t("my_requests"))}</button>
-      <button data-tab="received" class="${tab === "received" ? "active" : ""}">${esc(t("received"))}</button>
-      <button data-tab="favorites" class="${tab === "favorites" ? "active" : ""}">${esc(t("favorites"))}</button>
+    <div id="trust-panel" class="mt-4">
+      <div class="trust-panel"><div class="skeleton sk-line w-45"></div><div class="skeleton sk-line w-70 mt-3"></div><div class="skeleton sk-line w-60 mt-3"></div></div>
     </div>
-    ${content}
+    <div class="segment" role="tablist" aria-label="${esc(t("my_area_subtitle"))}">
+      ${MY_TABS.map(x => `<button type="button" role="tab" id="tab-${x.id}" aria-selected="${tab === x.id}" aria-controls="my-panel" data-tab="${x.id}">${esc(t(x.label))}</button>`).join("")}
+    </div>
+    <div id="my-panel" role="tabpanel" aria-labelledby="tab-${tab}" class="mt-4">
+      ${skeletonRows(3)}
+    </div>
     ${accountToolsHtml()}`);
 
-  $$("[data-tab]").forEach(b => b.onclick = () => { state.myTab = b.dataset.tab; render(); });
-  $$("[data-status]").forEach(sel => sel.onchange = async () => {
-    try { await api(`/api/items/${sel.dataset.status}`, { method: "PATCH", body: JSON.stringify({ status: sel.value }) }); toast(t("toast_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  const editProfile = $("#edit-profile");
+  if (editProfile) editProfile.onclick = openProfileEdit;
+  $$(".segment [data-tab]").forEach(b => {
+    b.onclick = () => { state.myTab = b.dataset.tab; state.myTabFocus = true; render(); };
   });
-  $$("[data-del]").forEach(b => b.onclick = async () => {
-    if (!confirm(t("delete_item") + "?")) return;
-    try { await api(`/api/items/${b.dataset.del}`, { method: "DELETE" }); toast(t("toast_deleted")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  if (state.myTabFocus) {
+    state.myTabFocus = false;
+    const activeTab = $('.segment [aria-selected="true"]');
+    if (activeTab) activeTab.focus();
+  }
+  loadMyTab(tab);
+  loadTrustPanel();
+}
+
+async function loadTrustPanel() {
+  const box = $("#trust-panel");
+  if (!box || !state.user) return;
+  try {
+    const data = await api("/api/impact/me");
+    if (!box.isConnected) return;
+    box.innerHTML = trustPanel(data);
+    const bar = $("[data-level-bar]", box);
+    const progress = Math.max(0, Math.min(100, Number((data.level || {}).progress) || 0));
+    if (bar) bar.style.width = `${progress}%`;
+  } catch (err) {
+    if (box.isConnected) {
+      box.innerHTML = `<p class="muted small">${icon("info")} ${esc(t("my_impact_error"))}</p>`;
+    }
+  }
+}
+
+function myItemCard(it) {
+  return `<article class="list-card">
+    ${responsiveImage(itemImage(it), { category: it.category, sizes: "64px" })}
+    <div class="list-card-body">
+      <div class="list-card-top">
+        <h3 class="list-card-title">${esc(it.title)}</h3>
+        <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
+        ${it.hidden ? `<span class="status-pill status-review">${esc(t("status_review"))}</span>` : ""}
+      </div>
+      <p class="list-card-meta">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))}</p>
+      ${it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}
+      <div class="list-card-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-view="${it.id}">${icon("eye")}${esc(t("view_item"))}</button>
+        <label class="sr-only" for="status-${it.id}">${esc(t("status_change"))}</label>
+        <select id="status-${it.id}" data-status="${it.id}" aria-label="${esc(t("status_change"))}">
+          ${["disponible", "reservado", "entregado"].map(s => option(s, statusLabel(s), it.status === s)).join("")}
+        </select>
+        <button type="button" class="btn btn-danger btn-sm" data-del="${it.id}">${icon("trash")}${esc(t("delete_item"))}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function requestCard(r, mode) {
+  const isReceived = mode === "received";
+  const owner = isReceived ? `<span class="list-card-meta"> · ${esc(r.counterpart_name || r.requester_name || "")}</span>` : "";
+  return `<article class="list-card">
+    ${responsiveImage(r.item_image || categoryImage("otros"), { category: "otros", sizes: "64px" })}
+    <div class="list-card-body">
+      <div class="list-card-top">
+        <h3 class="list-card-title">${esc(r.item_title)}${owner}</h3>
+        <span class="status-pill status-${esc(r.status)}">${esc(reqLabel(r.status))}</span>
+      </div>
+      ${r.handover_point ? `<p class="list-card-meta">${icon("pin")}${esc(t("req_handover"))}: ${esc(handLabel(r.handover_point))}</p>` : ""}
+      ${r.message ? `<p class="list-card-message">${esc(r.message)}</p>` : ""}
+      ${r.my_rating ? `<p class="list-card-rating">${starsHtml(r.my_rating, 0, { withCount: false })}<span>${esc(t("req_rated").replace("{n}", String(r.my_rating)))}</span></p>` : ""}
+      <div class="list-card-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-view="${r.item_id}">${icon("eye")}${esc(t("view_item"))}</button>
+        ${!isReceived && r.status === "pendiente" ? `<button type="button" class="btn btn-danger btn-sm" data-cancelreq="${r.id}">${esc(t("cancel_req"))}</button>` : ""}
+        ${isReceived && r.status === "pendiente" ? `
+          <button type="button" class="btn btn-primary btn-sm" data-accept="${r.id}">${icon("check")}${esc(t("accept"))}</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-reject="${r.id}">${esc(t("reject"))}</button>` : ""}
+        ${isReceived && r.status === "aceptada" ? `<button type="button" class="btn btn-primary btn-sm" data-complete="${r.id}">${icon("check-circle")}${esc(t("complete"))}</button>` : ""}
+        ${r.can_rate ? `<button type="button" class="btn btn-primary btn-sm" data-rate="${r.id}" data-rate-title="${esc(r.item_title)}">${icon("star")}${esc(t("rate_cta"))}</button>` : ""}
+      </div>
+    </div>
+  </article>`;
+}
+
+async function loadMyTab(tab) {
+  const panel = $("#my-panel");
+  if (!panel) return;
+  panel.innerHTML = skeletonRows(3);
+  let html = "";
+  try {
+    if (tab === "items") {
+      const data = await api("/api/items/mine");
+      const mine = data.items || [];
+      html = mine.length
+        ? `<p class="hint-line">${icon("info")}${esc(t("status_help"))}</p>` + mine.map(myItemCard).join("")
+        : emptyState({
+        iconName: "leaf",
+        title: t("empty_my_items_t"),
+        text: t("empty_my_items_b"),
+        actions: [{ id: "publish", label: t("publish_cta"), icon: "plus" }]
+      });
+    } else if (tab === "requests") {
+      const data = await api("/api/requests/mine");
+      const list = data.requests || [];
+      html = list.length ? list.map(r => requestCard(r, "mine")).join("") : emptyState({
+        iconName: "inbox",
+        title: t("empty_req_t"),
+        text: t("empty_req_b"),
+        actions: [{ id: "browse", label: t("browse_catalog"), icon: "search", variant: "btn-ghost" }]
+      });
+    } else if (tab === "received") {
+      const data = await api("/api/requests/received");
+      const list = data.requests || [];
+      html = list.length ? list.map(r => requestCard(r, "received")).join("") : emptyState({
+        iconName: "inbox",
+        title: t("empty_recv_t"),
+        text: t("empty_recv_b"),
+        actions: [{ id: "publish", label: t("publish_cta"), icon: "plus" }]
+      });
+    } else {
+      const data = await api("/api/favorites");
+      const list = data.items || [];
+      html = list.length ? `<div class="grid grid-items">${list.map(itemCard).join("")}</div>` : emptyState({
+        iconName: "heart",
+        title: t("empty_fav_t"),
+        text: t("empty_fav_b"),
+        actions: [{ id: "browse", label: t("browse_catalog"), icon: "search", variant: "btn-ghost" }]
+      });
+    }
+  } catch (err) {
+    html = emptyState({
+      iconName: "alert",
+      title: t("toast_error"),
+      text: errorMessage(err),
+      actions: [{ id: "retry", label: t("retry"), icon: "refresh", variant: "btn-ghost" }]
+    });
+  }
+  if (!panel.isConnected) return;
+  panel.innerHTML = html;
+  enhance(panel);
+  bindEmptyActions(panel, {
+    publish: () => navigate("publish"),
+    browse: () => navigate("home"),
+    retry: () => loadMyTab(state.myTab)
   });
-  $$("[data-cancelreq]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.cancelreq}`, { method: "PATCH", body: JSON.stringify({ status: "cancelada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  bindMyActions(panel);
+}
+
+function bindMyActions(panel) {
+  $$("[data-status]", panel).forEach(sel => {
+    sel.onchange = async () => {
+      sel.disabled = true;
+      try {
+        await api(`/api/items/${sel.dataset.status}`, { method: "PATCH", body: JSON.stringify({ status: sel.value }) });
+        toast(t("toast_status"));
+        render();
+      } catch (err) {
+        sel.disabled = false;
+        toast(errorMessage(err), "error");
+      }
+    };
   });
-  $$("[data-accept]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.accept}`, { method: "PATCH", body: JSON.stringify({ status: "aceptada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
+  $$("[data-del]", panel).forEach(b => { b.onclick = () => confirmDeleteItem(Number(b.dataset.del)); });
+  const patchRequest = (id, status, okMsg) => async (event) => {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    try {
+      await api(`/api/requests/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+      toast(okMsg);
+      state.stats = null;
+      render();
+    } catch (err) {
+      btn.disabled = false;
+      toast(errorMessage(err), "error");
+    }
+  };
+  $$("[data-cancelreq]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.cancelreq, "cancelada", t("toast_req_status")); });
+  $$("[data-accept]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.accept, "aceptada", t("toast_req_status")); });
+  $$("[data-reject]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.reject, "rechazada", t("toast_req_status")); });
+  $$("[data-complete]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.complete, "completada", t("toast_req_status")); });
+  $$("[data-rate]", panel).forEach(b => {
+    b.onclick = () => openRate(b.dataset.rate, b.dataset.rateTitle, () => {
+      loadMyTab(state.myTab);
+      loadTrustPanel();
+    });
   });
-  $$("[data-reject]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.reject}`, { method: "PATCH", body: JSON.stringify({ status: "rechazada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
-  });
-  $$("[data-complete]").forEach(b => b.onclick = async () => {
-    try { await api(`/api/requests/${b.dataset.complete}`, { method: "PATCH", body: JSON.stringify({ status: "completada" }) }); toast(t("toast_req_status")); render(); }
-    catch (e) { toast(errorMessage(e), true); }
-  });
+}
+
+function confirmDeleteItem(id) {
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="confirm-delete-title">${esc(t("confirm_delete_t"))}</h2>
+      <p>${esc(t("confirm_delete_b"))}</p>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close>${esc(t("cancel"))}</button>
+      <button type="button" class="btn btn-danger-solid" id="confirm-delete-btn">${icon("trash")}${esc(t("confirm_delete_btn"))}</button>
+    </div>`, { labelledBy: "confirm-delete-title" });
+  $("#confirm-delete-btn").onclick = async () => {
+    const btn = $("#confirm-delete-btn");
+    setBusy(btn, true, t("saving"));
+    try {
+      await api(`/api/items/${id}`, { method: "DELETE" });
+      closeModal();
+      toast(t("toast_deleted"));
+      render();
+    } catch (err) {
+      setBusy(btn, false);
+      toast(errorMessage(err), "error");
+    }
+  };
 }
 
 /* ---------------- Detalle y solicitudes ---------------- */
 async function openItem(id) {
+  const modal = openModal(`
+    ${closeBtn()}
+    <div class="skeleton sk-media-detail" aria-hidden="true"></div>
+    <div class="skeleton sk-line w-70 sk-title" aria-hidden="true"></div>
+    <div class="skeleton sk-line w-45 sk-subtitle" aria-hidden="true"></div>`,
+    { sheet: true, label: t("view_item") });
+
+  let it;
   try {
     const data = await api(`/api/items/${id}`);
-    const it = data.item;
-    const owner = it.owner || {};
-    const isOwn = state.user && state.user.id === it.owner_id;
-    const isSale = it.exchange_type === "vender";
-    const price = isSale ? `€${Number(it.price).toFixed(0)}` : esc(t("free"));
-    openModal(`
-      ${closeBtn()}
-      <img class="detail-img" src="${esc(itemImage(it))}" alt="${esc(it.title)}" data-fallback data-category="${esc(it.category)}">
-      <h2 style="margin-top:14px">${esc(it.title)}</h2>
-      <div class="card-meta">
-        <span class="pill">${esc(catLabel(it.category))}</span>
-        <span class="pill">${esc(condLabel(it.condition))}</span>
-        <span class="pill grey">${esc(typeLabel(it.exchange_type))}</span>
-        <span class="pill grey">${esc(campusLabel(it.campus))}</span>
+    it = data.item;
+  } catch (e) {
+    closeModal();
+    toast(errorMessage(e), "error");
+    return;
+  }
+  if (!modal.isConnected) return;
+
+  state.lastItem = it;
+  const owner = it.owner || {};
+  const isOwn = state.user && state.user.id === it.owner_id;
+  const isSale = it.exchange_type === "vender";
+  const available = it.status === "disponible";
+  const price = isSale ? `€${Number(it.price || 0).toFixed(0)}` : esc(t("free"));
+  const saved = Boolean(it.is_favorite);
+
+  modal.removeAttribute("aria-label");
+  modal.setAttribute("aria-labelledby", "detail-title");
+  modal.innerHTML = `
+    ${closeBtn()}
+    <div class="detail-media">
+      ${responsiveImage(itemImage(it), { alt: it.title, category: it.category, lazy: false, sizes: "(max-width: 720px) 100vw, 640px" })}
+      <button type="button" class="fav-btn${saved ? " active" : ""}" data-detail-fav aria-pressed="${saved}" aria-label="${esc(saved ? t("detail_faved") : t("detail_fav"))}">${icon("heart")}</button>
+      <div class="card-badges badges-start">
         <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
       </div>
-      <p style="margin-top:12px">${esc(it.description)}</p>
-      <div class="owner-box">
-        <span class="avatar">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
-        <div>
-          <strong>${esc(owner.name || "—")}</strong>
-          <span class="identity-badge ${owner.academic_email ? "academic" : ""}">${owner.academic_email ? esc(t("academic_email")) : esc(t("personal_email"))}</span>
-          <small class="muted">${esc(t("identity_note"))}</small><br>
-          <span class="muted">${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))} · ${esc(campusLabel(it.campus))}</span>
+    </div>
+    <h2 class="detail-title" id="detail-title">${esc(it.title)}</h2>
+    <div class="detail-badges">
+      <span class="pill">${esc(catLabel(it.category))}</span>
+      <span class="pill grey">${esc(condLabel(it.condition))}</span>
+      <span class="pill grey">${esc(typeLabel(it.exchange_type))}</span>
+      <span class="pill grey">${esc(campusLabel(it.campus))}</span>
+      ${it.faculty ? `<span class="pill grey">${icon("grid")}${esc(facLabel(it.faculty))}</span>` : ""}
+    </div>
+    <div class="detail-price-row">
+      <div><span class="price">${price}</span>${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}</div>
+      <span class="card-location">${icon("pin")}${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))}</span>
+    </div>
+    <section class="detail-section">
+      <h3>${esc(t("detail_description"))}</h3>
+      <p class="detail-desc">${it.description ? esc(it.description) : `<span class="muted">${esc(t("detail_no_desc"))}</span>`}</p>
+      <p class="impact-line">${icon("leaf")}<span>${esc(t("impact_item").replace("{kg}", fmtNum((it.impact || {}).kg, 1)).replace("{eur}", fmtNum((it.impact || {}).savings, 0)))}</span></p>
+    </section>
+    <section class="detail-section">
+      <h3>${esc(t("owner"))}</h3>
+      <div class="owner-card">
+        <span class="avatar" aria-hidden="true">${esc((owner.name || "?").charAt(0).toUpperCase())}</span>
+        <div class="owner-body">
+          <p class="owner-name">${esc(owner.name || "—")}
+            <span class="identity-badge${owner.university_verified ? " academic" : ""}">${icon(owner.university_verified ? "check" : "user")}${esc(owner.university_verified ? t("verified_badge") : t("personal_email"))}</span>
+          </p>
+          <p class="owner-trust">${starsHtml((owner.rating || {}).average, (owner.rating || {}).count)}</p>
+          <p class="owner-stats">
+            <span>${icon("refresh")}${(owner.exchanges || {}).completed || 0} ${esc(t("exchanges_short"))}</span>
+            <span>${icon("leaf")}${fmtNum((owner.impact || {}).kg, 1)} kg</span>
+            <span class="level-pill">${esc(t("level_label"))}: ${esc(levelLabel((owner.level || {}).key || "semilla"))}</span>
+          </p>
+          <small>${esc(t("identity_note"))}</small>
         </div>
-        <div class="owner-price"><span class="price">${price}</span>${isSale ? `<small class="price-sub">${esc(t("price_orientative"))}</small>` : ""}</div>
       </div>
-      ${isSale ? `<div class="notice" role="note"><span class="notice-icon" aria-hidden="true">€</span><div><p>${esc(t("detail_payment_notice"))}</p></div></div>` : ""}
-      <p class="muted" style="font-size:14px">${esc(t("loan_rules"))}</p>
-      <p class="muted" style="font-size:14px">${esc(t("detail_privacy_note"))}</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-        ${isOwn ? `<button class="btn btn-ghost" id="detail-manage">${esc(t("my_area"))}</button>`
-                : `<button class="btn btn-primary" id="detail-request" ${it.status !== "disponible" ? "disabled" : ""}>${esc(t("detail_request"))}</button>`}
-        <button class="btn btn-ghost" id="detail-fav">${it.is_favorite ? esc(t("detail_faved")) : esc(t("detail_fav"))}</button>
-      </div>`);
-    const favBtn = $("#detail-fav");
-    if (favBtn) favBtn.onclick = async () => {
-      if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
-      try {
-        const d = await api(`/api/items/${id}/favorite`, { method: "POST" });
-        toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
-        openItem(id);
-      } catch (e) { toast(errorMessage(e), true); }
-    };
-    const manageBtn = $("#detail-manage");
-    if (manageBtn) manageBtn.onclick = () => { closeModal(); navigate("my"); };
-    const reqBtn = $("#detail-request");
-    if (reqBtn) reqBtn.onclick = () => {
-      if (!state.user) { toast(t("need_login"), true); openAuth("login"); return; }
-      openRequest(id);
-    };
-  } catch (e) { toast(errorMessage(e), true); }
+      <details class="disclosure">
+        <summary>${icon("star")}<span>${esc(t("ratings_received"))}</span>${icon("chevron")}</summary>
+        <div class="disclosure-body">${ratingList(owner.rating)}</div>
+      </details>
+    </section>
+    <details class="disclosure">
+      <summary>${icon("shield")}<span>${esc(t("detail_handover_h"))}</span>${icon("chevron")}</summary>
+      <div class="disclosure-body">
+        <p>${esc(t("loan_rules"))}</p>
+        <p>${esc(t("detail_privacy_note"))}</p>
+      </div>
+    </details>
+    ${isSale ? `<details class="disclosure">
+      <summary>${icon("tag")}<span>${esc(t("detail_payment_h"))}</span>${icon("chevron")}</summary>
+      <div class="disclosure-body"><p>${esc(t("detail_payment_notice"))}</p></div>
+    </details>` : ""}
+    ${!available && !isOwn ? `<p class="danger-text mt-4">${esc(t("detail_unavailable"))}</p>` : ""}
+    <div class="detail-actions">
+      ${isOwn
+        ? `<button type="button" class="btn btn-primary" id="detail-manage">${icon("grid")}${esc(t("detail_manage"))}</button>`
+        : `<button type="button" class="btn btn-primary" id="detail-request"${available ? "" : " disabled"}>${icon("inbox")}${esc(t("detail_request"))}</button>`}
+      <button type="button" class="btn btn-ghost" id="detail-fav-btn" aria-pressed="${saved}">
+        ${icon("heart")}<span id="detail-fav-label">${esc(saved ? t("detail_faved") : t("detail_fav"))}</span>
+      </button>
+    </div>
+    ${isOwn ? "" : `<button type="button" class="report-link" id="detail-report">${icon("alert")}${esc(t("report_open"))}</button>`}
+    ${isOwn && it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}`;
+  enhance(modal);
+
+  const toggleFav = async (btn) => {
+    if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+    btn.disabled = true;
+    try {
+      const d = await api(`/api/items/${id}/favorite`, { method: "POST" });
+      toast(d.is_favorite ? t("toast_fav_on") : t("toast_fav_off"));
+      $$("[data-detail-fav]", modal).forEach(b => {
+        b.classList.toggle("active", d.is_favorite);
+        b.setAttribute("aria-pressed", String(d.is_favorite));
+      });
+      const favTop = $("[data-detail-fav]", modal);
+      if (favTop) favTop.setAttribute("aria-label", d.is_favorite ? t("detail_faved") : t("detail_fav"));
+      const label = $("#detail-fav-label", modal);
+      if (label) label.textContent = d.is_favorite ? t("detail_faved") : t("detail_fav");
+    } catch (e) {
+      toast(errorMessage(e), "error");
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  const favTop = $("[data-detail-fav]", modal);
+  if (favTop) favTop.onclick = () => toggleFav(favTop);
+  const favBtn = $("#detail-fav-btn", modal);
+  if (favBtn) favBtn.onclick = () => toggleFav(favBtn);
+
+  const manageBtn = $("#detail-manage", modal);
+  if (manageBtn) manageBtn.onclick = () => { closeModal(); state.myTab = "items"; navigate("my"); };
+  const reqBtn = $("#detail-request", modal);
+  if (reqBtn) reqBtn.onclick = () => {
+    if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+    openRequest(id);
+  };
+  const reportBtn = $("#detail-report", modal);
+  if (reportBtn) reportBtn.onclick = () => {
+    if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+    openReport(it);
+  };
+}
+
+function openReport(item) {
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="report-title">${esc(t("report_title"))}</h2>
+      <p>${esc(t("report_privacy"))}</p>
+    </div>
+    <form id="report-form" aria-labelledby="report-title">
+      <fieldset class="field report-reasons">
+        <legend>${esc(t("report_reason"))}</legend>
+        ${REPORT_REASONS.map((reason, i) => `
+          <label class="radio-row">
+            <input type="radio" name="reason" value="${reason}"${i === 0 ? " checked" : ""}>
+            <span>${esc(t("report_reason_" + reason))}</span>
+          </label>`).join("")}
+      </fieldset>
+      <div class="field">
+        <label for="report-comment">${esc(t("report_comment"))}</label>
+        <textarea id="report-comment" name="comment" maxlength="300" placeholder="${esc(t("report_comment_ph"))}"></textarea>
+        <small>${esc(t("report_note"))}</small>
+      </div>
+      <button class="btn btn-danger btn-block" type="submit" data-submit>${icon("alert")}${esc(t("report_send"))}</button>
+    </form>`, { labelledBy: "report-title", sheet: true });
+  $("#report-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("sending"));
+    try {
+      const res = await api(`/api/items/${item.id}/report`, {
+        method: "POST",
+        body: JSON.stringify({
+          reason: fd.get("reason") || "otro",
+          comment: fd.get("comment") || "",
+        }),
+      });
+      closeModal();
+      toast(res.hidden ? t("report_sent_hidden") : t("report_sent"));
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
+  };
 }
 
 function openRequest(itemId) {
+  const item = state.lastItem && state.lastItem.id === itemId ? state.lastItem : null;
+  const suggestedPoint = (item && HANDOVERS.includes(item.handover_point)) ? item.handover_point : "acordado";
   openModal(`
     ${closeBtn()}
-    <h2>${esc(t("request_title"))}</h2>
-    <p class="muted">${esc(t("request_privacy"))}</p>
-    <form id="request-form">
-      <div class="field"><label>${esc(t("request_msg"))}</label><textarea name="message" maxlength="1000" placeholder="${esc(t("request_msg_ph"))}"></textarea></div>
-      <button class="btn btn-primary btn-block" type="submit">${esc(t("request_btn"))}</button>
-    </form>`);
+    <div class="modal-head">
+      <h2 id="request-title">${esc(t("request_title"))}</h2>
+      <p>${esc(t("request_privacy"))}</p>
+    </div>
+    <form id="request-form" aria-labelledby="request-title">
+      <div class="field">
+        <label for="request-message">${esc(t("request_msg"))}</label>
+        <textarea id="request-message" name="message" maxlength="1000" placeholder="${esc(t("request_msg_ph"))}" data-autofocus></textarea>
+      </div>
+      <div class="field">
+        <label for="request-point">${esc(t("request_point"))}</label>
+        <select id="request-point" name="handover_point">
+          ${HANDOVERS.map(c => option(c, handLabel(c), c === suggestedPoint)).join("")}
+        </select>
+        <small>${esc(t("request_point_hint"))}</small>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-submit>${icon("inbox")}${esc(t("request_btn"))}</button>
+    </form>`, { labelledBy: "request-title", sheet: true });
   $("#request-form").onsubmit = async (e) => {
     e.preventDefault();
-    const message = new FormData(e.target).get("message") || "";
+    const fd = new FormData(e.target);
+    const message = fd.get("message") || "";
+    const handover_point = fd.get("handover_point") || "";
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("sending"));
     try {
-      await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message }) });
-      closeModal(); toast(t("toast_request"));
-    } catch (err) { toast(errorMessage(err), true); }
+      await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message, handover_point }) });
+      closeModal();
+      toast(t("toast_request"));
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
@@ -1361,36 +3231,62 @@ function openRequest(itemId) {
 async function init() {
   $$(".lang-switch button").forEach(b => {
     b.onclick = () => {
+      if (state.lang === b.dataset.lang) return;
       state.lang = b.dataset.lang;
       localStorage.setItem("cc_lang", state.lang);
-      renderAuthArea(); render();
+      if (!state.pendingConsent) closeModal();
+      renderAuthArea();
+      render();
     };
   });
+
+  let scrollTick = false;
+  window.addEventListener("scroll", () => {
+    if (scrollTick) return;
+    scrollTick = true;
+    requestAnimationFrame(() => {
+      document.body.classList.toggle("is-scrolled", window.scrollY > 6);
+      scrollTick = false;
+    });
+  }, { passive: true });
+
   window.addEventListener("popstate", (e) => {
     state.view = (e.state && e.state.view) || PATH_VIEWS[location.pathname] || "home";
     render();
   });
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !state.pendingConsent) closeModal();
+    if (e.key !== "Escape") return;
+    closeUserMenu();
+    if (!state.pendingConsent) closeModal();
   });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest || !e.target.closest(".dropdown")) closeUserMenu();
+  });
+
   try { history.replaceState({ view: state.view }, "", location.pathname || "/"); } catch (e) {}
 
-  if (state.token) {
-    try {
-      const data = await api("/api/auth/me");
-      state.user = data.user;
-      if (!state.user) {
-        state.token = null;
-        localStorage.removeItem("cc_token");
-      } else if (!state.user.consent_ok) {
-        openConsentUpdate();
-      }
-    } catch (e) {
-      state.token = null;
-      localStorage.removeItem("cc_token");
-    }
-  }
   renderAuthArea();
   render();
+
+  if (!state.token) return;
+  try {
+    const data = await api("/api/auth/me");
+    state.user = data.user;
+    if (!state.user) {
+      state.token = null;
+      localStorage.removeItem("cc_token");
+      renderAuthArea();
+      return;
+    }
+    renderAuthArea();
+    render();
+    if (!state.user.consent_ok) openConsentUpdate();
+  } catch (e) {
+    state.token = null;
+    localStorage.removeItem("cc_token");
+    renderAuthArea();
+  }
 }
 document.addEventListener("DOMContentLoaded", init);

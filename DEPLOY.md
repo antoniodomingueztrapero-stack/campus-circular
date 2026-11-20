@@ -46,12 +46,22 @@ externo; revisa allí sus condiciones actuales.
 3. El Blueprint configura la web como gratuita y pide `DATABASE_URL` como
    variable secreta. Pega ahí la cadena PostgreSQL del proveedor y guarda.
    También puedes establecerla en **Environment** del servicio existente.
-4. Render ejecuta `pip install -r requirements.txt`, arranca `python3 app.py`
-   y comprueba `/api/health`. Al iniciar, la app crea/migra sus tablas en
-   PostgreSQL automáticamente. `APP_ENV=production` hace que el servicio falle
-   de forma segura si falta `DATABASE_URL`, en vez de recurrir a SQLite efímero.
+4. Render ejecuta `pip install -r requirements.txt`, arranca con Gunicorn
+   (`gunicorn app:app --workers 1 --threads 8`, ver `Procfile` y `render.yaml`)
+   y comprueba `/healthz`, una sonda que no consulta la base de datos. Al
+   iniciar, la app crea/migra sus tablas en PostgreSQL automáticamente.
+   `APP_ENV=production` hace que el servicio falle de forma segura si falta
+   `DATABASE_URL`, en vez de recurrir a SQLite efímero.
 5. Configura `CONTACT_EMAIL`, `CONTROLLER_NAME` y, si corresponde, las versiones
    legales. Cambia `SEED_DEMO=0` si no quieres objetos de demostración.
+   `UNIVERSITY_DOMAINS` permite ajustar, separados por comas, los dominios de
+   correo que muestran la insignia informativa de estudiante.
+   Deja `ALLOW_EMBED=0` salvo que necesites mostrar la app dentro de un iframe
+   ajeno (el preview del entorno de desarrollo): con 0 la CSP envía
+   `frame-ancestors 'self'` y `X-Frame-Options: SAMEORIGIN`.
+   `CORS_ORIGINS` debe contener tu dominio real (`https://campus-circular.onrender.com`
+   o el personalizado): es la única lista de orígenes con permiso para llamar a
+   la API desde otro sitio. Deja `RATE_LIMIT_ENABLED=1` y `TRUST_PROXY=1`.
 6. Espera a que el health check esté en verde y prueba crear una cuenta; luego
    cierra sesión y vuelve a entrar para comprobar el guardado.
 
@@ -68,6 +78,20 @@ Notas importantes:
 - Revisa las cuotas y la política de pausa/expiración del proveedor elegido y
   configura copias exportables si los datos son importantes.
 - No configures secretos ni claves de pago: no se integran pagos.
+- **Fotos**: se guardan en la tabla `media` de PostgreSQL (`BYTEA`), así que
+  sobreviven a cada despliegue y reinicio del plan gratuito. `/static/uploads/…`
+  las sirve desde la base si el fichero no está en el disco del contenedor, con
+  `Cache-Control: immutable` y ETag. No hay credenciales de almacenamiento de
+  objetos que configurar.
+- Si algún día el catálogo crece y las fotos pesan demasiado para la base,
+  sustituye `store_media`/`read_media` por S3, Cloudinary o Supabase Storage y
+  pasa las claves por variables de entorno (documentadas en `.env.example`).
+  Nunca las escribas en el código.
+- **Arranque en frío**: en el plan gratuito el servicio se suspende sin
+  tráfico. La primera visita puede tardar decenas de segundos; la web muestra
+  «El servidor se está despertando» a partir de 2,5 s y ofrece reintento si
+  falla la red. Un monitor de uptime que llame a `/healthz` cada pocos minutos
+  reduce las esperas.
 - No uses marcas institucionales ni presentes la web como servicio oficial.
 
 ## Ejecutarla en local
@@ -106,10 +130,64 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 
 ---
 
+## Seguridad en producción
+
+- **CORS**: `CORS_ORIGINS` con tu dominio exacto (sin barra final). Cualquier
+  otro origen no recibe cabeceras CORS y el navegador no puede leer la API.
+  Como la autenticación usa cabecera `Authorization` y no cookies, no hace falta
+  `Access-Control-Allow-Credentials`.
+- **Límites**: activos por defecto (`RATE_LIMIT_ENABLED=1`). Devuelven `429`
+  con `Retry-After`. Se aplican por IP (resuelta con `ProxyFix`) y por cuenta.
+  El despliegue usa **un worker con 8 hilos** para que los contadores sean
+  exactos y el consumo de RAM bajo; si algún día se añaden más workers, el
+  límite efectivo se multiplica y conviene un almacén compartido (Redis).
+- **Cabeceras**: CSP, `nosniff`, `Referrer-Policy`, `Permissions-Policy`,
+  `Cross-Origin-Opener-Policy` y HSTS cuando la petición llega por HTTPS
+  (`X-Forwarded-Proto` con `TRUST_PROXY=1`).
+- **Moderación**: un reporte por cuenta y objeto; a los
+  `REPORT_HIDE_THRESHOLD` reportes de cuentas distintas (3 por defecto) el
+  objeto sale del catálogo y de las estadísticas, y su dueño ve «En revisión».
+  Comprobación rápida tras un incidente:
+
+```sql
+SELECT r.created_at, r.reason, r.comment, i.id, i.title, i.hidden_at
+FROM reports r JOIN items i ON i.id = r.item_id
+ORDER BY r.created_at DESC LIMIT 50;
+```
+
+- **Sesiones**: tokens hasheados en la base, caducidad de 30 días y máximo 8 por
+  cuenta. Cerrar sesión borra el token de ese dispositivo.
+- **Revisión periódica recomendada**: `reports` abiertos, cuentas creadas en la
+  última hora, objetos retirados y errores 429 anómalos en los logs de Render.
+- **Nunca** subas `.env`, `campus_circular.db` ni la URL de PostgreSQL al
+  repositorio: `.gitignore` ya los excluye.
+
+## Rendimiento y caché
+
+- `/api/items` y `/api/items/mine` aceptan `limit` (máximo 60) y `offset` y
+  devuelven `total` y `has_more`; el catálogo pide 24 y añade «Cargar más».
+- `/api/stats` se cachea 15 s en memoria y se invalida al crear, editar o
+  borrar objetos y al cambiar el estado de una entrega.
+- HTML, JSON, CSS y JS se comprimen con Gzip si superan 700 bytes. CSS y JS se
+  sirven con ETag, `Cache-Control: immutable` de un año y `?v=<huella>`.
+- Las fotos se reescalan a 1200 px, se convierten a WebP (calidad 82 → 45 hasta
+  ≤400 KB) y pierden los metadatos EXIF/GPS antes de guardarse.
+- Las imágenes del sitio (`static/img`) tienen variantes WebP a 320/480/720 px
+  y un respaldo JPEG/PNG de 800 px, servidas con `<picture>` + `srcset`. El
+  manifiesto (`static/img/manifest.json`) se inyecta en el HTML, así que no hay
+  peticiones extra. Con esto la portada pasa de ~1,5 MB a ~340 KB en móvil y
+  ~186 KB en escritorio. Si añades fotos nuevas: `.venv/bin/python
+  tools/optimize_images.py` y commitea las variantes y el manifiesto.
+- Índices: `(status, created_at)`, `category`, `campus`, `(owner_id,
+  created_at)`, `requests(requester_id|status)`, `sessions(user_id)`,
+  `media(created_at)`.
+
 ## Verificación rápida
 
-- `/api/health` responde con `ok: true`, `product: Circular Campus` y la versión
-  legal.
+- `/healthz` responde `{"ok": true}` sin tocar la base de datos y es la ruta que
+  usa Render como health check; `/api/health` añade producto y versión legal.
+- `curl -H "Accept-Encoding: gzip" -sI https://TU-SERVICIO.onrender.com/`
+  devuelve `Content-Encoding: gzip` y `Cache-Control`.
 - No existe ninguna credencial compartida: un correo no registrado no puede
   entrar.
 - `/aviso-legal`, `/privacidad` y `/condiciones` cargan directamente y están
@@ -119,6 +197,9 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 - Crear un objeto exige `private_seller: true` y solo acepta imágenes locales.
 - Desde **Mi área** se pueden descargar los datos y eliminar la cuenta.
 - El repositorio no contiene `.db`, `.sqlite`, `.sqlite3` ni volcados SQL.
+- Las fotos subidas siguen apareciendo después de un redespliegue (viven en
+  `media`, no en el disco del contenedor).
+- `.env.example` documenta las variables sin credenciales reales.
 
 ---
 

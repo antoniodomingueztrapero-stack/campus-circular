@@ -1,0 +1,152 @@
+{
+"/static/img/circular-campus-lockup.png": {
+"webp": "/static/img/circular-campus-lockup-320.webp 320w, /static/img/circular-campus-lockup-480.webp 480w, /static/img/circular-campus-lockup-720.webp 720w",
+"src": "/static/img/circular-campus-lockup.png",
+"width": 760,
+"height": 180
+},
+"/static/img/equipo-ctc.jpg": {
+"webp": "/static/img/equipo-ctc-320.webp 320w, /static/img/equipo-ctc-480.webp 480w, /static/img/equipo-ctc-720.webp 720w",
+"src": "/static/img/equipo-ctc-800.jpg",
+"width": 800,
+"height": 1067
+},
+"/static/img/hero-reuse.jpg": {
+"webp": "/static/img/hero-reuse-320.webp 320w, /static/img/hero-reuse-480.webp 480w, /static/img/hero-reuse-720.webp 720w",
+"src": "/static/img/hero-reuse-800.jpg",
+"width": 800,
+"height": 533
+},
+"/static/img/items/apuntes.jpg": {
+"webp": "/static/img/items/apuntes-320.webp 320w, /static/img/items/apuntes-480.webp 480w, /static/img/items/apuntes-720.webp 720w",
+"src": "/static/img/items/apuntes-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/auriculares.jpg": {
+"webp": "/static/img/items/auriculares-320.webp 320w, /static/img/items/auriculares-480.webp 480w, /static/img/items/auriculares-720.webp 720w",
+"src": "/static/img/items/auriculares-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/calculadora.jpg": {
+"webp": "/static/img/items/calculadora-320.webp 320w, /static/img/items/calculadora-480.webp 480w, /static/img/items/calculadora-720.webp 720w",
+"src": "/static/img/items/calculadora-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/chaqueta.jpg": {
+"webp": "/static/img/items/chaqueta-320.webp 320w, /static/img/items/chaqueta-480.webp 480w, /static/img/items/chaqueta-720.webp 720w",
+"src": "/static/img/items/chaqueta-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/cocina.jpg": {
+"webp": "/static/img/items/cocina-320.webp 320w, /static/img/items/cocina-480.webp 480w, /static/img/items/cocina-720.webp 720w",
+"src": "/static/img/items/cocina-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/deporte.jpg": {
+"webp": "/static/img/items/deporte-320.webp 320w, /static/img/items/deporte-480.webp 480w, /static/img/items/deporte-720.webp 720w",
+"src": "/static/img/items/deporte-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/electrodomesticos.jpg": {
+"webp": "/static/img/items/electrodomesticos-320.webp 320w, /static/img/items/electrodomesticos-480.webp 480w, /static/img/items/electrodomesticos-720.webp 720w",
+"src": "/static/img/items/electrodomesticos-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/electronica.jpg": {
+"webp": "/static/img/items/electronica-320.webp 320w, /static/img/items/electronica-480.webp 480w, /static/img/items/electronica-720.webp 720w",
+"src": "/static/img/items/electronica-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/escritorio.jpg": {
+"webp": "/static/img/items/escritorio-320.webp 320w, /static/img/items/escritorio-480.webp 480w, /static/img/items/escritorio-720.webp 720w",
+"src": "/static/img/items/escritorio-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/estanteria.jpg": {
+"webp": "/static/img/items/estanteria-320.webp 320w, /static/img/items/estanteria-480.webp 480w, /static/img/items/estanteria-720.webp 720w",
+"src": "/static/img/items/estanteria-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/estudio.jpg": {
+"webp": "/static/img/items/estudio-320.webp 320w, /static/img/items/estudio-480.webp 480w, /static/img/items/estudio-720.webp 720w",
+"src": "/static/img/items/estudio-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/freidora.jpg": {
+"webp": "/static/img/items/freidora-320.webp 320w, /static/img/items/freidora-480.webp 480w, /static/img/items/freidora-720.webp 720w",
+"src": "/static/img/items/freidora-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/lampara.jpg": {
+"webp": "/static/img/items/lampara-320.webp 320w, /static/img/items/lampara-480.webp 480w, /static/img/items/lampara-720.webp 720w",
+"src": "/static/img/items/lampara-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/libro-derecho.jpg": {
+"webp": "/static/img/items/libro-derecho-320.webp 320w, /static/img/items/libro-derecho-480.webp 480w, /static/img/items/libro-derecho-720.webp 720w",
+"src": "/static/img/items/libro-derecho-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/libros.jpg": {
+"webp": "/static/img/items/libros-320.webp 320w, /static/img/items/libros-480.webp 480w, /static/img/items/libros-720.webp 720w",
+"src": "/static/img/items/libros-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/mochila.jpg": {
+"webp": "/static/img/items/mochila-320.webp 320w, /static/img/items/mochila-480.webp 480w, /static/img/items/mochila-720.webp 720w",
+"src": "/static/img/items/mochila-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/muebles.jpg": {
+"webp": "/static/img/items/muebles-320.webp 320w, /static/img/items/muebles-480.webp 480w, /static/img/items/muebles-720.webp 720w",
+"src": "/static/img/items/muebles-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/ollas.jpg": {
+"webp": "/static/img/items/ollas-320.webp 320w, /static/img/items/ollas-480.webp 480w, /static/img/items/ollas-720.webp 720w",
+"src": "/static/img/items/ollas-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/otros.jpg": {
+"webp": "/static/img/items/otros-320.webp 320w, /static/img/items/otros-480.webp 480w, /static/img/items/otros-720.webp 720w",
+"src": "/static/img/items/otros-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/placeholder.jpg": {
+"webp": "/static/img/items/placeholder-320.webp 320w, /static/img/items/placeholder-480.webp 480w, /static/img/items/placeholder-720.webp 720w",
+"src": "/static/img/items/placeholder-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/ropa.jpg": {
+"webp": "/static/img/items/ropa-320.webp 320w, /static/img/items/ropa-480.webp 480w, /static/img/items/ropa-720.webp 720w",
+"src": "/static/img/items/ropa-800.jpg",
+"width": 800,
+"height": 600
+},
+"/static/img/items/teclado.jpg": {
+"webp": "/static/img/items/teclado-320.webp 320w, /static/img/items/teclado-480.webp 480w, /static/img/items/teclado-720.webp 720w",
+"src": "/static/img/items/teclado-800.jpg",
+"width": 800,
+"height": 600
+}
+}
