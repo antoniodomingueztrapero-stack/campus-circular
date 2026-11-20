@@ -101,7 +101,7 @@ campus-circular/
 │   ├── js/app.js           # SPA, i18n, vistas, modales y cliente API
 │   ├── img/                # Marca revisada, CTC Congress, equipo y fotografías locales
 │   └── uploads/            # Solo fotos antiguas: se importan a la BD al arrancar
-├── tests/                  # 24 pruebas de API, cuenta, producto y producción
+├── tests/                  # 42 pruebas de API, cuenta, producto, producción y seguridad
 ├── requirements.txt
 ├── render.yaml
 ├── Procfile
@@ -157,6 +157,10 @@ el repositorio.
 | `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
 | `LEGAL_UPDATED` | `2026-11-20` | Fecha visible en los documentos |
 | `UNIVERSITY_DOMAINS` | lista interna (uvigo.gal, udc.es, usc.es, …) | Dominios de correo institucional que muestran la insignia informativa, separados por comas |
+| `CORS_ORIGINS` | `https://campus-circular.onrender.com` (+ localhost en desarrollo) | Orígenes con permiso CORS para la API, separados por comas |
+| `RATE_LIMIT_ENABLED` | `1` | `0` desactiva los límites de peticiones (solo para depurar) |
+| `TRUST_PROXY` | `1` | Saltos de proxy de confianza para `X-Forwarded-For`/`-Proto`; `0` sin proxy delante |
+| `REPORT_HIDE_THRESHOLD` | `3` | Reportes de cuentas distintas que retiran una publicación |
 
 No se necesita `SECRET_KEY`: la app no usa cookies de sesión de Flask, sino
 tokens Bearer aleatorios almacenados en el navegador. Tampoco se necesitan
@@ -273,6 +277,102 @@ clases; no se usan estilos inline para diseño.
 Los textos nuevos se añaden en los tres idiomas de `I18N` (`static/js/app.js`);
 una comprobación rápida es que `es`, `en` y `gl` mantengan las mismas claves.
 
+## Seguridad y moderación
+
+La plataforma maneja datos de estudiantes, así que las reglas críticas se
+aplican **en el servidor**; el navegador solo las imita para dar feedback.
+
+### Autorización por recurso (IDOR)
+
+| Recurso | Quién puede modificarlo |
+|---|---|
+| `PATCH`/`DELETE /api/items/:id` | Solo `owner_id` del objeto |
+| `PATCH /api/requests/:id` | Dueño del objeto y solicitante, con transiciones permitidas |
+| `POST /api/requests/:id/rate` | Solo los dos participantes de una entrega `completada` |
+| `/api/account/*` | Solo la cuenta del token (`require_auth`) |
+| `/api/items/mine`, `/api/favorites` | Filtrados por la cuenta del token |
+| `POST /api/items/:id/report` | Cualquier cuenta, nunca sobre su propio objeto |
+
+Los recursos ajenos devuelven `403`; los que no deben existir para el público
+(objetos retirados por moderación) devuelven `404`, para no filtrar su
+existencia. No hay rol de administrador.
+
+### Validación en servidor
+
+- `clean_text()` normaliza **todo** texto de usuario: NFKC (homoglifos),
+  elimina caracteres invisibles/bidi y de control, colapsa espacios y recorta
+  longitudes. El HTML se escapa al renderizar (`esc`), así que no se guarda
+  HTML ejecutable.
+- Enumeraciones cerradas para categoría, estado, campus, facultad, punto de
+  entrega, motivo de reporte y tipo de intercambio.
+- Precio numérico finito y acotado (`NaN`/`Infinity` se rechazan).
+- Subidas: extensión **y** contenido real (JPEG, PNG o WebP vía Pillow, no solo
+  los primeros bytes), máximo 5 MB y 40 Mpx; después se reescala a 1200 px, se
+  reconvierte a WebP y se borran los metadatos EXIF/GPS.
+- Cuerpo JSON limitado a 64 KB además del límite global de 5 MB.
+
+### Sesiones y contraseñas
+
+- Tokens aleatorios de 32 bytes, guardados **hasheados** (SHA-256) en `sessions`
+  con caducidad de 30 días y limpieza de expirados en cada acceso.
+- Máximo 8 sesiones activas por cuenta: acota el daño de un token filtrado.
+- Login con comparación contra un hash señuelo cuando la cuenta no existe, para
+  no revelar por tiempo qué correos están registrados.
+- Las respuestas de `/api/auth/*` y `/api/account/*` llevan `Cache-Control:
+  no-store`. Contraseñas con `werkzeug` (scrypt) y entre 8 y 1024 bytes.
+
+### Límites de peticiones
+
+Ventana deslizante en memoria (`429` + `Retry-After`), por IP y por cuenta:
+
+| Acción | Límite |
+|---|---|
+| Cualquier `/api/*` | 300 / minuto por IP |
+| Login | 10 / 5 min por IP y 6 / 5 min por cuenta |
+| Registro | 5 / hora por IP |
+| Publicar | 12 / hora por cuenta |
+| Subir foto | 25 / hora por cuenta |
+| Enviar solicitud | 20 / hora por cuenta |
+| Reportar | 10 / hora por cuenta |
+
+Los contadores viven en el proceso: con el despliegue de un worker son exactos.
+Para escalar a varios procesos hace falta un almacén compartido (Redis) y hay
+que tenerlo en cuenta.
+
+### CORS y cabeceras
+
+- CORS explícito: solo los orígenes de `CORS_ORIGINS` reciben
+  `Access-Control-Allow-Origin`; el resto no obtiene permiso y el navegador
+  bloquea la lectura. La API usa tokens en cabecera, no cookies, así que no se
+  habilitan credenciales.
+- `Content-Security-Policy` sin scripts inline, `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy` y
+  `Strict-Transport-Security` cuando la petición llega por HTTPS.
+- `ProxyFix` con `TRUST_PROXY=1` para leer IP y protocolo reales detrás del
+  proxy de Render.
+
+### Moderación comunitaria
+
+- Botón discreto **«Reportar publicación»** en el detalle (nunca en las
+  propias), con motivo cerrado y comentario opcional.
+- Un reporte por cuenta y objeto (`UNIQUE (item_id, reporter_id)`).
+- Al llegar a `REPORT_HIDE_THRESHOLD` (3 por defecto) reportes de cuentas
+  distintas, el objeto se marca `hidden_at`: sale del catálogo, de las
+  estadísticas, de favoritos y no admite solicitudes. Su dueño lo sigue viendo
+  con la etiqueta «En revisión» y el número de reportes.
+- Los reportes se guardan en `reports` (`reason`, `comment`, `status`,
+  `created_at`). La revisión es manual:
+
+```sql
+SELECT r.created_at, r.reason, r.comment, i.id, i.title
+FROM reports r JOIN items i ON i.id = r.item_id
+WHERE i.hidden_at <> '' ORDER BY r.created_at DESC;
+```
+
+Para devolver un objeto al catálogo tras revisarlo: `UPDATE items SET
+hidden_at = '' WHERE id = ?`. Para retirarlo sin reportes, el dueño puede
+eliminarlo desde **Mi área**.
+
 ## API (resumen)
 
 | Método | Ruta | Auth | Descripción |
@@ -300,6 +400,7 @@ una comprobación rápida es que `es`, `en` y `gl` mantengan las mismas claves.
 | GET | `/api/requests/received` | ✓ | Solicitudes recibidas |
 | PATCH | `/api/requests/:id` | ✓ | Aceptar/rechazar/completar/cancelar y ajustar el punto |
 | POST | `/api/requests/:id/rate` | ✓ | Valorar (1–5) una entrega completada |
+| POST | `/api/items/:id/report` | ✓ | Reportar (`reason` cerrado + comentario ≤300); 3 cuentas distintas retiran el objeto |
 | POST | `/api/items/:id/favorite` | ✓ | Alternar favorito |
 | GET | `/api/favorites` | ✓ | Favoritos |
 | GET | `/api/users/:id` | — | Perfil público mínimo con valoraciones y badges |
@@ -348,6 +449,12 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 - **Recursos propios**: se rechazan URL externas para imágenes de objeto.
 - **i18n en frontend**: la API guarda el contenido tal como lo escribe la
   persona; las etiquetas y documentos se traducen en cliente.
+- **Backend como única autoridad**: permisos, límites, saneado y moderación se
+  comprueban en servidor; las comprobaciones del navegador solo evitan idas y
+  vueltas.
+- **Moderación sin panel**: el umbral retira automáticamente y el registro en
+  `reports` permite la revisión manual con SQL, sin inventar un rol de
+  administrador que no existe.
 
 ## Limitaciones honestas
 
@@ -370,6 +477,19 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 - Antes de uso real con datos personales o actividad económica, completa la
   identificación del responsable, el correo de contacto y una revisión
   jurídica/fiscal/LSSI específica.
+- La moderación es **comunitaria y automática por umbral**, sin panel de
+  administración ni apelaciones. Alguien debe revisar la tabla `reports` a mano;
+  si el tablón crece, hacen falta herramientas y un procedimiento de revisión.
+- Los límites de peticiones son por proceso en memoria. Con más de un worker o
+  varias instancias el límite efectivo se multiplica: haría falta Redis u otro
+  almacén compartido.
+- No hay antivirus de imágenes: se validan y **re-codifican** a WebP, lo que
+  elimina cargas activas habituales, pero no sustituye un escaneo dedicado.
+- No se verifica identidad ni matrícula, y un reporte malintencionado puede
+  retirar temporalmente una publicación legítima hasta su revisión.
+- La CSP mantiene `frame-ancestors *` para que la web pueda incrustarse en la
+  vista previa del entorno de desarrollo. Para producción conviene cambiarla a
+  `frame-ancestors 'self'` y añadir `X-Frame-Options: SAMEORIGIN`.
 
 ## Despliegue
 

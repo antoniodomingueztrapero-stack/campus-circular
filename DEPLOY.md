@@ -56,6 +56,9 @@ externo; revisa allí sus condiciones actuales.
    legales. Cambia `SEED_DEMO=0` si no quieres objetos de demostración.
    `UNIVERSITY_DOMAINS` permite ajustar, separados por comas, los dominios de
    correo que muestran la insignia informativa de estudiante.
+   `CORS_ORIGINS` debe contener tu dominio real (`https://campus-circular.onrender.com`
+   o el personalizado): es la única lista de orígenes con permiso para llamar a
+   la API desde otro sitio. Deja `RATE_LIMIT_ENABLED=1` y `TRUST_PROXY=1`.
 6. Espera a que el health check esté en verde y prueba crear una cuenta; luego
    cierra sesión y vuelve a entrar para comprobar el guardado.
 
@@ -123,6 +126,38 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 > ninguna universidad. Si algo falla, me decís y lo arreglo. ¡Gracias!
 
 ---
+
+## Seguridad en producción
+
+- **CORS**: `CORS_ORIGINS` con tu dominio exacto (sin barra final). Cualquier
+  otro origen no recibe cabeceras CORS y el navegador no puede leer la API.
+  Como la autenticación usa cabecera `Authorization` y no cookies, no hace falta
+  `Access-Control-Allow-Credentials`.
+- **Límites**: activos por defecto (`RATE_LIMIT_ENABLED=1`). Devuelven `429`
+  con `Retry-After`. Se aplican por IP (resuelta con `ProxyFix`) y por cuenta.
+  El despliegue usa **un worker con 8 hilos** para que los contadores sean
+  exactos y el consumo de RAM bajo; si algún día se añaden más workers, el
+  límite efectivo se multiplica y conviene un almacén compartido (Redis).
+- **Cabeceras**: CSP, `nosniff`, `Referrer-Policy`, `Permissions-Policy`,
+  `Cross-Origin-Opener-Policy` y HSTS cuando la petición llega por HTTPS
+  (`X-Forwarded-Proto` con `TRUST_PROXY=1`).
+- **Moderación**: un reporte por cuenta y objeto; a los
+  `REPORT_HIDE_THRESHOLD` reportes de cuentas distintas (3 por defecto) el
+  objeto sale del catálogo y de las estadísticas, y su dueño ve «En revisión».
+  Comprobación rápida tras un incidente:
+
+```sql
+SELECT r.created_at, r.reason, r.comment, i.id, i.title, i.hidden_at
+FROM reports r JOIN items i ON i.id = r.item_id
+ORDER BY r.created_at DESC LIMIT 50;
+```
+
+- **Sesiones**: tokens hasheados en la base, caducidad de 30 días y máximo 8 por
+  cuenta. Cerrar sesión borra el token de ese dispositivo.
+- **Revisión periódica recomendada**: `reports` abiertos, cuentas creadas en la
+  última hora, objetos retirados y errores 429 anómalos en los logs de Render.
+- **Nunca** subas `.env`, `campus_circular.db` ni la URL de PostgreSQL al
+  repositorio: `.gitignore` ya los excluye.
 
 ## Rendimiento y caché
 

@@ -30,12 +30,16 @@ Variables de entorno opcionales:
 import gzip
 import hashlib
 import io
+import math
 import mimetypes
 import os
 import re
 import secrets
 import sqlite3
+import threading
 import time
+import unicodedata
+from collections import deque
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from urllib.parse import urlparse
@@ -47,6 +51,7 @@ from flask import (
     Flask, Response, g, jsonify, make_response, render_template, request,
     send_from_directory,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -146,7 +151,49 @@ COMPRESSIBLE_TYPES = (
 COMPRESS_MIN_BYTES = 700
 UPLOAD_URL_PREFIX = "/static/uploads/"
 
+# --- Seguridad: límites de uso, CORS y moderación --------------------------
+# Ventana deslizante en memoria por proceso: con varios workers el límite real
+# es (workers × límite). Suficiente para frenar fuerza bruta y spam sin añadir
+# Redis ni otro servicio externo.
+RATE_LIMITS = {
+    "api": (300, 60),          # techo global por IP para /api/
+    "login": (10, 300),        # intentos de acceso por IP
+    "login_account": (6, 300),  # intentos por cuenta, aunque cambie la IP
+    "register": (5, 3600),     # cuentas nuevas por IP
+    "item": (12, 3600),        # publicaciones por cuenta
+    "upload": (25, 3600),      # fotos subidas por cuenta
+    "request": (20, 3600),     # solicitudes enviadas por cuenta
+    "report": (10, 3600),      # reportes enviados por cuenta
+    "message": (30, 3600),     # mensajes dentro de una solicitud
+}
+MAX_JSON_BYTES = 64 * 1024
+DEFAULT_CORS_ORIGINS = "https://campus-circular.onrender.com"
+CORS_ORIGINS = frozenset(
+    origin.strip().rstrip("/")
+    for origin in os.environ.get("CORS_ORIGINS", DEFAULT_CORS_ORIGINS).split(",")
+    if origin.strip()
+)
+REPORT_REASONS = ["spam", "inapropiado", "estafa", "duplicado", "otro"]
+REPORT_COMMENT_MAX = 300
+REPORT_HIDE_THRESHOLD = max(1, int(os.environ.get("REPORT_HIDE_THRESHOLD", "3") or 3))
+SESSIONS_PER_USER = 8
+DUMMY_PASSWORD_HASH = generate_password_hash("contrasena-senuelo-sin-uso-0123456789")
+
 app = Flask(__name__)
+# Render (y cualquier proxy) termina TLS y añade X-Forwarded-*. Sin esto,
+# request.remote_addr sería el proxy y los límites por IP no servirían.
+# Ajustable con TRUST_PROXY=0 si se sirve sin proxy delante.
+_TRUST_PROXY_HOPS = max(0, int(os.environ.get("TRUST_PROXY", "1") or 0))
+if _TRUST_PROXY_HOPS:
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app, x_for=_TRUST_PROXY_HOPS, x_proto=_TRUST_PROXY_HOPS,
+        x_host=_TRUST_PROXY_HOPS,
+    )
+if APP_ENV != "production":
+    # En local no hay CORS que restringir: la SPA se sirve del mismo origen.
+    CORS_ORIGINS = CORS_ORIGINS | {
+        "http://localhost:5000", "http://127.0.0.1:5000", "http://0.0.0.0:5000",
+    }
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 # Los estáticos con nombre fijo se cachean una semana; CSS y JS llevan versión
 # en la URL y se sirven con caché inmutable (ver `asset_file`).
@@ -349,6 +396,7 @@ def init_db():
             image_url TEXT NOT NULL DEFAULT '',
             status TEXT NOT NULL DEFAULT 'disponible',
             delivered_at TEXT NOT NULL DEFAULT '',
+            hidden_at TEXT NOT NULL DEFAULT '',
             created_at TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS requests (
@@ -376,6 +424,16 @@ def init_db():
             created_at TEXT NOT NULL,
             UNIQUE (request_id, rater_id)
         );
+        CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+            reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            reason TEXT NOT NULL,
+            comment TEXT NOT NULL DEFAULT '',
+            status TEXT NOT NULL DEFAULT 'abierto',
+            created_at TEXT NOT NULL,
+            UNIQUE (item_id, reporter_id)
+        );
         CREATE TABLE IF NOT EXISTS media (
             filename TEXT PRIMARY KEY,
             content_type TEXT NOT NULL,
@@ -393,6 +451,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_ratings_rated ON ratings(rated_id);
         CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
         CREATE INDEX IF NOT EXISTS idx_media_created ON media(created_at);
+        CREATE INDEX IF NOT EXISTS idx_reports_item ON reports(item_id);
         -- El índice suelto de \`status\` queda cubierto por (status, created_at).
         DROP INDEX IF EXISTS idx_items_status;
         """
@@ -412,6 +471,7 @@ def migrate_db():
             db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_version TEXT NOT NULL DEFAULT ''")
             db.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS faculty TEXT NOT NULL DEFAULT ''")
             db.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS delivered_at TEXT NOT NULL DEFAULT ''")
+            db.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS hidden_at TEXT NOT NULL DEFAULT ''")
             db.execute("ALTER TABLE requests ADD COLUMN IF NOT EXISTS handover_point TEXT NOT NULL DEFAULT ''")
             cols = {r["column_name"] for r in db.execute(
                 "SELECT column_name FROM information_schema.columns "
@@ -429,6 +489,8 @@ def migrate_db():
                 db.execute("ALTER TABLE items ADD COLUMN faculty TEXT NOT NULL DEFAULT ''")
             if "delivered_at" not in item_cols:
                 db.execute("ALTER TABLE items ADD COLUMN delivered_at TEXT NOT NULL DEFAULT ''")
+            if "hidden_at" not in item_cols:
+                db.execute("ALTER TABLE items ADD COLUMN hidden_at TEXT NOT NULL DEFAULT ''")
             request_cols = {r["name"] for r in db.execute("PRAGMA table_info(requests)").fetchall()}
             if "handover_point" not in request_cols:
                 db.execute("ALTER TABLE requests ADD COLUMN handover_point TEXT NOT NULL DEFAULT ''")
@@ -521,6 +583,7 @@ def row_to_item(r, fav=False):
         "status": r["status"],
         "created_at": r["created_at"],
         "delivered_at": r["delivered_at"] or "",
+        "hidden": bool(r["hidden_at"]) if "hidden_at" in r.keys() else False,
         "impact": item_impact(r),
         "is_favorite": bool(fav),
     }
@@ -563,7 +626,8 @@ def item_impact(item) -> dict:
 
 
 def impact_summary(db, owner_id=None) -> dict:
-    sql = "SELECT category, exchange_type, price FROM items WHERE status = 'entregado'"
+    sql = ("SELECT category, exchange_type, price FROM items "
+           "WHERE status = 'entregado' AND hidden_at = ''")
     params = ()
     if owner_id is not None:
         sql += " AND owner_id = ?"
@@ -774,6 +838,9 @@ def optimize_image(raw: bytes) -> bytes:
     """
     try:
         with Image.open(io.BytesIO(raw)) as probe:
+            # El formato real manda: un GIF renombrado a .png no se acepta.
+            if probe.format not in {"JPEG", "PNG", "WEBP"}:
+                raise ValueError("invalid_image")
             if probe.width * probe.height > MAX_SOURCE_PIXELS:
                 raise ValueError("image_too_large")
             probe.verify()
@@ -936,6 +1003,15 @@ def valid_image_bytes(head: bytes) -> bool:
 
 def cleanup_expired_sessions(db):
     db.execute("DELETE FROM sessions WHERE expires_at <= ?", (now_iso(),))
+
+
+def trim_sessions(db, user_id):
+    """Limita las sesiones vivas por cuenta (si se filtra un token, hay tope)."""
+    db.execute(
+        "DELETE FROM sessions WHERE user_id = ? AND token NOT IN ("
+        "SELECT token FROM sessions WHERE user_id = ? ORDER BY expires_at DESC LIMIT ?)",
+        (user_id, user_id, SESSIONS_PER_USER - 1),
+    )
 
 
 def session_token_digest(token):
@@ -1235,6 +1311,134 @@ def bootstrap():
 
 
 # ---------------------------------------------------------------------------
+# Seguridad: límites de uso y saneado de texto
+# ---------------------------------------------------------------------------
+_RATE_LOCK = threading.Lock()
+_RATE_HITS = {}
+
+
+def rate_limits_enabled() -> bool:
+    """Activo por defecto; las pruebas lo desactivan con TESTING.
+
+    Se puede forzar con `RATE_LIMIT_ENABLED=1|0` o con
+    `app.config["RATE_LIMIT_ENABLED"]`.
+    """
+    override = app.config.get("RATE_LIMIT_ENABLED")
+    if override is not None:
+        return bool(override)
+    env = os.environ.get("RATE_LIMIT_ENABLED")
+    if env is not None and env != "":
+        return env not in ("0", "false", "False")
+    return not app.config.get("TESTING", False)
+
+
+def client_ip() -> str:
+    """IP real del cliente (ProxyFix resuelve X-Forwarded-For)."""
+    return (request.remote_addr or "desconocida").strip()
+
+
+def rate_limit_retry(bucket: str, identity: str = "") -> int:
+    """Devuelve segundos de espera si se superó el límite, o 0 si hay hueco."""
+    limit, window = RATE_LIMITS[bucket]
+    key = (bucket, f"{client_ip()}|{identity}" if identity else client_ip())
+    now = time.monotonic()
+    with _RATE_LOCK:
+        hits = _RATE_HITS.setdefault(key, deque())
+        while hits and now - hits[0] >= window:
+            hits.popleft()
+        if len(hits) >= limit:
+            return max(1, int(window - (now - hits[0])) + 1)
+        hits.append(now)
+        if len(_RATE_HITS) > 20000:  # poda defensiva de memoria
+            for stale in [k for k, v in _RATE_HITS.items() if not v][:5000]:
+                _RATE_HITS.pop(stale, None)
+        return 0
+
+
+def rate_limited(bucket: str, identity: str = ""):
+    """Respuesta 429 lista para devolver, o None si la petición puede seguir."""
+    if not rate_limits_enabled():
+        return None
+    retry = rate_limit_retry(bucket, identity)
+    if not retry:
+        return None
+    resp = jsonify({
+        "error": "rate_limited",
+        "message": "Demasiados intentos seguidos. Espera un momento y vuelve a probar.",
+        "retry_after": retry,
+    })
+    resp.status_code = 429
+    resp.headers["Retry-After"] = str(retry)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+def reset_rate_limits():
+    """Las pruebas y los reinicios limpian la ventana en memoria."""
+    with _RATE_LOCK:
+        _RATE_HITS.clear()
+
+
+# Caracteres invisibles (zero-width y de control bidireccional) que se usan
+# para camuflar texto: se eliminan siempre.
+_INVISIBLE = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u200e\u200f"
+                                    "\u202a\u202b\u202c\u202d\u202e"
+                                    "\u2060\u2066\u2067\u2068\u2069\ufeff"), None)
+
+
+def clean_text(value, *, multiline: bool = False, max_len: int = 2000) -> str:
+    """Normaliza texto de usuario en servidor.
+
+    - NFKC: evita homoglifos y caracteres de compatibilidad.
+    - Fuera caracteres invisibles y de control (los que rompen listados o
+      intentan inyectar saltos en cabeceras).
+    - Colapsa espacios y saltos de línea repetidos.
+    Nunca confía en lo que ya validó el navegador.
+    """
+    if not isinstance(value, str):
+        return ""
+    text = unicodedata.normalize("NFKC", value).translate(_INVISIBLE)
+    if multiline:
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        text = "".join(ch for ch in text if ch in "\n\t" or ord(ch) >= 32)
+        text = re.sub(r"[^\S\n]+", " ", text)
+        text = re.sub(r"\n{3,}", "\n\n", text)
+    else:
+        text = "".join(" " if ord(ch) < 32 else ch for ch in text)
+        text = re.sub(r"\s+", " ", text)
+    return text.strip()[:max_len]
+
+
+def has_forbidden_text(value: str) -> bool:
+    """Texto que no debería llegar a la base ni a una cabecera."""
+    return any(ord(ch) < 32 and ch not in "\n\t" for ch in value or "")
+
+
+def cors_origin_allowed(origin: str) -> bool:
+    return bool(origin) and origin.rstrip("/") in CORS_ORIGINS
+
+
+@app.before_request
+def guard_requests():
+    """Techo de peticiones por IP y tope de cuerpo JSON."""
+    if request.method == "OPTIONS":
+        return None
+    if not request.path.startswith("/api/"):
+        return None
+    limited = rate_limited("api")
+    if limited:
+        return limited
+    if (request.mimetype or "").startswith("application/json"):
+        length = request.content_length or 0
+        if length > MAX_JSON_BYTES:
+            return jsonify({
+                "error": "payload_too_large",
+                "message": "El contenido enviado es demasiado grande.",
+            }), 413
+    return None
+
+
+# ---------------------------------------------------------------------------
 # Cabeceras de seguridad
 # ---------------------------------------------------------------------------
 @app.after_request
@@ -1256,6 +1460,26 @@ def security_headers(resp):
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     resp.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
+    resp.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    resp.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+    if request.is_secure:
+        # Render sirve por HTTPS; esto evita la primera petición en claro.
+        resp.headers.setdefault(
+            "Strict-Transport-Security", "max-age=15552000; includeSubDomains"
+        )
+
+    # CORS explícito: solo los orígenes de la lista reciben permiso. La API usa
+    # tokens en cabecera (no cookies), así que no se habilitan credenciales.
+    origin = (request.headers.get("Origin") or "").strip()
+    if request.path.startswith("/api/") and origin:
+        resp.headers.add("Vary", "Origin")
+        if cors_origin_allowed(origin):
+            resp.headers["Access-Control-Allow-Origin"] = origin
+            resp.headers["Access-Control-Allow-Methods"] = "GET, POST, PATCH, DELETE, OPTIONS"
+            resp.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+            resp.headers["Access-Control-Max-Age"] = "600"
+            resp.headers["Access-Control-Expose-Headers"] = "Retry-After"
+
     if request.path.startswith("/api/") and (
         "/auth/" in request.path or "/account/" in request.path
     ):
@@ -1453,11 +1677,12 @@ def stats():
             "SELECT COUNT(*) total, "
             "SUM(CASE WHEN status = 'disponible' THEN 1 ELSE 0 END) available, "
             "SUM(CASE WHEN status = 'entregado' THEN 1 ELSE 0 END) delivered "
-            "FROM items"
+            "FROM items WHERE hidden_at = ''"
         ).fetchone()
         users = db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
         by_category = db.execute(
-            "SELECT category, COUNT(*) c FROM items GROUP BY category ORDER BY c DESC"
+            "SELECT category, COUNT(*) c FROM items WHERE hidden_at = '' "
+            "GROUP BY category ORDER BY c DESC"
         ).fetchall()
         payload = {
             "total_items": row["total"] or 0,
@@ -1492,7 +1717,9 @@ def my_impact(user):
 @app.get("/api/items")
 def list_items():
     db = get_db()
-    q = (request.args.get("q") or "").strip().lower()
+    # Acotado: una búsqueda no necesita más de 100 caracteres y así el LIKE
+    # mantiene un coste predecible.
+    q = (request.args.get("q") or "").strip().lower()[:100]
     category = request.args.get("category")
     campus = request.args.get("campus")
     condition = request.args.get("condition")
@@ -1502,7 +1729,7 @@ def list_items():
     sort = request.args.get("sort", "recent")
     limit, offset = pagination_args()
 
-    where = ["1=1"]
+    where = ["hidden_at = ''"]
     params = []
     if status:
         where.append("status = ?")
@@ -1567,10 +1794,18 @@ def my_items(user):
         "SELECT COUNT(*) c FROM items WHERE owner_id = ?", (user["id"],)
     ).fetchone()["c"]
     rows = db.execute(
-        "SELECT * FROM items WHERE owner_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        "SELECT *, (SELECT COUNT(*) FROM reports WHERE reports.item_id = items.id) "
+        "AS reports_count FROM items WHERE owner_id = ? "
+        "ORDER BY created_at DESC LIMIT ? OFFSET ?",
         (user["id"], limit, offset),
     ).fetchall()
-    return jsonify(page_payload(rows, total, limit, offset, row_to_item))
+
+    def serialize(row):
+        payload = row_to_item(row)
+        payload["reports"] = row["reports_count"] or 0
+        return payload
+
+    return jsonify(page_payload(rows, total, limit, offset, serialize))
 
 
 @app.get("/api/items/<int:item_id>")
@@ -1579,8 +1814,12 @@ def get_item(item_id):
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     if not row:
         return jsonify({"error": "not_found"}), 404
-    owner = db.execute("SELECT * FROM users WHERE id = ?", (row["owner_id"],)).fetchone()
     user = current_user()
+    is_owner = bool(user and user["id"] == row["owner_id"])
+    if row["hidden_at"] and not is_owner:
+        # Un objeto retirado por moderación deja de existir para el resto.
+        return jsonify({"error": "not_found"}), 404
+    owner = db.execute("SELECT * FROM users WHERE id = ?", (row["owner_id"],)).fetchone()
     fav = False
     if user:
         fav = db.execute("SELECT 1 FROM favorites WHERE user_id=? AND item_id=?",
@@ -1594,15 +1833,22 @@ def get_item(item_id):
         public_owner["level"] = trust["level"]
         public_owner["impact"] = trust["impact"]
     item["owner"] = public_owner
+    if is_owner:
+        item["reports"] = db.execute(
+            "SELECT COUNT(*) c FROM reports WHERE item_id = ?", (item_id,)
+        ).fetchone()["c"]
     return jsonify({"item": item})
 
 
 @app.post("/api/items")
 @require_auth
 def create_item(user):
+    limited = rate_limited("item", str(user["id"]))
+    if limited:
+        return limited
     data = request.get_json(silent=True) or {}
-    title = (data.get("title") or "").strip()
-    description = (data.get("description") or "").strip()
+    title = clean_text(data.get("title"), max_len=80)
+    description = clean_text(data.get("description"), multiline=True, max_len=2000)
     category = data.get("category")
     # El formulario rápido solo exige foto, título, categoría y tipo. El resto
     # de campos toma un valor razonable para publicar en menos de un minuto.
@@ -1610,12 +1856,14 @@ def create_item(user):
     exchange_type = data.get("exchange_type")
     campus = data.get("campus") or user["campus"]
     handover_point = data.get("handover_point") or "acordado"
-    faculty = (data.get("faculty") or "").strip()
-    image_url = (data.get("image_url") or "").strip()
+    faculty = clean_text(data.get("faculty"), max_len=40)
+    image_url = clean_text(data.get("image_url"), max_len=MAX_IMAGE_URL_LEN)
     private_seller = data.get("private_seller") is True
     try:
         price = float(data.get("price") or 0)
     except (TypeError, ValueError):
+        return jsonify({"error": "invalid_price"}), 400
+    if not math.isfinite(price):
         return jsonify({"error": "invalid_price"}), 400
 
     if not private_seller:
@@ -1716,9 +1964,71 @@ def delete_item(user, item_id):
     return jsonify({"ok": True})
 
 
+@app.post("/api/items/<int:item_id>/report")
+@require_auth
+def report_item(user, item_id):
+    """Moderación mínima: una persona, un reporte por objeto.
+
+    Al alcanzar `REPORT_HIDE_THRESHOLD` denuncias de cuentas distintas, el
+    objeto se retira del catálogo (`hidden_at`) y queda registrado para revisión
+    manual. No hay panel de administración: el registro es la prueba.
+    """
+    limited = rate_limited("report", str(user["id"]))
+    if limited:
+        return limited
+    db = get_db()
+    item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    if not item or item["hidden_at"]:
+        return jsonify({"error": "not_found"}), 404
+    if item["owner_id"] == user["id"]:
+        return jsonify({
+            "error": "own_item",
+            "message": "No puedes reportar tu propia publicación.",
+        }), 400
+    data = request.get_json(silent=True) or {}
+    reason = data.get("reason")
+    if reason not in REPORT_REASONS:
+        return jsonify({"error": "invalid_reason"}), 400
+    comment = clean_text(data.get("comment"), multiline=True, max_len=REPORT_COMMENT_MAX)
+    try:
+        db.execute(
+            "INSERT INTO reports (item_id, reporter_id, reason, comment, status, created_at) "
+            "VALUES (?, ?, ?, ?, 'abierto', ?)",
+            (item_id, user["id"], reason, comment, now_iso()),
+        )
+        db.commit()
+    except DB_INTEGRITY_ERRORS:
+        db.rollback()
+        return jsonify({
+            "error": "already_reported",
+            "message": "Ya has reportado esta publicación.",
+        }), 409
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudo guardar un reporte")
+        return jsonify({"error": "storage_unavailable"}), 503
+
+    reports = db.execute(
+        "SELECT COUNT(DISTINCT reporter_id) c FROM reports WHERE item_id = ?", (item_id,)
+    ).fetchone()["c"]
+    hidden = False
+    if reports >= REPORT_HIDE_THRESHOLD:
+        db.execute(
+            "UPDATE items SET hidden_at = ? WHERE id = ? AND hidden_at = ''",
+            (now_iso(), item_id),
+        )
+        db.commit()
+        invalidate_stats()
+        hidden = True
+    return jsonify({"reported": True, "reports": reports, "hidden": hidden}), 201
+
+
 @app.post("/api/upload")
 @require_auth
 def upload(user):
+    limited = rate_limited("upload", str(user["id"]))
+    if limited:
+        return limited
     if "file" not in request.files:
         return jsonify({"error": "no_file"}), 400
     f = request.files["file"]
@@ -1775,6 +2085,9 @@ def upload(user):
 # --- Auth -------------------------------------------------------------------
 @app.post("/api/auth/register")
 def register():
+    limited = rate_limited("register")
+    if limited:
+        return limited
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"error": "invalid_request"}), 400
@@ -1785,8 +2098,8 @@ def register():
     campus = data.get("campus", "vigo")
     if not isinstance(raw_name, str) or not isinstance(raw_email, str) or not isinstance(password, str):
         return jsonify({"error": "invalid_request"}), 400
-    name = raw_name.strip()
-    email = raw_email.strip().lower()
+    name = clean_text(raw_name, max_len=60)
+    email = clean_text(raw_email, max_len=254).lower()
     consent = data.get("consent") is True
 
     if len(name) < 2 or len(name) > 60 or any(ord(ch) < 32 for ch in name):
@@ -1817,6 +2130,7 @@ def register():
         )
         user_id = inserted_id(cur)
         cleanup_expired_sessions(db)
+        trim_sessions(db, user_id)
         db.execute(
             "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
             (session_token_digest(token), user_id,
@@ -1840,6 +2154,9 @@ def register():
 
 @app.post("/api/auth/login")
 def login():
+    limited = rate_limited("login")
+    if limited:
+        return limited
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"error": "invalid_request"}), 400
@@ -1847,12 +2164,22 @@ def login():
     password = data.get("password", "")
     if not isinstance(raw_email, str) or not isinstance(password, str) or not valid_password(password):
         return jsonify({"error": "invalid_credentials", "message": "Email o contraseña incorrectos."}), 401
-    email = raw_email.strip().lower()
+    email = clean_text(raw_email, max_len=254).lower()
+    # Además del límite por IP, se acota por cuenta para frenar la fuerza bruta
+    # distribuida contra un mismo correo.
+    limited = rate_limited("login_account", email)
+    if limited:
+        return limited
     db = get_db()
     row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-    if not row or not check_password_hash(row["password_hash"], password):
+    # Se compara siempre contra un hash: el tiempo de respuesta no revela si el
+    # correo existe.
+    stored_hash = row["password_hash"] if row else DUMMY_PASSWORD_HASH
+    password_ok = check_password_hash(stored_hash, password)
+    if not row or not password_ok:
         return jsonify({"error": "invalid_credentials", "message": "Email o contraseña incorrectos."}), 401
     cleanup_expired_sessions(db)
+    trim_sessions(db, row["id"])
     token = secrets.token_urlsafe(32)
     db.execute(
         "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
@@ -1964,16 +2291,19 @@ def delete_account(user):
 @app.post("/api/items/<int:item_id>/request")
 @require_auth
 def create_request(user, item_id):
+    limited = rate_limited("request", str(user["id"]))
+    if limited:
+        return limited
     db = get_db()
     item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
-    if not item:
+    if not item or item["hidden_at"]:
         return jsonify({"error": "not_found"}), 404
     if item["owner_id"] == user["id"]:
         return jsonify({"error": "own_item", "message": "No puedes solicitar tu propio objeto."}), 400
     if item["status"] != "disponible":
         return jsonify({"error": "not_available", "message": "Este objeto ya no está disponible."}), 400
     data = request.get_json(silent=True) or {}
-    message = (data.get("message") or "").strip()
+    message = clean_text(data.get("message"), multiline=True, max_len=1000)
     if len(message) > 1000:
         return jsonify({"error": "message_too_long"}), 400
     # Punto de encuentro propuesto: por defecto, el que indica la publicación.
@@ -2143,7 +2473,7 @@ def rate_request(user, request_id):
     comment = data.get("comment") or ""
     if not isinstance(comment, str):
         return jsonify({"error": "invalid_comment"}), 400
-    comment = comment.strip()
+    comment = clean_text(comment, multiline=True, max_len=RATING_COMMENT_MAX)
     if len(comment) > RATING_COMMENT_MAX:
         return jsonify({
             "error": "comment_too_long",
@@ -2195,7 +2525,7 @@ def rate_request(user, request_id):
 def toggle_favorite(user, item_id):
     db = get_db()
     item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
-    if not item:
+    if not item or item["hidden_at"]:
         return jsonify({"error": "not_found"}), 404
     existing = db.execute("SELECT 1 FROM favorites WHERE user_id=? AND item_id=?",
                           (user["id"], item_id)).fetchone()
@@ -2215,7 +2545,8 @@ def favorites(user):
     db = get_db()
     rows = db.execute(
         "SELECT i.* FROM items i JOIN favorites f ON f.item_id = i.id "
-        "WHERE f.user_id = ? ORDER BY f.created_at DESC", (user["id"],)).fetchall()
+        "WHERE f.user_id = ? AND i.hidden_at = '' ORDER BY f.created_at DESC",
+        (user["id"],)).fetchall()
     return jsonify({"items": [row_to_item(r, True) for r in rows]})
 
 
@@ -2227,7 +2558,8 @@ def public_user(user_id):
         return jsonify({"error": "not_found"}), 404
     u = row_to_public_user(row)
     u["items_count"] = db.execute(
-        "SELECT COUNT(*) c FROM items WHERE owner_id=?", (user_id,)).fetchone()["c"]
+        "SELECT COUNT(*) c FROM items WHERE owner_id=? AND hidden_at = ''",
+        (user_id,)).fetchone()["c"]
     trust = user_trust(db, row)
     u["rating"] = trust["rating"]
     u["exchanges"] = trust["exchanges"]

@@ -261,6 +261,26 @@ const I18N = {
     cold_offline: "No hay conexión con el servidor. Vuelve a intentarlo en unos segundos.",
     load_more: "Cargar más objetos",
     results_partial: "{shown} de {total} objetos encontrados",
+    report_open: "Reportar publicación",
+    report_title: "Reportar esta publicación",
+    report_privacy: "El reporte queda guardado con tu cuenta para revisión. No se avisa a la otra persona.",
+    report_reason: "Motivo",
+    report_reason_spam: "Spam o publicidad",
+    report_reason_inapropiado: "Contenido inapropiado",
+    report_reason_estafa: "Posible estafa",
+    report_reason_duplicado: "Publicación duplicada",
+    report_reason_otro: "Otro motivo",
+    report_comment: "Comentario (opcional)",
+    report_comment_ph: "Cuéntanos qué ocurre; ayuda a revisarlo antes.",
+    report_note: "Tres reportes de cuentas distintas retiran la publicación del catálogo hasta su revisión.",
+    report_send: "Enviar reporte",
+    report_sent: "Reporte enviado. Gracias por cuidar el tablón.",
+    report_sent_hidden: "Reporte enviado. La publicación se ha retirado hasta revisión.",
+    report_already: "Ya has reportado esta publicación.",
+    status_review: "En revisión",
+    review_note: "Retirada del catálogo tras {n} reportes. Revísala o elimínala.",
+    toast_rate_limited: "Demasiados intentos seguidos. Espera un momento y vuelve a probar.",
+    toast_not_found: "Esta publicación ya no está disponible.",
     lang_name: "Español",
   },
   en: {
@@ -483,6 +503,26 @@ const I18N = {
     cold_offline: "No connection to the server. Try again in a few seconds.",
     load_more: "Load more items",
     results_partial: "{shown} of {total} items found",
+    report_open: "Report this listing",
+    report_title: "Report this listing",
+    report_privacy: "The report is stored with your account for review. The other person is not notified.",
+    report_reason: "Reason",
+    report_reason_spam: "Spam or advertising",
+    report_reason_inapropiado: "Inappropriate content",
+    report_reason_estafa: "Possible scam",
+    report_reason_duplicado: "Duplicate listing",
+    report_reason_otro: "Other reason",
+    report_comment: "Comment (optional)",
+    report_comment_ph: "Tell us what is wrong; it helps us review it faster.",
+    report_note: "Three reports from different accounts remove the listing from the catalogue until review.",
+    report_send: "Send report",
+    report_sent: "Report sent. Thanks for looking after the board.",
+    report_sent_hidden: "Report sent. The listing has been removed until review.",
+    report_already: "You already reported this listing.",
+    status_review: "Under review",
+    review_note: "Removed from the catalogue after {n} reports. Review it or delete it.",
+    toast_rate_limited: "Too many attempts in a row. Wait a moment and try again.",
+    toast_not_found: "This listing is no longer available.",
     lang_name: "English",
   },
   gl: {
@@ -705,6 +745,26 @@ const I18N = {
     cold_offline: "Non hai conexión co servidor. Téntao de novo nuns segundos.",
     load_more: "Cargar máis obxectos",
     results_partial: "{shown} de {total} obxectos atopados",
+    report_open: "Reportar a publicación",
+    report_title: "Reportar esta publicación",
+    report_privacy: "O reporte gárdase coa túa conta para revisión. Non se avisa á outra persoa.",
+    report_reason: "Motivo",
+    report_reason_spam: "Spam ou publicidade",
+    report_reason_inapropiado: "Contido inapropiado",
+    report_reason_estafa: "Posible estafa",
+    report_reason_duplicado: "Publicación duplicada",
+    report_reason_otro: "Outro motivo",
+    report_comment: "Comentario (opcional)",
+    report_comment_ph: "Cóntanos que ocorre; axuda a revisalo antes.",
+    report_note: "Tres reportes de contas distintas retiran a publicación do catálogo ata a súa revisión.",
+    report_send: "Enviar reporte",
+    report_sent: "Reporte enviado. Grazas por coidar o taboleiro.",
+    report_sent_hidden: "Reporte enviado. A publicación retirouse ata a revisión.",
+    report_already: "Xa reportaches esta publicación.",
+    status_review: "En revisión",
+    review_note: "Retirada do catálogo tras {n} reportes. Revísaa ou elimínaa.",
+    toast_rate_limited: "Demasiados intentos seguidos. Espera un intre e téntao de novo.",
+    toast_not_found: "Esta publicación xa non está dispoñible.",
     lang_name: "Galego",
   }
 };
@@ -868,6 +928,7 @@ const MY_TABS = [
 const TOAST_ICONS = { success: "check-circle", error: "alert", info: "info" };
 const TOAST_DURATION = 4600;
 const PAGE_SIZE = Number(BOOT.pageSize) || 24;
+const REPORT_REASONS = ["spam", "inapropiado", "estafa", "duplicado", "otro"];
 const COLD_START_MS = 2500;
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
@@ -976,6 +1037,9 @@ const ERROR_KEYS = {
   invalid_image_url: "toast_invalid_image",
   unauthorized: "toast_unauthorized",
   email_taken: "toast_email_taken",
+  already_reported: "report_already",
+  rate_limited: "toast_rate_limited",
+  not_found: "toast_not_found",
   invalid_credentials: "toast_invalid_credentials",
   invalid_password: "toast_invalid_password",
 };
@@ -2558,8 +2622,10 @@ function myItemCard(it) {
       <div class="list-card-top">
         <h3 class="list-card-title">${esc(it.title)}</h3>
         <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
+        ${it.hidden ? `<span class="status-pill status-review">${esc(t("status_review"))}</span>` : ""}
       </div>
       <p class="list-card-meta">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))}</p>
+      ${it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}
       <div class="list-card-actions">
         <button type="button" class="btn btn-ghost btn-sm" data-view="${it.id}">${icon("eye")}${esc(t("view_item"))}</button>
         <label class="sr-only" for="status-${it.id}">${esc(t("status_change"))}</label>
@@ -2825,7 +2891,9 @@ async function openItem(id) {
       <button type="button" class="btn btn-ghost" id="detail-fav-btn" aria-pressed="${saved}">
         ${icon("heart")}<span id="detail-fav-label">${esc(saved ? t("detail_faved") : t("detail_fav"))}</span>
       </button>
-    </div>`;
+    </div>
+    ${isOwn ? "" : `<button type="button" class="report-link" id="detail-report">${icon("alert")}${esc(t("report_open"))}</button>`}
+    ${isOwn && it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}`;
   enhance(modal);
 
   const toggleFav = async (btn) => {
@@ -2859,6 +2927,56 @@ async function openItem(id) {
   if (reqBtn) reqBtn.onclick = () => {
     if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
     openRequest(id);
+  };
+  const reportBtn = $("#detail-report", modal);
+  if (reportBtn) reportBtn.onclick = () => {
+    if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
+    openReport(it);
+  };
+}
+
+function openReport(item) {
+  openModal(`
+    ${closeBtn()}
+    <div class="modal-head">
+      <h2 id="report-title">${esc(t("report_title"))}</h2>
+      <p>${esc(t("report_privacy"))}</p>
+    </div>
+    <form id="report-form" aria-labelledby="report-title">
+      <fieldset class="field report-reasons">
+        <legend>${esc(t("report_reason"))}</legend>
+        ${REPORT_REASONS.map((reason, i) => `
+          <label class="radio-row">
+            <input type="radio" name="reason" value="${reason}"${i === 0 ? " checked" : ""}>
+            <span>${esc(t("report_reason_" + reason))}</span>
+          </label>`).join("")}
+      </fieldset>
+      <div class="field">
+        <label for="report-comment">${esc(t("report_comment"))}</label>
+        <textarea id="report-comment" name="comment" maxlength="300" placeholder="${esc(t("report_comment_ph"))}"></textarea>
+        <small>${esc(t("report_note"))}</small>
+      </div>
+      <button class="btn btn-danger btn-block" type="submit" data-submit>${icon("alert")}${esc(t("report_send"))}</button>
+    </form>`, { labelledBy: "report-title", sheet: true });
+  $("#report-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const submit = $("[data-submit]", e.target);
+    setBusy(submit, true, t("sending"));
+    try {
+      const res = await api(`/api/items/${item.id}/report`, {
+        method: "POST",
+        body: JSON.stringify({
+          reason: fd.get("reason") || "otro",
+          comment: fd.get("comment") || "",
+        }),
+      });
+      closeModal();
+      toast(res.hidden ? t("report_sent_hidden") : t("report_sent"));
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
