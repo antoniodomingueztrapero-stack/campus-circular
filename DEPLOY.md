@@ -46,10 +46,12 @@ externo; revisa allí sus condiciones actuales.
 3. El Blueprint configura la web como gratuita y pide `DATABASE_URL` como
    variable secreta. Pega ahí la cadena PostgreSQL del proveedor y guarda.
    También puedes establecerla en **Environment** del servicio existente.
-4. Render ejecuta `pip install -r requirements.txt`, arranca `python3 app.py`
-   y comprueba `/api/health`. Al iniciar, la app crea/migra sus tablas en
-   PostgreSQL automáticamente. `APP_ENV=production` hace que el servicio falle
-   de forma segura si falta `DATABASE_URL`, en vez de recurrir a SQLite efímero.
+4. Render ejecuta `pip install -r requirements.txt`, arranca con Gunicorn
+   (`gunicorn app:app --workers 2 --threads 4`, ver `Procfile` y `render.yaml`)
+   y comprueba `/healthz`, una sonda que no consulta la base de datos. Al
+   iniciar, la app crea/migra sus tablas en PostgreSQL automáticamente.
+   `APP_ENV=production` hace que el servicio falle de forma segura si falta
+   `DATABASE_URL`, en vez de recurrir a SQLite efímero.
 5. Configura `CONTACT_EMAIL`, `CONTROLLER_NAME` y, si corresponde, las versiones
    legales. Cambia `SEED_DEMO=0` si no quieres objetos de demostración.
    `UNIVERSITY_DOMAINS` permite ajustar, separados por comas, los dominios de
@@ -70,6 +72,20 @@ Notas importantes:
 - Revisa las cuotas y la política de pausa/expiración del proveedor elegido y
   configura copias exportables si los datos son importantes.
 - No configures secretos ni claves de pago: no se integran pagos.
+- **Fotos**: se guardan en la tabla `media` de PostgreSQL (`BYTEA`), así que
+  sobreviven a cada despliegue y reinicio del plan gratuito. `/static/uploads/…`
+  las sirve desde la base si el fichero no está en el disco del contenedor, con
+  `Cache-Control: immutable` y ETag. No hay credenciales de almacenamiento de
+  objetos que configurar.
+- Si algún día el catálogo crece y las fotos pesan demasiado para la base,
+  sustituye `store_media`/`read_media` por S3, Cloudinary o Supabase Storage y
+  pasa las claves por variables de entorno (documentadas en `.env.example`).
+  Nunca las escribas en el código.
+- **Arranque en frío**: en el plan gratuito el servicio se suspende sin
+  tráfico. La primera visita puede tardar decenas de segundos; la web muestra
+  «El servidor se está despertando» a partir de 2,5 s y ofrece reintento si
+  falla la red. Un monitor de uptime que llame a `/healthz` cada pocos minutos
+  reduce las esperas.
 - No uses marcas institucionales ni presentes la web como servicio oficial.
 
 ## Ejecutarla en local
@@ -108,10 +124,26 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 
 ---
 
+## Rendimiento y caché
+
+- `/api/items` y `/api/items/mine` aceptan `limit` (máximo 60) y `offset` y
+  devuelven `total` y `has_more`; el catálogo pide 24 y añade «Cargar más».
+- `/api/stats` se cachea 15 s en memoria y se invalida al crear, editar o
+  borrar objetos y al cambiar el estado de una entrega.
+- HTML, JSON, CSS y JS se comprimen con Gzip si superan 700 bytes. CSS y JS se
+  sirven con ETag, `Cache-Control: immutable` de un año y `?v=<huella>`.
+- Las fotos se reescalan a 1200 px, se convierten a WebP (calidad 82 → 45 hasta
+  ≤400 KB) y pierden los metadatos EXIF/GPS antes de guardarse.
+- Índices: `(status, created_at)`, `category`, `campus`, `(owner_id,
+  created_at)`, `requests(requester_id|status)`, `sessions(user_id)`,
+  `media(created_at)`.
+
 ## Verificación rápida
 
-- `/api/health` responde con `ok: true`, `product: Circular Campus` y la versión
-  legal.
+- `/healthz` responde `{"ok": true}` sin tocar la base de datos y es la ruta que
+  usa Render como health check; `/api/health` añade producto y versión legal.
+- `curl -H "Accept-Encoding: gzip" -sI https://TU-SERVICIO.onrender.com/`
+  devuelve `Content-Encoding: gzip` y `Cache-Control`.
 - No existe ninguna credencial compartida: un correo no registrado no puede
   entrar.
 - `/aviso-legal`, `/privacidad` y `/condiciones` cargan directamente y están
@@ -121,6 +153,9 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 - Crear un objeto exige `private_seller: true` y solo acepta imágenes locales.
 - Desde **Mi área** se pueden descargar los datos y eliminar la cuenta.
 - El repositorio no contiene `.db`, `.sqlite`, `.sqlite3` ni volcados SQL.
+- Las fotos subidas siguen apareciendo después de un redespliegue (viven en
+  `media`, no en el disco del contenedor).
+- `.env.example` documenta las variables sin credenciales reales.
 
 ---
 

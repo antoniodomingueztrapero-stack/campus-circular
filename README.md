@@ -83,7 +83,8 @@ asesoramiento jurídico, fiscal o de consumo.
 | Frontend | HTML + CSS + JavaScript vanilla, SPA sin build |
 | i18n | ES / EN / GL en `static/js/app.js` y documentos legales |
 | Auth | Token Bearer en `localStorage`, sesiones en BD, contraseñas con `werkzeug` |
-| Imágenes | Fotografías locales en `static/img/` y subidas en `static/uploads/` |
+| Imágenes | Ilustraciones en `static/img/`; fotos subidas optimizadas a WebP ≤1200 px y guardadas en la tabla `media` de la base de datos (persisten entre despliegues) |
+| Producción | Gunicorn, paginación por `limit`/`offset`, Gzip, ETag y caché inmutable de estáticos, `/healthz` |
 | Seguridad | Validación en servidor, CSP, magic bytes, rutas locales, minimización |
 
 Sin dependencias de frontend que compilar: `pip install -r requirements.txt`
@@ -99,10 +100,12 @@ campus-circular/
 │   ├── css/style.css       # Tokens de diseño, componentes, responsive y documentos legales
 │   ├── js/app.js           # SPA, i18n, vistas, modales y cliente API
 │   ├── img/                # Marca revisada, CTC Congress, equipo y fotografías locales
-│   └── uploads/            # Imágenes subidas (ignoradas en Git)
+│   └── uploads/            # Solo fotos antiguas: se importan a la BD al arrancar
+├── tests/                  # 24 pruebas de API, cuenta, producto y producción
 ├── requirements.txt
 ├── render.yaml
 ├── Procfile
+├── .env.example            # Variables documentadas, sin credenciales
 ├── DEPLOY.md
 └── .gitignore
 ```
@@ -121,6 +124,14 @@ python3 app.py
 # Abrir http://127.0.0.1:5000
 ```
 
+Opcionalmente, copia `.env.example` a `.env` y ajusta las variables (la app lee
+el entorno del sistema; no carga `.env` automáticamente). Para ejecutar las
+pruebas:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
 La base y los objetos de ejemplo se crean automáticamente en el primer arranque:
 12 objetos disponibles, 8 entregas con fecha, valoraciones de ejemplo y dos
 perfiles de demostración (`Lucía Ferreiro` y `Diego Camba`) con contraseña
@@ -129,6 +140,10 @@ sin acceso. Para reiniciar el demo, elimina el archivo de base de datos
 configurado y vuelve a arrancar.
 
 ## Configuración
+
+Todas las variables están documentadas, sin credenciales reales, en
+[`.env.example`](.env.example). En Render se definen en *Environment*; nunca en
+el repositorio.
 
 | Variable | Valor por defecto | Uso |
 |---|---|---|
@@ -144,7 +159,8 @@ configurado y vuelve a arrancar.
 | `UNIVERSITY_DOMAINS` | lista interna (uvigo.gal, udc.es, usc.es, …) | Dominios de correo institucional que muestran la insignia informativa, separados por comas |
 
 No se necesita `SECRET_KEY`: la app no usa cookies de sesión de Flask, sino
-tokens Bearer aleatorios almacenados en el navegador.
+tokens Bearer aleatorios almacenados en el navegador. Tampoco se necesitan
+credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
 
 ## Funcionalidades
 
@@ -261,15 +277,17 @@ una comprobación rápida es que `es`, `en` y `gl` mantengan las mismas claves.
 
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
+| GET | `/healthz` | — | Sonda ligera para Render y monitores, sin consultas a BD |
 | GET | `/api/health` | — | Estado, producto y versión legal |
-| GET | `/api/stats` | — | Contadores reales, categorías e impacto estimado |
+| GET | `/api/stats` | — | Contadores reales, categorías e impacto estimado (caché de 15 s) |
 | GET | `/api/impact/me` | ✓ | Impacto, valoraciones, nivel y badges propios |
-| GET | `/api/items` | — | Listar objetos con filtros (`q`, `category`, `campus`, `condition`, `type`, `faculty`, `status`, `sort`) |
+| GET | `/api/items` | — | Listar objetos con filtros (`q`, `category`, `campus`, `condition`, `type`, `faculty`, `status`, `sort`) y paginación (`limit` ≤ 60, `offset`); devuelve `total` y `has_more` |
+| GET | `/api/items/mine` | ✓ | Objetos propios, paginados |
 | GET | `/api/items/:id` | — | Detalle con impacto y confianza del propietario, sin email |
 | POST | `/api/items` | ✓ | Crear objeto; exige `private_seller`, foto y tipo |
 | PATCH | `/api/items/:id` | ✓ dueño | Cambiar estado |
 | DELETE | `/api/items/:id` | ✓ dueño | Eliminar objeto e imagen subida |
-| POST | `/api/upload` | ✓ | Subir imagen local validada por extensión y magic bytes |
+| POST | `/api/upload` | ✓ | Subir JPG/PNG/WebP: valida magic bytes, recorta a 1200 px, convierte a WebP ≤400 KB y borra EXIF/GPS; guarda en `media` y devuelve la URL |
 | POST | `/api/auth/register` | — | Registro con `consent: true` |
 | POST | `/api/auth/login` | — | Login → token |
 | POST | `/api/auth/logout` | ✓ | Cerrar sesión actual |
@@ -304,7 +322,25 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 - **Impacto calculado en servidor**: el cliente no envía cifras; se derivan de
   los objetos entregados y se muestran como estimación.
 - **Arranque WSGI-compatible**: `bootstrap()` se ejecuta al importar el módulo,
-  no solo con `python3 app.py`.
+  no solo con `python3 app.py`; en Render arranca con Gunicorn (`Procfile` y
+  `render.yaml`).
+- **Nada se pierde al redesplegar**: las fotos se guardan en la tabla `media`
+  (`BYTEA` en PostgreSQL) y `/static/uploads/<archivo>` las sirve desde la base
+  si el fichero no existe en disco. Al arrancar se importan las fotos antiguas
+  del disco (`sync_uploads_to_db`) y se limpian las que nunca se publicaron.
+- **Listados paginados**: `/api/items` y `/api/items/mine` aceptan `limit` y
+  `offset`, devuelven `total` y `has_more`, y el catálogo pide páginas de 24 con
+  un botón «Cargar más» en lugar de descargar toda la tabla.
+- **Índices para los filtros reales**: `(status, created_at)`, `category`,
+  `campus`, `(owner_id, created_at)`, además de los de solicitudes, sesiones y
+  valoraciones.
+- **Respuestas comprimidas y cacheadas**: Gzip para HTML/JSON/CSS/JS por encima
+  de 700 bytes; CSS y JS se sirven con ETag, `immutable` y `?v=<huella del
+  contenido>`; el shell SPA lleva `stale-while-revalidate` para pintar aunque el
+  servicio esté despertando.
+- **Aviso de arranque en frío**: si una petición tarda más de 2,5 s, el
+  frontend muestra «El servidor se está despertando» y distingue los fallos de
+  red con un reintento, en vez de dejar la pantalla congelada.
 - **Validación en servidor** de longitudes, enumeraciones, precio, imagen,
   consentimiento y condición de particular.
 - **CSP sin scripts inline**: la configuración se pasa como JSON en un bloque
@@ -320,6 +356,13 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 - En Render gratuito configura `DATABASE_URL` con PostgreSQL gestionado; si no,
   SQLite quedará en almacenamiento efímero y podría borrarse al reiniciar.
   Revisa los límites, pausas y copias del proveedor PostgreSQL.
+- El plan gratuito de Render suspende el servicio por inactividad: la primera
+  visita puede tardar decenas de segundos. La interfaz lo avisa, pero no se
+  puede eliminar sin un plan de pago o un monitor externo.
+- Las fotos ocupan espacio en la base de datos. Para un catálogo grande conviene
+  moverlas a almacenamiento de objetos (S3, Cloudinary o Supabase Storage) con
+  credenciales por variables de entorno; el código está preparado para cambiar
+  `store_media`/`read_media` sin tocar las rutas.
 - Las cifras de impacto son estimaciones por categoría, no mediciones: sirven
   para dar orden de magnitud y se etiquetan como tales.
 - Las valoraciones no tienen moderación automática: son texto de las personas
@@ -331,8 +374,9 @@ Rutas SPA directas: `/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`,
 ## Despliegue
 
 Consulta [DEPLOY.md](DEPLOY.md). El Blueprint usa el plan gratuito de Render,
-`healthCheckPath: /api/health` y solicita `DATABASE_URL` para conectar
-PostgreSQL externo. La URL de base de datos es secreta: no la guardes en Git.
+`healthCheckPath: /healthz`, Gunicorn con 2 workers y 4 hilos, y solicita
+`DATABASE_URL` para conectar PostgreSQL externo. La URL de base de datos es
+secreta: no la guardes en Git.
 
 ---
 

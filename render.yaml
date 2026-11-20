@@ -6,9 +6,11 @@ services:
     runtime: python
     # La app puede usar PostgreSQL externo gratuito mediante DATABASE_URL.
     plan: free
-    healthCheckPath: /api/health
+    healthCheckPath: /healthz
     buildCommand: pip install -r requirements.txt
-    startCommand: python3 app.py
+    # Gunicorn con hilos: arranque más rápido y más resistencia que el
+    # servidor de desarrollo de Flask.
+    startCommand: gunicorn app:app --workers 2 --threads 4 --timeout 60 --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.0

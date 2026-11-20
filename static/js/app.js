@@ -74,7 +74,7 @@ const I18N = {
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Circular Campus no gestiona cobros.",
     f_title: "Título", f_desc: "Descripción", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Precio orientativo (€)", f_price_hint: "No se cobra aquí. El importe se acuerda directamente y fuera de la plataforma.",
-    f_image: "Foto del objeto", f_image_hint: "Sube una imagen real. No se permiten URL externas; evita que aparezcan datos personales.",
+    f_image: "Foto del objeto", f_image_hint: "Sube una imagen real. Se reescala a 1200 px, se convierte a WebP y se eliminan los metadatos EXIF (incluida la ubicación).",
     upload: "Subir imagen", f_private: "Confirmo que publico como particular", f_private_hint: "No se admiten vendedores profesionales ni actividad comercial habitual.",
     desc_hint: "Describe marcas, defectos y qué incluye. No escribas teléfonos, direcciones ni datos de contacto.",
     publish_btn: "Publicar objeto", cancel: "Cancelar", payment_notice_title: "Pago fuera de Circular Campus",
@@ -174,7 +174,7 @@ const I18N = {
     detail_unavailable: "Este objeto ya no está disponible.", detail_manage: "Gestionar en Mi área", status_change: "Cambiar estado",
     confirm_delete_t: "¿Eliminar este objeto?", confirm_delete_b: "Se borrará la publicación y sus datos asociados. Esta acción no se puede deshacer.",
     confirm_delete_btn: "Sí, eliminar",
-    photo_drop_t: "Toca para elegir una foto", photo_drop_b: "JPG, PNG, WEBP o GIF · máximo 5 MB",
+    photo_drop_t: "Toca para elegir una foto", photo_drop_b: "JPG, PNG o WebP · máximo 5 MB · se optimiza al subir",
     photo_remove: "Quitar foto", photo_upload: "Subir foto", photo_uploading: "Subiendo foto…",
     photo_ready: "Foto subida y lista", photo_change: "Cambiar foto",
     form_sec_1: "Lo esencial", form_sec_2: "Detalles del intercambio", form_sec_3: "Foto y publicación",
@@ -256,6 +256,11 @@ const I18N = {
     req_rated: "Valorado con {n}/5",
     my_impact_error: "No se pudo cargar tu impacto.",
     searching: "Buscando…",
+    cold_title: "El servidor se está despertando",
+    cold_body: "El plan gratuito se suspende por inactividad: la primera petición puede tardar unos segundos.",
+    cold_offline: "No hay conexión con el servidor. Vuelve a intentarlo en unos segundos.",
+    load_more: "Cargar más objetos",
+    results_partial: "{shown} de {total} objetos encontrados",
     lang_name: "Español",
   },
   en: {
@@ -291,7 +296,7 @@ const I18N = {
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Circular Campus does not handle payments.",
     f_title: "Title", f_desc: "Description", f_category: "Category", f_condition: "Condition", f_type: "Exchange type",
     f_campus: "Campus", f_handover: "Handover point", f_price: "Indicative price (€)", f_price_hint: "No payment happens here. Settle any amount directly, outside the platform.",
-    f_image: "Item photo", f_image_hint: "Upload a real image. External URLs are not allowed; avoid visible personal data.",
+    f_image: "Item photo", f_image_hint: "Upload a real image. It is resized to 1200 px, converted to WebP and stripped of EXIF metadata (including location).",
     upload: "Upload image", f_private: "I confirm I am listing as a private individual", f_private_hint: "Professional sellers and regular commercial activity are not allowed.",
     desc_hint: "Describe marks, defects and what is included. Do not add phone numbers, addresses or contact details.",
     publish_btn: "List item", cancel: "Cancel", payment_notice_title: "Payment outside Circular Campus",
@@ -391,7 +396,7 @@ const I18N = {
     detail_unavailable: "This item is no longer available.", detail_manage: "Manage in My area", status_change: "Change status",
     confirm_delete_t: "Delete this item?", confirm_delete_b: "The listing and its related data will be deleted. This cannot be undone.",
     confirm_delete_btn: "Yes, delete",
-    photo_drop_t: "Tap to choose a photo", photo_drop_b: "JPG, PNG, WEBP or GIF · 5 MB max",
+    photo_drop_t: "Tap to choose a photo", photo_drop_b: "JPG, PNG or WebP · 5 MB max · optimised on upload",
     photo_remove: "Remove photo", photo_upload: "Upload photo", photo_uploading: "Uploading photo…",
     photo_ready: "Photo uploaded and ready", photo_change: "Change photo",
     form_sec_1: "The essentials", form_sec_2: "Exchange details", form_sec_3: "Photo & publishing",
@@ -473,6 +478,11 @@ const I18N = {
     req_rated: "Rated {n}/5",
     my_impact_error: "Could not load your impact.",
     searching: "Searching…",
+    cold_title: "The server is waking up",
+    cold_body: "The free plan sleeps when idle: the first request may take a few seconds.",
+    cold_offline: "No connection to the server. Try again in a few seconds.",
+    load_more: "Load more items",
+    results_partial: "{shown} of {total} items found",
     lang_name: "English",
   },
   gl: {
@@ -508,7 +518,7 @@ const I18N = {
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Circular Campus non xestiona cobros.",
     f_title: "Título", f_desc: "Descrición", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Prezo orientativo (€)", f_price_hint: "Aquí non se cobra. O importe acórdase directamente e fóra da plataforma.",
-    f_image: "Foto do obxecto", f_image_hint: "Sube unha imaxe real. Non se permiten URL externas; evita datos persoais visibles.",
+    f_image: "Foto do obxecto", f_image_hint: "Sube unha imaxe real. Redimensiónase a 1200 px, convértese a WebP e elimínanse os metadatos EXIF (incluída a localización).",
     upload: "Subir imaxe", f_private: "Confirmo que publico como particular", f_private_hint: "Non se admiten vendedores profesionais nin actividade comercial habitual.",
     desc_hint: "Describe marcas, defectos e que inclúe. Non escribas teléfonos, enderezos nin datos de contacto.",
     publish_btn: "Publicar obxecto", cancel: "Cancelar", payment_notice_title: "Pago fóra de Circular Campus",
@@ -608,7 +618,7 @@ const I18N = {
     detail_unavailable: "Este obxecto xa non está dispoñible.", detail_manage: "Xestionar na Miña área", status_change: "Cambiar estado",
     confirm_delete_t: "Eliminar este obxecto?", confirm_delete_b: "Borrarase a publicación e os seus datos asociados. Esta acción non se pode desfacer.",
     confirm_delete_btn: "Si, eliminar",
-    photo_drop_t: "Toca para escoller unha foto", photo_drop_b: "JPG, PNG, WEBP ou GIF · máximo 5 MB",
+    photo_drop_t: "Toca para escoller unha foto", photo_drop_b: "JPG, PNG ou WebP · máximo 5 MB · optimízase ao subir",
     photo_remove: "Quitar foto", photo_upload: "Subir foto", photo_uploading: "Subindo foto…",
     photo_ready: "Foto subida e lista", photo_change: "Cambiar foto",
     form_sec_1: "O esencial", form_sec_2: "Detalles do intercambio", form_sec_3: "Foto e publicación",
@@ -690,6 +700,11 @@ const I18N = {
     req_rated: "Valorado con {n}/5",
     my_impact_error: "Non se puido cargar o teu impacto.",
     searching: "Buscando…",
+    cold_title: "O servidor está espertando",
+    cold_body: "O plan gratuíto suspéndese por inactividade: a primeira petición pode tardar uns segundos.",
+    cold_offline: "Non hai conexión co servidor. Téntao de novo nuns segundos.",
+    load_more: "Cargar máis obxectos",
+    results_partial: "{shown} de {total} obxectos atopados",
     lang_name: "Galego",
   }
 };
@@ -852,6 +867,8 @@ const MY_TABS = [
 ];
 const TOAST_ICONS = { success: "check-circle", error: "alert", info: "info" };
 const TOAST_DURATION = 4600;
+const PAGE_SIZE = Number(BOOT.pageSize) || 24;
+const COLD_START_MS = 2500;
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 /* ---------------- Iconos y utilidades ---------------- */
@@ -895,17 +912,62 @@ function setBusy(btn, busy, label) {
 }
 
 /* ---------------- API y errores ---------------- */
+let coldSeq = 0;
+const slowRequests = new Set();
+
+function showColdStart() {
+  if ($("#slow-notice")) return;
+  const el = document.createElement("div");
+  el.id = "slow-notice";
+  el.className = "slow-notice";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<span class="spinner" aria-hidden="true"></span>
+    <div><strong>${esc(t("cold_title"))}</strong><span>${esc(t("cold_body"))}</span></div>`;
+  document.body.appendChild(el);
+}
+
+function hideColdStart() {
+  const el = $("#slow-notice");
+  if (el) el.remove();
+}
+
+function markSlow(id) {
+  slowRequests.add(id);
+  showColdStart();
+}
+
+function unmarkSlow(id) {
+  slowRequests.delete(id);
+  if (!slowRequests.size) hideColdStart();
+}
+
 async function api(path, opts = {}) {
   const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
   if (state.token) headers.Authorization = "Bearer " + state.token;
-  const res = await fetch(API + path, { ...opts, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err = new Error(data.message || data.error || "error");
-    err.data = data;
+  // Si Render está despertando el servicio, se avisa en lugar de dejar la
+  // pantalla congelada.
+  const id = ++coldSeq;
+  const timer = setTimeout(() => markSlow(id), COLD_START_MS);
+  try {
+    const res = await fetch(API + path, { ...opts, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.message || data.error || "error");
+      err.data = data;
+      throw err;
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof TypeError || (err && err.name === "TypeError")) {
+      const offline = new Error(t("cold_offline"));
+      offline.data = { error: "network_error" };
+      throw offline;
+    }
     throw err;
+  } finally {
+    clearTimeout(timer);
+    unmarkSlow(id);
   }
-  return data;
 }
 
 const ERROR_KEYS = {
@@ -1371,9 +1433,57 @@ function filterParams() {
   return params;
 }
 
-async function fetchItems() {
-  const data = await api("/api/items?" + filterParams().toString());
-  return data.items || [];
+async function fetchItemsPage(offset = 0) {
+  const params = filterParams();
+  params.set("limit", String(PAGE_SIZE));
+  params.set("offset", String(offset));
+  return api("/api/items?" + params.toString());
+}
+
+function setCatalogCount(shown, total) {
+  const el = $("#results-count");
+  if (!el) return;
+  if (total > shown) {
+    el.textContent = t("results_partial")
+      .replace("{shown}", String(shown))
+      .replace("{total}", String(total));
+  } else {
+    el.textContent = `${shown} ${shown === 1 ? t("results_one") : t("results_found")}`;
+  }
+}
+
+function loadMoreHtml(page) {
+  if (!page.has_more) return "";
+  return `<div class="load-more">
+    <button type="button" class="btn btn-ghost" id="load-more">${icon("refresh")}${esc(t("load_more"))}</button>
+  </div>`;
+}
+
+async function loadMoreItems(btn) {
+  if (btn.dataset.busy) return;
+  btn.dataset.busy = "1";
+  setBusy(btn, true, t("loading_items"));
+  try {
+    const page = await fetchItemsPage(state.items.length);
+    state.items = state.items.concat(page.items);
+    const grid = $("#catalog-results .grid-items");
+    if (grid && page.items.length) {
+      grid.insertAdjacentHTML("beforeend", page.items.map(itemCard).join(""));
+      enhance(grid);
+    }
+    const wrapper = btn.closest(".load-more");
+    if (page.has_more) {
+      btn.dataset.busy = "";
+      setBusy(btn, false);
+    } else if (wrapper) {
+      wrapper.remove();
+    }
+    setCatalogCount(state.items.length, page.total);
+  } catch (err) {
+    btn.dataset.busy = "";
+    setBusy(btn, false);
+    toast(errorMessage(err), "error");
+  }
 }
 
 function hasFilters() {
@@ -1630,9 +1740,9 @@ async function refreshCatalog(opts = {}) {
     box.classList.remove("is-loading");
     box.innerHTML = `<div class="grid grid-items">${skeletonCards(6)}</div>`;
   }
-  let items;
+  let page;
   try {
-    items = await fetchItems();
+    page = await fetchItemsPage(0);
   } catch (err) {
     if (request !== catalogRequest || !$("#catalog-results")) return;
     box.innerHTML = emptyState({
@@ -1648,6 +1758,7 @@ async function refreshCatalog(opts = {}) {
     return;
   }
   if (request !== catalogRequest || !$("#catalog-results")) return;
+  const items = page.items || [];
   state.items = items;
   if (!items.length) {
     const onlyCategory = !state.filters.q && !state.filters.campus && !state.filters.condition && !state.filters.type && state.filters.category;
@@ -1672,14 +1783,14 @@ async function refreshCatalog(opts = {}) {
       publish: () => navigate("publish")
     });
   } else {
-    box.innerHTML = `<div class="grid grid-items">${items.map(itemCard).join("")}</div>`;
+    box.innerHTML = `<div class="grid grid-items">${items.map(itemCard).join("")}</div>${loadMoreHtml(page)}`;
     enhance(box);
+    const more = $("#load-more", box);
+    if (more) more.onclick = () => loadMoreItems(more);
   }
   box.removeAttribute("aria-busy");
   box.classList.remove("is-loading");
-  if (countEl) {
-    countEl.textContent = `${items.length} ${items.length === 1 ? t("results_one") : t("results_found")}`;
-  }
+  if (countEl) setCatalogCount(items.length, page.total);
 }
 
 function itemCard(it) {
@@ -1973,7 +2084,7 @@ function renderPublish(app) {
             ${icon("camera")}
             <strong>${esc(t("photo_drop_t"))}</strong>
             <span>${esc(t("photo_drop_b"))}</span>
-            <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp,image/gif">
+            <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp">
           </label>
           <input type="hidden" id="img-url" value="">
           <div class="upload-preview-wrap" id="preview-wrap">
@@ -2079,7 +2190,7 @@ function renderPublish(app) {
 
   const uploadFile = async (file) => {
     if (!file) return;
-    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
     if (!allowed.includes(file.type)) {
       toast(t("toast_invalid_image"), "error");
       return;
@@ -2494,8 +2605,8 @@ async function loadMyTab(tab) {
   let html = "";
   try {
     if (tab === "items") {
-      const data = await api("/api/items?status=&sort=recent");
-      const mine = (data.items || []).filter(i => i.owner_id === state.user.id);
+      const data = await api("/api/items/mine");
+      const mine = data.items || [];
       html = mine.length
         ? `<p class="hint-line">${icon("info")}${esc(t("status_help"))}</p>` + mine.map(myItemCard).join("")
         : emptyState({

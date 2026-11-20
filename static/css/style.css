@@ -2267,3 +2267,41 @@ body.is-scrolled .topbar { box-shadow: 0 6px 20px rgba(20, 37, 27, 0.08); }
   .impact-icon { width: 34px; height: 34px; }
   .rate-option-inner { min-width: 52px; }
 }
+
+/* 19. Producción: paginación y aviso de arranque en frío ------------------ */
+.load-more { display: flex; justify-content: center; margin-top: var(--s6); }
+.load-more .btn { min-width: 220px; }
+
+.slow-notice {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--header-h) + var(--s3));
+  transform: translateX(-50%);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  width: max-content;
+  max-width: min(92vw, 430px);
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green-600);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  animation: slow-in var(--slow) var(--ease);
+}
+.slow-notice div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.slow-notice strong { color: var(--ink); font-size: var(--text-sm); }
+.slow-notice img, .slow-notice svg { flex: 0 0 auto; }
+.slow-notice div span { color: var(--muted); font-size: var(--text-xs); line-height: 1.35; }
+
+@keyframes slow-in {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slow-notice { animation: none; }
+}

@@ -15,7 +15,7 @@
 <link rel="icon" href="/static/img/favicon.ico" sizes="any">
 <link rel="icon" href="/static/img/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/style.css?v={{ boot.assetVersion }}">
 </head>
 <body>
 <a class="skip-link" href="#app" data-i18n="skip_content">Saltar al contenido</a>
@@ -141,6 +141,6 @@
 <noscript><div class="noscript" data-i18n="noscript">Circular Campus necesita JavaScript para mostrar el catálogo y gestionar la cuenta.</div></noscript>
 
 <script id="cc-boot" type="application/json">{{ boot|tojson }}</script>
-<script src="/static/js/app.js"></script>
+<script src="/static/js/app.js?v={{ boot.assetVersion }}"></script>
 </body>
 </html>

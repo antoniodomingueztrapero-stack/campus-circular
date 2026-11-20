@@ -27,18 +27,26 @@ Variables de entorno opcionales:
     UNIVERSITY_DOMAINS (dominios de correo institucional aceptados).
 """
 
+import gzip
 import hashlib
+import io
+import mimetypes
 import os
 import re
 import secrets
 import sqlite3
+import time
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from urllib.parse import urlparse
 
 import psycopg
+from PIL import Image, ImageOps, UnidentifiedImageError
 from psycopg.rows import dict_row
-from flask import Flask, g, jsonify, render_template, request, send_from_directory
+from flask import (
+    Flask, Response, g, jsonify, make_response, render_template, request,
+    send_from_directory,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -120,12 +128,45 @@ CATEGORY_IMPACT = {
 IMPACT_LEVELS = [("semilla", 0), ("brote", 2), ("arbol", 5), ("bosque", 10)]
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+# Las fotos se reescalan y recomprimen en servidor: el máximo real servido
+# ronda 150–350 KB, no los 5 MB que se aceptan a la entrada.
+MAX_IMAGE_DIMENSION = 1200
+MAX_IMAGE_BYTES = 400 * 1024
+MAX_SOURCE_PIXELS = 40_000_000
+IMAGE_QUALITY = 82
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_IMAGE_URL_LEN = 300
+DEFAULT_PAGE_SIZE = 24
+MAX_PAGE_SIZE = 60
+STATS_CACHE_SECONDS = 15
+COMPRESSIBLE_TYPES = (
+    "text/", "application/json", "application/javascript", "text/javascript",
+    "application/xml", "image/svg+xml",
+)
+COMPRESS_MIN_BYTES = 700
+UPLOAD_URL_PREFIX = "/static/uploads/"
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
+# Los estáticos con nombre fijo se cachean una semana; CSS y JS llevan versión
+# en la URL y se sirven con caché inmutable (ver `asset_file`).
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 7 * 24 * 3600
 app.json.ensure_ascii = False
+
+
+def _asset_version() -> str:
+    """Huella corta de CSS+JS para invalidar la caché al desplegar."""
+    digest = hashlib.sha256()
+    for rel in ("css/style.css", "js/app.js"):
+        try:
+            with open(os.path.join(BASE_DIR, "static", rel), "rb") as fh:
+                digest.update(fh.read())
+        except OSError:
+            digest.update(rel.encode("utf-8"))
+    return digest.hexdigest()[:10]
+
+
+ASSET_VERSION = _asset_version()
 
 SPA_VIEWS = {
     "/": "home",
@@ -156,6 +197,8 @@ def boot_config(view="home"):
         "legalVersion": LEGAL_VERSION,
         "legalUpdated": LEGAL_UPDATED,
         "sessionDays": SESSION_DAYS,
+        "assetVersion": ASSET_VERSION,
+        "pageSize": DEFAULT_PAGE_SIZE,
     }
 
 
@@ -175,6 +218,14 @@ class DatabaseConnection:
             self.raw = sqlite3.connect(DATABASE, timeout=15)
             self.raw.row_factory = sqlite3.Row
             self.raw.execute("PRAGMA foreign_keys = ON")
+            # WAL permite lecturas concurrentes durante una escritura y evita
+            # los bloqueos típicos en el servidor de desarrollo.
+            try:
+                self.raw.execute("PRAGMA journal_mode = WAL")
+                self.raw.execute("PRAGMA synchronous = NORMAL")
+                self.raw.execute("PRAGMA busy_timeout = 5000")
+            except sqlite3.Error:
+                pass
 
     def execute(self, statement, params=()):
         if self.is_postgres:
@@ -187,6 +238,7 @@ class DatabaseConnection:
                 "INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY"
             ).replace("INTEGER NOT NULL REFERENCES", "BIGINT NOT NULL REFERENCES")
             script = script.replace("price REAL", "price DOUBLE PRECISION")
+            script = script.replace("bytes BLOB NOT NULL", "bytes BYTEA NOT NULL")
             for statement in script.split(";"):
                 if statement.strip():
                     self.execute(statement)
@@ -215,6 +267,30 @@ def inserted_id(cursor):
     # Exhaust SQLite's RETURNING cursor before committing the transaction.
     cursor.fetchall()
     return cursor.lastrowid
+
+
+def pagination_args(default=DEFAULT_PAGE_SIZE):
+    """(`limit`, `offset`) saneados para cualquier listado."""
+    try:
+        limit = int(request.args.get("limit", default))
+    except (TypeError, ValueError):
+        limit = default
+    try:
+        offset = int(request.args.get("offset", 0))
+    except (TypeError, ValueError):
+        offset = 0
+    return max(1, min(limit, MAX_PAGE_SIZE)), max(0, min(offset, 200_000))
+
+
+def page_payload(rows, total, limit, offset, serializer):
+    items = [serializer(r) for r in rows]
+    return {
+        "items": items,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": offset + len(items) < total,
+    }
 
 
 def get_db():
@@ -300,9 +376,25 @@ def init_db():
             created_at TEXT NOT NULL,
             UNIQUE (request_id, rater_id)
         );
-        CREATE INDEX IF NOT EXISTS idx_items_status ON items(status);
+        CREATE TABLE IF NOT EXISTS media (
+            filename TEXT PRIMARY KEY,
+            content_type TEXT NOT NULL,
+            bytes BLOB NOT NULL,
+            size INTEGER NOT NULL,
+            created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_items_status_created ON items(status, created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
+        CREATE INDEX IF NOT EXISTS idx_items_campus ON items(campus);
+        CREATE INDEX IF NOT EXISTS idx_items_owner ON items(owner_id, created_at DESC);
         CREATE INDEX IF NOT EXISTS idx_requests_item ON requests(item_id);
+        CREATE INDEX IF NOT EXISTS idx_requests_requester ON requests(requester_id);
+        CREATE INDEX IF NOT EXISTS idx_requests_status ON requests(status);
         CREATE INDEX IF NOT EXISTS idx_ratings_rated ON ratings(rated_id);
+        CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+        CREATE INDEX IF NOT EXISTS idx_media_created ON media(created_at);
+        -- El índice suelto de \`status\` queda cubierto por (status, created_at).
+        DROP INDEX IF EXISTS idx_items_status;
         """
     )
     db.commit()
@@ -674,22 +766,163 @@ def valid_local_image_url(url: str) -> bool:
     return parsed.path.startswith("/static/")
 
 
-def remove_uploaded_file(url: str) -> bool:
-    """Borra de forma segura una imagen subida por el usuario."""
-    if not url or not url.startswith("/static/uploads/"):
-        return False
-    filename = secure_filename(os.path.basename(urlparse(url).path))
+def optimize_image(raw: bytes) -> bytes:
+    """Reescala a 1200 px, corrige orientación y recomprime a WebP.
+
+    Al recomprimir se pierden los metadatos EXIF (incluidas coordenadas GPS),
+    que en fotos de móvil son datos personales que no necesitamos.
+    """
+    try:
+        with Image.open(io.BytesIO(raw)) as probe:
+            if probe.width * probe.height > MAX_SOURCE_PIXELS:
+                raise ValueError("image_too_large")
+            probe.verify()
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as exc:
+        raise ValueError("invalid_image") from exc
+
+    with Image.open(io.BytesIO(raw)) as source:
+        img = ImageOps.exif_transpose(source)
+        if img.mode in ("P", "LA", "RGBA"):
+            img = img.convert("RGBA")
+        elif img.mode != "RGB":
+            img = img.convert("RGB")
+        img.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.LANCZOS)
+        quality = IMAGE_QUALITY
+        while True:
+            buffer = io.BytesIO()
+            img.save(buffer, format="WEBP", quality=quality, method=4)
+            data = buffer.getvalue()
+            if len(data) <= MAX_IMAGE_BYTES or quality <= 45:
+                return data
+            quality -= 10
+
+
+def image_filename() -> str:
+    return f"{secrets.token_hex(16)}.webp"
+
+
+def store_media(db, filename: str, data: bytes, content_type: str) -> None:
+    """Guarda la imagen en la base de datos: sobrevive a reinicios de Render."""
+    db.execute(
+        "INSERT INTO media (filename, content_type, bytes, size, created_at) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (filename, content_type, data, len(data), now_iso()),
+    )
+
+
+def read_media(db, filename: str):
+    return db.execute(
+        "SELECT content_type, bytes FROM media WHERE filename = ?", (filename,)
+    ).fetchone()
+
+
+def safe_upload_name(name: str) -> str:
+    filename = secure_filename(os.path.basename(name or ""))
     if not filename or "." not in filename:
-        return False
+        return ""
     root = os.path.abspath(UPLOAD_DIR)
     path = os.path.abspath(os.path.join(root, filename))
     if os.path.commonpath([root, path]) != root:
+        return ""
+    return filename
+
+
+def remove_uploaded_file(url: str) -> bool:
+    """Borra una imagen subida del disco y de la base de datos."""
+    if not url or not url.startswith(UPLOAD_URL_PREFIX):
         return False
+    filename = safe_upload_name(urlparse(url).path)
+    if not filename:
+        return False
+    removed = False
     try:
-        os.remove(path)
-        return True
+        os.remove(os.path.join(UPLOAD_DIR, filename))
+        removed = True
     except FileNotFoundError:
-        return False
+        pass
+    except OSError:
+        app.logger.warning("No se pudo borrar la imagen %s del disco", filename)
+    # Conexión propia: la limpieza puede ocurrir fuera de una petición y no
+    # debe reabrir la transacción en curso.
+    db = connect_db()
+    try:
+        db.execute("DELETE FROM media WHERE filename = ?", (filename,))
+        db.commit()
+        removed = True
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudo borrar la imagen %s de la base de datos", filename)
+    finally:
+        db.close()
+    return removed
+
+
+def sync_uploads_to_db() -> int:
+    """Importa a la base las imágenes que aún viven solo en disco.
+
+    Necesario para no perder las fotos subidas antes de este cambio cuando
+    Render recicle el contenedor tras un despliegue.
+    """
+    try:
+        names = [f for f in os.listdir(UPLOAD_DIR)
+                 if os.path.splitext(f)[1].lower() in ALLOWED_EXTENSIONS]
+    except OSError:
+        return 0
+    if not names:
+        return 0
+    db = connect_db()
+    imported = 0
+    try:
+        existing = {r["filename"] for r in db.execute("SELECT filename FROM media").fetchall()}
+        for name in names:
+            if name in existing:
+                continue
+            path = os.path.join(UPLOAD_DIR, name)
+            try:
+                if os.path.getsize(path) > MAX_UPLOAD_BYTES:
+                    continue
+                with open(path, "rb") as fh:
+                    data = fh.read()
+            except OSError:
+                continue
+            if not valid_image_bytes(data[:12]):
+                continue
+            content_type = mimetypes.guess_type(name)[0] or "application/octet-stream"
+            db.execute(
+                "INSERT INTO media (filename, content_type, bytes, size, created_at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (name, content_type, data, len(data), now_iso()),
+            )
+            imported += 1
+        if imported:
+            db.commit()
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudieron importar las imágenes locales a la base de datos")
+        return 0
+    finally:
+        db.close()
+    return imported
+
+
+def cleanup_orphan_media(days: int = 7) -> int:
+    """Elimina fotos subidas que nunca llegaron a publicarse."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    db = connect_db()
+    try:
+        cur = db.execute(
+            "DELETE FROM media WHERE created_at < ? AND filename NOT IN ("
+            "SELECT SUBSTR(image_url, ?) FROM items WHERE image_url LIKE ?)",
+            (cutoff, len(UPLOAD_URL_PREFIX) + 1, UPLOAD_URL_PREFIX + "%"),
+        )
+        db.commit()
+        return cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudieron limpiar las imágenes huérfanas")
+        return 0
+    finally:
+        db.close()
 
 
 def valid_image_bytes(head: bytes) -> bool:
@@ -908,7 +1141,27 @@ def _insert_history(db, owner_ids, peer_ids):
 
 
 def seed_if_empty():
+    """Datos de demostración, serializados entre workers.
+
+    Gunicorn arranca varios procesos a la vez: sin este bloqueo, dos workers
+    veían la base vacía e insertaban las mismas cuentas, y el segundo tumbaba
+    el arranque con una violación de unicidad.
+    """
     db = connect_db()
+    try:
+        if USE_POSTGRES:
+            db.execute("LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE")
+        else:
+            db.execute("BEGIN IMMEDIATE")
+        _seed_locked(db)
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.warning("La demo ya estaba sembrada por otro proceso", exc_info=True)
+    finally:
+        db.close()
+
+
+def _seed_locked(db):
     if db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"] > 0:
         # Bases ya existentes: solo se completa el historial de la demo cuando
         # la única cuenta es la del equipo y todavía no hay entregas.
@@ -917,7 +1170,6 @@ def seed_if_empty():
             if len(existing) == 1 and existing[0]["email"] == SEED_OWNER["email"]:
                 _insert_history(db, [existing[0]["id"], existing[0]["id"], existing[0]["id"]], [])
                 db.commit()
-        db.close()
         return
 
     ts = now_iso()
@@ -952,7 +1204,6 @@ def seed_if_empty():
 
     _insert_history(db, [owner_id] + peer_ids, peer_ids)
     db.commit()
-    db.close()
 
 
 _BOOTSTRAPPED = False
@@ -965,8 +1216,21 @@ def bootstrap():
         return
     init_db()
     migrate_db()
+    # Las fotos subidas antes de guardarse en base de datos viven solo en el
+    # disco efímero: se importan para que sobrevivan al siguiente despliegue.
+    try:
+        imported = sync_uploads_to_db()
+        if imported:
+            app.logger.info("Importadas %s imágenes locales a la base de datos", imported)
+        cleanup_orphan_media()
+    except Exception:  # noqa: BLE001 - el arranque no debe romperse por esto
+        app.logger.exception("No se pudo sincronizar el almacenamiento de imágenes")
     if SEED_DEMO:
-        seed_if_empty()
+        try:
+            seed_if_empty()
+        except DB_ERRORS:
+            # Los objetos de ejemplo nunca deben impedir que la web arranque.
+            app.logger.exception("No se pudo sembrar la demo")
     _BOOTSTRAPPED = True
 
 
@@ -1004,6 +1268,34 @@ def too_large(e):
     return jsonify({"error": "file_too_large", "message": "La imagen supera 5 MB."}), 413
 
 
+@app.after_request
+def compress_response(resp):
+    """Gzip para HTML, JSON, CSS y JS; nunca para imágenes ni respuestas 304."""
+    if request.method == "HEAD" or resp.direct_passthrough or resp.is_streamed:
+        return resp
+    if resp.status_code < 200 or resp.status_code >= 300:
+        return resp
+    if resp.headers.get("Content-Encoding") or request.headers.get("Range"):
+        return resp
+    if "gzip" not in request.accept_encodings:
+        return resp
+    ctype = (resp.content_type or "").lower()
+    if not any(ctype.startswith(prefix) for prefix in COMPRESSIBLE_TYPES):
+        return resp
+    data = resp.get_data()
+    if len(data) < COMPRESS_MIN_BYTES:
+        return resp
+    packed = gzip.compress(data, compresslevel=6)
+    if len(packed) >= len(data) * 0.95:
+        return resp
+    resp.set_data(packed)
+    resp.headers["Content-Encoding"] = "gzip"
+    resp.headers["Vary"] = "Accept-Encoding"
+    # El ETag anterior describía la representación sin comprimir.
+    resp.headers.pop("ETag", None)
+    return resp
+
+
 # ---------------------------------------------------------------------------
 # Routes — frontend
 # ---------------------------------------------------------------------------
@@ -1017,7 +1309,13 @@ def too_large(e):
 @app.get("/privacidad")
 @app.get("/condiciones")
 def spa_shell():
-    return render_template("index.html", boot=boot_config(SPA_VIEWS.get(request.path, "home")))
+    resp = make_response(
+        render_template("index.html", boot=boot_config(SPA_VIEWS.get(request.path, "home")))
+    )
+    # La portada no contiene datos personales: una caché muy corta permite
+    # pintar el esqueleto mientras el servicio gratuito vuelve a arrancar.
+    resp.headers["Cache-Control"] = "public, max-age=30, stale-while-revalidate=300"
+    return resp
 
 
 @app.get("/favicon.ico")
@@ -1027,41 +1325,152 @@ def favicon():
 
 @app.route("/static/uploads/<path:filename>")
 def uploads(filename):
-    return send_from_directory(UPLOAD_DIR, filename)
+    """Sirve la imagen desde disco o, si el contenedor se recicló, desde la BD."""
+    name = safe_upload_name(filename)
+    if not name:
+        return jsonify({"error": "not_found"}), 404
+    path = os.path.join(UPLOAD_DIR, name)
+    if os.path.isfile(path):
+        resp = send_from_directory(UPLOAD_DIR, name)
+    else:
+        row = read_media(get_db(), name)
+        if not row:
+            return jsonify({"error": "not_found"}), 404
+        resp = Response(row["bytes"], mimetype=row["content_type"])
+        resp.set_etag(hashlib.sha256(row["bytes"]).hexdigest()[:24])
+        resp = resp.make_conditional(request)
+    resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return resp
+
+
+ASSET_TYPES = {
+    "css/style.css": "text/css; charset=utf-8",
+    "js/app.js": "application/javascript; charset=utf-8",
+}
+_ASSET_CACHE = {}
+
+
+def _load_asset(rel: str):
+    """Lee el activo una vez y lo reutiliza hasta que cambie en disco."""
+    path = os.path.join(BASE_DIR, "static", rel)
+    stat = os.stat(path)
+    key = (stat.st_mtime_ns, stat.st_size)
+    cached = _ASSET_CACHE.get(rel)
+    if cached and cached["key"] == key:
+        return cached
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    packed = gzip.compress(raw, compresslevel=9)
+    entry = {
+        "key": key,
+        "raw": raw,
+        "gzip": packed,
+        "etag": hashlib.sha256(raw).hexdigest()[:24],
+        "gzip_etag": hashlib.sha256(packed).hexdigest()[:24],
+        "mimetype": ASSET_TYPES[rel],
+    }
+    _ASSET_CACHE[rel] = entry
+    return entry
+
+
+@app.get("/static/css/style.css")
+@app.get("/static/js/app.js")
+def static_asset():
+    """Sirve CSS/JS con ETag, caché inmutable y compresión gzip.
+
+    La plantilla añade `?v=<huella>` para que un despliegue estrene URL y la
+    caché inmutable sea segura.
+    """
+    rel = request.path[len("/static/"):]
+    entry = ASSET_TYPES.get(rel)
+    if not entry:
+        return jsonify({"error": "not_found"}), 404
+    try:
+        asset = _load_asset(rel)
+    except OSError:
+        return jsonify({"error": "not_found"}), 404
+    # Se negocia la codificación en el propio activo para que cada
+    # representación (gzip o identidad) tenga un ETag válido y responda 304.
+    if "gzip" in request.accept_encodings:
+        resp = Response(asset["gzip"], mimetype=entry)
+        resp.set_etag(asset["gzip_etag"])
+        resp.headers["Content-Encoding"] = "gzip"
+        resp.headers["Vary"] = "Accept-Encoding"
+    else:
+        resp = Response(asset["raw"], mimetype=entry)
+        resp.set_etag(asset["etag"])
+    resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return resp.make_conditional(request)
 
 
 # ---------------------------------------------------------------------------
 # Routes — API
 # ---------------------------------------------------------------------------
+@app.get("/healthz")
+def healthz():
+    """Sonda barata para Render y monitores: no toca la base de datos."""
+    resp = jsonify({"ok": True, "service": "circular-campus"})
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
 @app.get("/api/health")
 def health():
-    return jsonify({
+    resp = jsonify({
         "ok": True,
         "service": "circular-campus",
         "product": SERVICE_NAME,
         "legal_version": LEGAL_VERSION,
         "time": now_iso(),
     })
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+_STATS_CACHE = {}
+
+
+def invalidate_stats():
+    """Los contadores públicos se recalculan tras cualquier cambio de objeto."""
+    _STATS_CACHE.clear()
 
 
 @app.get("/api/stats")
 def stats():
-    db = get_db()
-    total_items = db.execute("SELECT COUNT(*) c FROM items").fetchone()["c"]
-    available = db.execute("SELECT COUNT(*) c FROM items WHERE status='disponible'").fetchone()["c"]
-    delivered = db.execute("SELECT COUNT(*) c FROM items WHERE status='entregado'").fetchone()["c"]
-    users = db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
-    by_category = db.execute(
-        "SELECT category, COUNT(*) c FROM items GROUP BY category ORDER BY c DESC"
-    ).fetchall()
-    return jsonify({
-        "total_items": total_items,
-        "available": available,
-        "delivered": delivered,
-        "users": users,
-        "by_category": [{"category": r["category"], "count": r["c"]} for r in by_category],
-        "impact": impact_summary(db),
-    })
+    key = DATABASE_URL or DATABASE
+    now = time.monotonic()
+    cached = _STATS_CACHE.get(key)
+    if (
+        cached
+        and not app.config.get("TESTING")
+        and now - cached[0] < STATS_CACHE_SECONDS
+    ):
+        payload = cached[1]
+    else:
+        db = get_db()
+        # Una sola consulta en lugar de tres: menos viajes a la base.
+        row = db.execute(
+            "SELECT COUNT(*) total, "
+            "SUM(CASE WHEN status = 'disponible' THEN 1 ELSE 0 END) available, "
+            "SUM(CASE WHEN status = 'entregado' THEN 1 ELSE 0 END) delivered "
+            "FROM items"
+        ).fetchone()
+        users = db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
+        by_category = db.execute(
+            "SELECT category, COUNT(*) c FROM items GROUP BY category ORDER BY c DESC"
+        ).fetchall()
+        payload = {
+            "total_items": row["total"] or 0,
+            "available": row["available"] or 0,
+            "delivered": row["delivered"] or 0,
+            "users": users,
+            "by_category": [{"category": r["category"], "count": r["c"]} for r in by_category],
+            "impact": impact_summary(db),
+        }
+        _STATS_CACHE[key] = (now, payload)
+    resp = jsonify(payload)
+    resp.headers["Cache-Control"] = f"public, max-age={STATS_CACHE_SECONDS}"
+    return resp
 
 
 @app.get("/api/impact/me")
@@ -1091,26 +1500,27 @@ def list_items():
     faculty = request.args.get("faculty")
     status = request.args.get("status", "disponible")
     sort = request.args.get("sort", "recent")
+    limit, offset = pagination_args()
 
-    sql = "SELECT * FROM items WHERE 1=1"
+    where = ["1=1"]
     params = []
     if status:
-        sql += " AND status = ?"
+        where.append("status = ?")
         params.append(status)
     if category and category in CATEGORIES:
-        sql += " AND category = ?"
+        where.append("category = ?")
         params.append(category)
     if campus and campus in CAMPUSES:
-        sql += " AND campus = ?"
+        where.append("campus = ?")
         params.append(campus)
     if condition and condition in CONDITIONS:
-        sql += " AND condition = ?"
+        where.append("condition = ?")
         params.append(condition)
     if exchange_type and exchange_type in EXCHANGE_TYPES:
-        sql += " AND exchange_type = ?"
+        where.append("exchange_type = ?")
         params.append(exchange_type)
     if faculty and faculty in FACULTIES:
-        sql += " AND faculty = ?"
+        where.append("faculty = ?")
         params.append(faculty)
     # Búsqueda por palabras: todas deben aparecer en el título o la descripción,
     # así «libro derecho» no devuelve cualquier libro ni cualquier derecho.
@@ -1119,23 +1529,48 @@ def list_items():
         title_folded = folded_column("title")
         desc_folded = folded_column("description")
         for term in terms:
-            sql += f" AND ({title_folded} LIKE ? OR {desc_folded} LIKE ?)"
+            where.append(f"({title_folded} LIKE ? OR {desc_folded} LIKE ?)")
             params.extend([f"%{term}%", f"%{term}%"])
 
-    if sort == "price_asc":
-        sql += " ORDER BY price ASC, created_at DESC"
-    elif sort == "price_desc":
-        sql += " ORDER BY price DESC, created_at DESC"
-    else:
-        sql += " ORDER BY created_at DESC"
+    clause = " FROM items WHERE " + " AND ".join(where)
+    total = db.execute("SELECT COUNT(*) c" + clause, params).fetchone()["c"]
 
-    rows = db.execute(sql, params).fetchall()
+    if sort == "price_asc":
+        order = " ORDER BY price ASC, created_at DESC"
+    elif sort == "price_desc":
+        order = " ORDER BY price DESC, created_at DESC"
+    else:
+        order = " ORDER BY created_at DESC"
+
+    rows = db.execute(
+        "SELECT *" + clause + order + " LIMIT ? OFFSET ?",
+        [*params, limit, offset],
+    ).fetchall()
     user = current_user()
     fav_ids = set()
     if user:
         fav_ids = {r["item_id"] for r in db.execute(
             "SELECT item_id FROM favorites WHERE user_id = ?", (user["id"],)).fetchall()}
-    return jsonify({"items": [row_to_item(r, r["id"] in fav_ids) for r in rows]})
+
+    payload = page_payload(rows, total, limit, offset,
+                           lambda r: row_to_item(r, r["id"] in fav_ids))
+    return jsonify(payload)
+
+
+@app.get("/api/items/mine")
+@require_auth
+def my_items(user):
+    """Objetos propios, sin filtrar en cliente todo el catálogo."""
+    db = get_db()
+    limit, offset = pagination_args(default=MAX_PAGE_SIZE)
+    total = db.execute(
+        "SELECT COUNT(*) c FROM items WHERE owner_id = ?", (user["id"],)
+    ).fetchone()["c"]
+    rows = db.execute(
+        "SELECT * FROM items WHERE owner_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        (user["id"], limit, offset),
+    ).fetchall()
+    return jsonify(page_payload(rows, total, limit, offset, row_to_item))
 
 
 @app.get("/api/items/<int:item_id>")
@@ -1229,6 +1664,7 @@ def create_item(user):
     )
     item_id = inserted_id(cur)
     db.commit()
+    invalidate_stats()
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     return jsonify({"item": row_to_item(row)}), 201
 
@@ -1258,6 +1694,7 @@ def update_item(user, item_id):
         db.execute("UPDATE items SET status = ?, delivered_at = '' WHERE id = ?",
                    (new_status, item_id))
     db.commit()
+    invalidate_stats()
     row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
     return jsonify({"item": row_to_item(row)})
 
@@ -1274,6 +1711,7 @@ def delete_item(user, item_id):
     image_url = row["image_url"]
     db.execute("DELETE FROM items WHERE id = ?", (item_id,))
     db.commit()
+    invalidate_stats()
     remove_uploaded_file(image_url)
     return jsonify({"ok": True})
 
@@ -1288,14 +1726,50 @@ def upload(user):
         return jsonify({"error": "no_file"}), 400
     ext = os.path.splitext(f.filename)[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
-        return jsonify({"error": "invalid_type", "message": "Solo imágenes JPG, PNG, WebP o GIF."}), 400
-    head = f.stream.read(12)
-    f.stream.seek(0)
-    if not valid_image_bytes(head):
-        return jsonify({"error": "invalid_type", "message": "El archivo no parece una imagen válida."}), 400
-    filename = f"{secrets.token_hex(16)}{ext}"
-    f.save(os.path.join(UPLOAD_DIR, secure_filename(filename)))
-    return jsonify({"url": f"/static/uploads/{filename}"}), 201
+        return jsonify({
+            "error": "invalid_type",
+            "message": "Solo se aceptan imágenes JPG, PNG o WebP.",
+        }), 400
+    raw = f.stream.read(MAX_UPLOAD_BYTES + 1)
+    if not raw:
+        return jsonify({"error": "no_file"}), 400
+    if len(raw) > MAX_UPLOAD_BYTES:
+        return jsonify({"error": "file_too_large", "message": "La imagen supera 5 MB."}), 413
+    if not valid_image_bytes(raw[:12]):
+        return jsonify({
+            "error": "invalid_type",
+            "message": "El archivo no parece una imagen válida.",
+        }), 400
+    try:
+        optimized = optimize_image(raw)
+    except ValueError as exc:
+        if str(exc) == "image_too_large":
+            return jsonify({
+                "error": "image_too_large",
+                "message": "La imagen tiene demasiados píxeles; usa una foto más pequeña.",
+            }), 413
+        return jsonify({
+            "error": "invalid_type",
+            "message": "No se pudo leer la imagen; prueba con otro archivo.",
+        }), 400
+
+    filename = image_filename()
+    db = get_db()
+    try:
+        store_media(db, filename, optimized, "image/webp")
+        db.commit()
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudo guardar la imagen")
+        return jsonify({
+            "error": "storage_unavailable",
+            "message": "No se pudo guardar la imagen. Inténtalo de nuevo.",
+        }), 503
+    return jsonify({
+        "url": f"{UPLOAD_URL_PREFIX}{filename}",
+        "bytes": len(optimized),
+        "content_type": "image/webp",
+    }), 201
 
 
 # --- Auth -------------------------------------------------------------------
@@ -1636,6 +2110,7 @@ def update_request(user, request_id):
             if not other:
                 db.execute("UPDATE items SET status = 'disponible' WHERE id = ?", (item["id"],))
     db.commit()
+    invalidate_stats()
     row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
     return jsonify({"request": row_to_request(row)})
 
@@ -1764,9 +2239,11 @@ def public_user(user_id):
 
 @app.errorhandler(404)
 def not_found(e):
-    if request.path.startswith("/api/"):
+    if request.path.startswith("/api/") or request.path.startswith("/static/"):
         return jsonify({"error": "not_found"}), 404
-    return render_template("index.html", boot=boot_config("home")), 200
+    resp = make_response(render_template("index.html", boot=boot_config("home")))
+    resp.headers["Cache-Control"] = "public, max-age=30, stale-while-revalidate=300"
+    return resp
 
 
 bootstrap()
