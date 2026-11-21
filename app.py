@@ -76,7 +76,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 SERVICE_NAME = "Circular Campus"
 LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-20")
 LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-20")
-CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "privacidad@circular-campus.example")
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "campuscircular@hotmail.com")
 CONTROLLER_NAME = os.environ.get(
     "CONTROLLER_NAME", "Equipo Circular Campus (proyecto académico independiente)"
 )
@@ -185,6 +185,7 @@ RATE_LIMITS = {
     "profile": (10, 3600),     # cambios de perfil por cuenta
     "password": (5, 3600),     # cambios de contraseña por cuenta
     "item_edit": (60, 3600),   # ediciones de publicaciones por cuenta
+    "restore": (30, 3600),     # restauraciones de publicaciones (moderación)
     "demo": (40, 3600),        # cuentas temporales (exposición con IP compartida)
 }
 MAX_JSON_BYTES = 64 * 1024
@@ -197,6 +198,14 @@ CORS_ORIGINS = frozenset(
 REPORT_REASONS = ["spam", "inapropiado", "estafa", "duplicado", "otro"]
 REPORT_COMMENT_MAX = 300
 REPORT_HIDE_THRESHOLD = max(1, int(os.environ.get("REPORT_HIDE_THRESHOLD", "3") or 3))
+# Cuentas autorizadas para revisar y restaurar publicaciones ocultas por
+# reportes. Lista de correos separados por comas; vacía = nadie puede
+# restaurar (la moderación queda pendiente de configurar la variable).
+ADMIN_EMAILS = frozenset(
+    e.strip().lower()
+    for e in os.environ.get("ADMIN_EMAILS", "").split(",")
+    if e.strip()
+)
 SESSIONS_PER_USER = 8
 DUMMY_PASSWORD_HASH = generate_password_hash("contrasena-senuelo-sin-uso-0123456789")
 
@@ -391,6 +400,11 @@ def page_payload(rows, total, limit, offset, serializer):
 
 
 def get_db():
+    # Arranque perezoso: importar el módulo no toca la base ni el disco.
+    # La primera conexión de cada proceso inicializa el esquema (y, si
+    # procede, la demo) respetando los valores *actuales* de DATABASE,
+    # SEED_DEMO y UPLOAD_DIR, para que los tests puedan reasignarlos.
+    ensure_bootstrapped()
     if "db" not in g:
         g.db = connect_db()
         if not USE_POSTGRES:
@@ -401,6 +415,50 @@ def get_db():
             except OSError:
                 app.logger.warning("No se pudieron restringir los permisos de la base de datos")
     return g.db
+
+
+def _rollback_quietly():
+    """Rollback defensivo de la conexión de la petición, si la hay."""
+    try:
+        db = g.get("db")
+    except Exception:  # noqa: BLE001 - fuera de contexto de app no hay nada que revertir
+        db = None
+    if db is not None:
+        try:
+            db.rollback()
+        except Exception:  # noqa: BLE001 - la conexión ya puede estar cerrada
+            pass
+
+
+def _storage_unavailable():
+    """Respuesta 503 uniforme tras un error de base de datos."""
+    _rollback_quietly()
+    return jsonify({
+        "error": "storage_unavailable",
+        "message": "No se pudo guardar en este momento. Inténtalo de nuevo más tarde.",
+    }), 503
+
+
+def _acquire_write_lock(db):
+    """Serializa escritores en SQLite; en PostgreSQL se bloquea por fila.
+
+    En SQLite, ``BEGIN IMMEDIATE`` adquiere el bloqueo de escritura al
+    inicio de la transacción, de modo que el ``SELECT`` posterior ve un
+    estado estable. Si ya hay una transacción abierta se ignora el error.
+    En PostgreSQL el llamante debe bloquear la fila con ``_lock_item_row``.
+    """
+    if USE_POSTGRES:
+        return
+    try:
+        db.execute("BEGIN IMMEDIATE")
+    except DB_ERRORS:
+        pass
+
+
+def _lock_item_row(db, item_id):
+    """Bloquea la fila del objeto en PostgreSQL (``FOR UPDATE``)."""
+    if USE_POSTGRES:
+        db.execute("SELECT id FROM items WHERE id = ? FOR UPDATE", (item_id,))
 
 
 @app.teardown_appcontext
@@ -502,7 +560,12 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
         CREATE INDEX IF NOT EXISTS idx_media_created ON media(created_at);
         CREATE INDEX IF NOT EXISTS idx_reports_item ON reports(item_id);
-        -- El índice suelto de \`status\` queda cubierto por (status, created_at).
+        -- Una sola solicitud pendiente por (objeto, solicitante): la
+        -- unicidad se impone en la base para que dos peticiones
+        -- concurrentes no creen duplicados (ver create_request).
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_requests_pending_unique
+            ON requests(item_id, requester_id) WHERE status = 'pendiente';
+        -- El índice suelto de status queda cubierto por (status, created_at).
         DROP INDEX IF EXISTS idx_items_status;
         """
     )
@@ -565,6 +628,20 @@ def migrate_db():
             if not re.fullmatch(r"[0-9a-f]{64}", token):
                 digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
                 db.execute("UPDATE sessions SET token = ? WHERE token = ?", (digest, token))
+
+        # Unicidad de la solicitud pendiente por (objeto, solicitante): antes
+        # de crear el índice parcial hay que cancelar los duplicados que
+        # pudieran existir por carreras entre peticiones concurrentes. Se
+        # conserva la más antigua (menor id) y el resto pasa a `cancelada`.
+        db.execute(
+            "UPDATE requests SET status = 'cancelada' WHERE status = 'pendiente' "
+            "AND id NOT IN (SELECT MIN(id) FROM requests WHERE status = 'pendiente' "
+            "GROUP BY item_id, requester_id)"
+        )
+        db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_requests_pending_unique "
+            "ON requests(item_id, requester_id) WHERE status = 'pendiente'"
+        )
         db.commit()
     except (sqlite3.Error, psycopg.Error):
         db.rollback()
@@ -859,10 +936,31 @@ def fold_text(value: str) -> str:
 
 
 def folded_column(column: str) -> str:
+    """Expresión SQL que pliega acentos para la búsqueda.
+
+    En PostgreSQL se usa ``translate()`` (una sola función, mucho más
+    barata que 25 ``REPLACE()`` anidados). En SQLite no hay ``translate``,
+    así que se mantiene la cadena de ``REPLACE()``; el coste es lineal en
+    el número de filas escaneadas y no hay índice de texto completo, por
+    lo que la búsqueda sigue acotada a 4 términos (ver ``list_items``).
+    """
+    if USE_POSTGRES:
+        src = "".join(ACCENT_MAP.keys())
+        dst = "".join(ACCENT_MAP.values())
+        return f"TRANSLATE(LOWER({column}), '{src}', '{dst}')"
     expr = f"LOWER({column})"
     for src, dst in ACCENT_MAP.items():
         expr = f"REPLACE({expr}, '{src}', '{dst}')"
     return expr
+
+
+def escape_like(term: str) -> str:
+    """Escapa los comodines de ``LIKE`` (``%``, ``_`` y ``\\``).
+
+    Sin esto, buscar ``%`` coincidía con todo el catálogo. Debe usarse
+    siempre junto con ``LIKE ? ESCAPE '\\'``.
+    """
+    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 def email_domain(email: str) -> str:
@@ -1134,6 +1232,13 @@ def require_auth(fn):
     return wrapper
 
 
+def is_admin_user(user) -> bool:
+    """Cuenta de moderación: su correo está en la lista `ADMIN_EMAILS`."""
+    if not user:
+        return False
+    return (user.get("email") or "").strip().lower() in ADMIN_EMAILS
+
+
 # ---------------------------------------------------------------------------
 # Seed data — contenido de demostración, sin credenciales compartidas
 # ---------------------------------------------------------------------------
@@ -1366,31 +1471,60 @@ def _seed_locked(db):
 
 
 _BOOTSTRAPPED = False
+_BOOTSTRAPPED_FOR = None
+_BOOTSTRAP_LOCK = threading.Lock()
 
 
-def bootstrap():
-    """Funciona tanto con `python3 app.py` como con un servidor WSGI."""
-    global _BOOTSTRAPPED
-    if _BOOTSTRAPPED:
+def _bootstrap_key():
+    """Identidad de la configuración que ya se inicializó.
+
+    Incluye los globales que los tests reasignan (``DATABASE``,
+    ``SEED_DEMO``, ``UPLOAD_DIR``) para que cambiarlos vuelva a ejecutar
+    el arranque sobre la nueva base sin necesidad de reiniciar el proceso.
+    """
+    return (DATABASE, DATABASE_URL, bool(SEED_DEMO), UPLOAD_DIR)
+
+
+def bootstrap(force: bool = False):
+    """Inicializa esquema, migración, imágenes legacy y demo (idempotente).
+
+    Importar ``app`` ya no ejecuta esta función: se invoca de forma
+    perezosa en la primera conexión (``get_db``) y de forma explícita al
+    arrancar con ``python3 app.py``. Así, importar el módulo en tests o
+    en un worker WSGI no muta la base ni el disco hasta que llega la
+    primera petición que necesita datos.
+    """
+    global _BOOTSTRAPPED, _BOOTSTRAPPED_FOR
+    key = _bootstrap_key()
+    if not force and _BOOTSTRAPPED_FOR == key:
         return
-    init_db()
-    migrate_db()
-    # Las fotos subidas antes de guardarse en base de datos viven solo en el
-    # disco efímero: se importan para que sobrevivan al siguiente despliegue.
-    try:
-        imported = sync_uploads_to_db()
-        if imported:
-            app.logger.info("Importadas %s imágenes locales a la base de datos", imported)
-        cleanup_orphan_media()
-    except Exception:  # noqa: BLE001 - el arranque no debe romperse por esto
-        app.logger.exception("No se pudo sincronizar el almacenamiento de imágenes")
-    if SEED_DEMO:
+    with _BOOTSTRAP_LOCK:
+        if not force and _BOOTSTRAPPED_FOR == key:
+            return
+        init_db()
+        migrate_db()
+        # Las fotos subidas antes de guardarse en base de datos viven solo en el
+        # disco efímero: se importan para que sobrevivan al siguiente despliegue.
         try:
-            seed_if_empty()
-        except DB_ERRORS:
-            # Los objetos de ejemplo nunca deben impedir que la web arranque.
-            app.logger.exception("No se pudo sembrar la demo")
-    _BOOTSTRAPPED = True
+            imported = sync_uploads_to_db()
+            if imported:
+                app.logger.info("Importadas %s imágenes locales a la base de datos", imported)
+            cleanup_orphan_media()
+        except Exception:  # noqa: BLE001 - el arranque no debe romperse por esto
+            app.logger.exception("No se pudo sincronizar el almacenamiento de imágenes")
+        if SEED_DEMO:
+            try:
+                seed_if_empty()
+            except DB_ERRORS:
+                # Los objetos de ejemplo nunca deben impedir que la web arranque.
+                app.logger.exception("No se pudo sembrar la demo")
+        _BOOTSTRAPPED_FOR = key
+        _BOOTSTRAPPED = True
+
+
+def ensure_bootstrapped():
+    """Punto de entrada perezoso usado por ``get_db``."""
+    bootstrap()
 
 
 # ---------------------------------------------------------------------------
@@ -1846,8 +1980,12 @@ def list_items():
         title_folded = folded_column("title")
         desc_folded = folded_column("description")
         for term in terms:
-            where.append(f"({title_folded} LIKE ? OR {desc_folded} LIKE ?)")
-            params.extend([f"%{term}%", f"%{term}%"])
+            # `escape_like` + `ESCAPE '\'`: un `%` o `_` del usuario es
+            # texto literal, no un comodín que devuelva todo el catálogo.
+            where.append(
+                f"({title_folded} LIKE ? ESCAPE '\\' OR {desc_folded} LIKE ? ESCAPE '\\')"
+            )
+            params.extend([f"%{escape_like(term)}%", f"%{escape_like(term)}%"])
 
     clause = " FROM items WHERE " + " AND ".join(where)
     total = db.execute("SELECT COUNT(*) c" + clause, params).fetchone()["c"]
@@ -1993,17 +2131,25 @@ def create_item(user):
         }), 400
 
     db = get_db()
-    cur = db.execute(
-        "INSERT INTO items (owner_id, title, description, category, condition, exchange_type, "
-        "price, campus, handover_point, faculty, image_url, status, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?) RETURNING id",
-        (user["id"], title, description, category, condition, exchange_type,
-         price, campus, handover_point, faculty, image_url, now_iso()),
-    )
-    item_id = inserted_id(cur)
-    db.commit()
+    try:
+        cur = db.execute(
+            "INSERT INTO items (owner_id, title, description, category, condition, exchange_type, "
+            "price, campus, handover_point, faculty, image_url, status, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?) RETURNING id",
+            (user["id"], title, description, category, condition, exchange_type,
+             price, campus, handover_point, faculty, image_url, now_iso()),
+        )
+        item_id = inserted_id(cur)
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo crear la publicación")
+        return _storage_unavailable()
     invalidate_stats()
-    row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo releer la publicación creada")
+        return _storage_unavailable()
     return jsonify({"item": row_to_item(row)}), 201
 
 
@@ -2025,10 +2171,18 @@ def update_item(user, item_id):
     if limited:
         return limited
     db = get_db()
-    row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        _acquire_write_lock(db)
+        _lock_item_row(db, item_id)
+        row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer la publicación para editarla")
+        return _storage_unavailable()
     if not row:
+        _rollback_quietly()
         return jsonify({"error": "not_found"}), 404
     if row["owner_id"] != user["id"]:
+        _rollback_quietly()
         return jsonify({"error": "forbidden"}), 403
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
@@ -2093,21 +2247,32 @@ def update_item(user, item_id):
     elif new_status != row["status"]:
         delivered_at = ""
 
-    db.execute(
-        "UPDATE items SET title = ?, description = ?, category = ?, condition = ?, "
-        "exchange_type = ?, price = ?, campus = ?, faculty = ?, handover_point = ?, "
-        "status = ?, delivered_at = ? WHERE id = ?",
-        (title, description, category, condition, exchange_type, price, campus,
-         faculty, handover_point, new_status, delivered_at, item_id),
-    )
-    if new_status == "entregado" and row["status"] != "entregado":
-        # Cerrar también la solicitud aceptada evita intercambios a medias.
-        db.execute(
-            "UPDATE requests SET status = 'completada' "
-            "WHERE item_id = ? AND status = 'aceptada'", (item_id,))
-    db.commit()
+    try:
+        cur = db.execute(
+            "UPDATE items SET title = ?, description = ?, category = ?, condition = ?, "
+            "exchange_type = ?, price = ?, campus = ?, faculty = ?, handover_point = ?, "
+            "status = ?, delivered_at = ? WHERE id = ?",
+            (title, description, category, condition, exchange_type, price, campus,
+             faculty, handover_point, new_status, delivered_at, item_id),
+        )
+        if cur.rowcount == 0:
+            db.rollback()
+            return jsonify({"error": "not_found"}), 404
+        if new_status == "entregado" and row["status"] != "entregado":
+            # Cerrar también la solicitud aceptada evita intercambios a medias.
+            db.execute(
+                "UPDATE requests SET status = 'completada' "
+                "WHERE item_id = ? AND status = 'aceptada'", (item_id,))
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo guardar la edición de la publicación")
+        return _storage_unavailable()
     invalidate_stats()
-    row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo releer la publicación editada")
+        return _storage_unavailable()
     return jsonify({"item": row_to_item(row)})
 
 
@@ -2115,16 +2280,35 @@ def update_item(user, item_id):
 @require_auth
 def delete_item(user, item_id):
     db = get_db()
-    row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        row = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer la publicación para eliminarla")
+        return _storage_unavailable()
     if not row:
         return jsonify({"error": "not_found"}), 404
     if row["owner_id"] != user["id"]:
         return jsonify({"error": "forbidden"}), 403
     image_url = row["image_url"]
-    db.execute("DELETE FROM items WHERE id = ?", (item_id,))
-    db.commit()
+    try:
+        cur = db.execute("DELETE FROM items WHERE id = ?", (item_id,))
+        if cur.rowcount == 0:
+            db.rollback()
+            return jsonify({"error": "not_found"}), 404
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo eliminar la publicación")
+        return _storage_unavailable()
     invalidate_stats()
-    remove_uploaded_file(image_url)
+    # La foto solo se borra si ninguna otra publicación la referencia todavía
+    # (puede compartirse al editar o reutilizar una subida).
+    try:
+        in_use = image_url and db.execute(
+            "SELECT 1 FROM items WHERE image_url = ?", (image_url,)).fetchone()
+    except DB_ERRORS:
+        in_use = None
+    if not in_use:
+        remove_uploaded_file(image_url)
     return jsonify({"ok": True})
 
 
@@ -2134,17 +2318,28 @@ def report_item(user, item_id):
     """Moderación mínima: una persona, un reporte por objeto.
 
     Al alcanzar `REPORT_HIDE_THRESHOLD` denuncias de cuentas distintas, el
-    objeto se retira del catálogo (`hidden_at`) y queda registrado para revisión
-    manual. No hay panel de administración: el registro es la prueba.
+    objeto se retira del catálogo (`hidden_at`). Inserción, recuento y ocultación
+    ocurren en la misma transacción para que dos reportes concurrentes no
+    dejen el recuento a medias. La restauración es posible desde
+    `POST /api/items/<id>/restore` (cuentas de `ADMIN_EMAILS`), que registra
+    el resultado de la revisión marcando los reportes como `resuelto`.
     """
     limited = rate_limited("report", str(user["id"]))
     if limited:
         return limited
     db = get_db()
-    item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        _acquire_write_lock(db)
+        _lock_item_row(db, item_id)
+        item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer el objeto para reportarlo")
+        return _storage_unavailable()
     if not item or item["hidden_at"]:
+        _rollback_quietly()
         return jsonify({"error": "not_found"}), 404
     if item["owner_id"] == user["id"]:
+        _rollback_quietly()
         return jsonify({
             "error": "own_item",
             "message": "No puedes reportar tu propia publicación.",
@@ -2152,6 +2347,7 @@ def report_item(user, item_id):
     data = request.get_json(silent=True) or {}
     reason = data.get("reason")
     if reason not in REPORT_REASONS:
+        _rollback_quietly()
         return jsonify({"error": "invalid_reason"}), 400
     comment = clean_text(data.get("comment"), multiline=True, max_len=REPORT_COMMENT_MAX)
     try:
@@ -2160,6 +2356,16 @@ def report_item(user, item_id):
             "VALUES (?, ?, ?, ?, 'abierto', ?)",
             (item_id, user["id"], reason, comment, now_iso()),
         )
+        reports = db.execute(
+            "SELECT COUNT(DISTINCT reporter_id) c FROM reports WHERE item_id = ?", (item_id,)
+        ).fetchone()["c"]
+        hidden = False
+        if reports >= REPORT_HIDE_THRESHOLD:
+            cur = db.execute(
+                "UPDATE items SET hidden_at = ? WHERE id = ? AND hidden_at = ''",
+                (now_iso(), item_id),
+            )
+            hidden = cur.rowcount == 1
         db.commit()
     except DB_INTEGRITY_ERRORS:
         db.rollback()
@@ -2168,23 +2374,64 @@ def report_item(user, item_id):
             "message": "Ya has reportado esta publicación.",
         }), 409
     except DB_ERRORS:
-        db.rollback()
         app.logger.exception("No se pudo guardar un reporte")
-        return jsonify({"error": "storage_unavailable"}), 503
-
-    reports = db.execute(
-        "SELECT COUNT(DISTINCT reporter_id) c FROM reports WHERE item_id = ?", (item_id,)
-    ).fetchone()["c"]
-    hidden = False
-    if reports >= REPORT_HIDE_THRESHOLD:
-        db.execute(
-            "UPDATE items SET hidden_at = ? WHERE id = ? AND hidden_at = ''",
-            (now_iso(), item_id),
-        )
-        db.commit()
+        return _storage_unavailable()
+    if hidden:
         invalidate_stats()
-        hidden = True
     return jsonify({"reported": True, "reports": reports, "hidden": hidden}), 201
+
+
+@app.post("/api/items/<int:item_id>/restore")
+@require_auth
+def restore_item(user, item_id):
+    """Revisión y restauración de una publicación oculta por reportes.
+
+    Solo las cuentas incluidas en la variable de entorno `ADMIN_EMAILS`
+    (lista de correos separados por comas) pueden restaurar. La restauración
+    deja constancia del estado de moderación: los reportes abiertos del
+    objeto pasan a `resuelto` y el objeto vuelve al catálogo. Si llegan
+    nuevos reportes hasta el umbral, se oculta de nuevo.
+    """
+    if not is_admin_user(user):
+        return jsonify({
+            "error": "forbidden",
+            "message": "Solo las cuentas de moderación pueden restaurar publicaciones.",
+        }), 403
+    limited = rate_limited("restore", str(user["id"]))
+    if limited:
+        return limited
+    db = get_db()
+    try:
+        _acquire_write_lock(db)
+        _lock_item_row(db, item_id)
+        item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+        if not item:
+            _rollback_quietly()
+            return jsonify({"error": "not_found"}), 404
+        if not item["hidden_at"]:
+            _rollback_quietly()
+            return jsonify({
+                "error": "not_hidden",
+                "message": "Esta publicación no está oculta.",
+            }), 400
+        # Estado de moderación registrado: la revisión cierra los reportes.
+        db.execute(
+            "UPDATE reports SET status = 'resuelto' WHERE item_id = ? AND status = 'abierto'",
+            (item_id,),
+        )
+        db.execute("UPDATE items SET hidden_at = '' WHERE id = ?", (item_id,))
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo restaurar la publicación")
+        return _storage_unavailable()
+    invalidate_stats()
+    try:
+        item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo releer la publicación restaurada")
+        return _storage_unavailable()
+    app.logger.info("Publicación %s restaurada tras revisión", item_id)
+    return jsonify({"item": row_to_item(item), "restored": True})
 
 
 @app.post("/api/upload")
@@ -2368,14 +2615,50 @@ def showcase_owner_id(db):
         return None
 
 
+DELETED_USER_EMAIL = "cuenta-eliminada@circular-campus.invalid"
+DELETED_USER_NAME = "Cuenta eliminada"
+
+
+def deleted_user_id(db):
+    """Cuenta fantasma que conserva el historial escrito por otras personas.
+
+    Al eliminar una cuenta, lo que otras personas escribieron (solicitudes
+    recibidas, valoraciones y reportes) no se destruye: se reasigna a esta
+    cuenta irrepetible para que su historial siga siendo suyo. Se crea con
+    una contraseña aleatoria que nadie usa, igual que la cuenta de muestra.
+    """
+    row = db.execute("SELECT id FROM users WHERE email = ?",
+                     (DELETED_USER_EMAIL,)).fetchone()
+    if row:
+        return row["id"]
+    ts = now_iso()
+    try:
+        cur = db.execute(
+            "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
+            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', 0, ?, ?, ?) RETURNING id",
+            (DELETED_USER_NAME, DELETED_USER_EMAIL,
+             generate_password_hash(secrets.token_urlsafe(32)),
+             "vigo", ts, LEGAL_VERSION, ts),
+        )
+        return inserted_id(cur)
+    except DB_INTEGRITY_ERRORS:
+        # Otra eliminación concurrente la creó antes: reutilizar la existente.
+        row = db.execute("SELECT id FROM users WHERE email = ?",
+                         (DELETED_USER_EMAIL,)).fetchone()
+        return row["id"] if row else None
+    except DB_ERRORS:
+        db.rollback()
+        return None
+
+
 @app.post("/api/auth/demo")
 def demo_login():
     """Cuenta temporal para probar la app en la exposición (CTC).
 
     Solo existe cuando la app corre con datos de demostración (SEED_DEMO=1).
     Cada visitante recibe su propia cuenta efímera, así nadie puede tocar el
-    trabajo de otra persona, y se borran solas a las 12 horas: sin cron ni
-    servicios externos.
+    trabajo de otra persona, y se borran solas pasadas `DEMO_TTL_HOURS` horas
+    (24 por defecto): sin cron ni servicios externos.
     """
     if not SEED_DEMO:
         return jsonify({"error": "demo_disabled"}), 404
@@ -2447,22 +2730,30 @@ def login():
     if limited:
         return limited
     db = get_db()
-    row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    try:
+        row = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer la cuenta en el login")
+        return _storage_unavailable()
     # Se compara siempre contra un hash: el tiempo de respuesta no revela si el
     # correo existe.
     stored_hash = row["password_hash"] if row else DUMMY_PASSWORD_HASH
     password_ok = check_password_hash(stored_hash, password)
     if not row or not password_ok:
         return jsonify({"error": "invalid_credentials", "message": "Email o contraseña incorrectos."}), 401
-    cleanup_expired_sessions(db)
-    trim_sessions(db, row["id"])
-    token = secrets.token_urlsafe(32)
-    db.execute(
-        "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-        (session_token_digest(token), row["id"],
-         (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
-    )
-    db.commit()
+    try:
+        cleanup_expired_sessions(db)
+        trim_sessions(db, row["id"])
+        token = secrets.token_urlsafe(32)
+        db.execute(
+            "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+            (session_token_digest(token), row["id"],
+             (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()),
+        )
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo crear la sesión en el login")
+        return _storage_unavailable()
     return jsonify({"token": token, "user": row_to_user(row), "legal_version": LEGAL_VERSION})
 
 
@@ -2473,8 +2764,12 @@ def logout(user):
     token = auth[7:].strip() if auth.startswith("Bearer ") else None
     db = get_db()
     if token:
-        db.execute("DELETE FROM sessions WHERE token = ?", (session_token_digest(token),))
-        db.commit()
+        try:
+            db.execute("DELETE FROM sessions WHERE token = ?", (session_token_digest(token),))
+            db.commit()
+        except DB_ERRORS:
+            app.logger.exception("No se pudo cerrar la sesión")
+            return _storage_unavailable()
     return jsonify({"ok": True})
 
 
@@ -2491,12 +2786,16 @@ def update_consent(user):
     if data.get("consent") is not True:
         return jsonify({"error": "consent_required"}), 400
     db = get_db()
-    db.execute(
-        "UPDATE users SET consent_at = ?, consent_version = ? WHERE id = ?",
-        (now_iso(), LEGAL_VERSION, user["id"]),
-    )
-    db.commit()
-    row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    try:
+        db.execute(
+            "UPDATE users SET consent_at = ?, consent_version = ? WHERE id = ?",
+            (now_iso(), LEGAL_VERSION, user["id"]),
+        )
+        db.commit()
+        row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo guardar el consentimiento")
+        return _storage_unavailable()
     return jsonify({"user": row_to_user(row)})
 
 
@@ -2524,12 +2823,16 @@ def update_profile(user):
         return jsonify({"error": "invalid_campus"}), 400
 
     db = get_db()
-    if name is not None:
-        db.execute("UPDATE users SET name = ? WHERE id = ?", (name, user["id"]))
-    if campus is not None:
-        db.execute("UPDATE users SET campus = ? WHERE id = ?", (campus, user["id"]))
-    db.commit()
-    row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    try:
+        if name is not None:
+            db.execute("UPDATE users SET name = ? WHERE id = ?", (name, user["id"]))
+        if campus is not None:
+            db.execute("UPDATE users SET campus = ? WHERE id = ?", (campus, user["id"]))
+        db.commit()
+        row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo guardar el perfil")
+        return _storage_unavailable()
     return jsonify({"user": row_to_user(row)})
 
 
@@ -2572,25 +2875,29 @@ def change_password(user):
             "message": "La contraseña nueva debe ser distinta de la actual.",
         }), 400
 
-    db.execute(
-        "UPDATE users SET password_hash = ? WHERE id = ?",
-        (generate_password_hash(new), user["id"]),
-    )
-    # Se conserva la sesión desde la que se cambia y se cierran las demás: si
-    # alguien había entrado con la contraseña antigua, deja de valer.
-    auth = request.headers.get("Authorization", "")
-    token = auth[7:].strip() if auth.startswith("Bearer ") else ""
-    closed = 0
-    if token:
-        rows = db.execute(
-            "SELECT token FROM sessions WHERE user_id = ?", (user["id"],)
-        ).fetchall()
-        keep = session_token_digest(token)
-        for row_token in rows:
-            if row_token["token"] != keep:
-                db.execute("DELETE FROM sessions WHERE token = ?", (row_token["token"],))
-                closed += 1
-    db.commit()
+    try:
+        db.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (generate_password_hash(new), user["id"]),
+        )
+        # Se conserva la sesión desde la que se cambia y se cierran las demás: si
+        # alguien había entrado con la contraseña antigua, deja de valer.
+        auth = request.headers.get("Authorization", "")
+        token = auth[7:].strip() if auth.startswith("Bearer ") else ""
+        closed = 0
+        if token:
+            rows = db.execute(
+                "SELECT token FROM sessions WHERE user_id = ?", (user["id"],)
+            ).fetchall()
+            keep = session_token_digest(token)
+            for row_token in rows:
+                if row_token["token"] != keep:
+                    db.execute("DELETE FROM sessions WHERE token = ?", (row_token["token"],))
+                    closed += 1
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo cambiar la contraseña")
+        return _storage_unavailable()
     return jsonify({"ok": True, "sessions_closed": closed})
 
 
@@ -2598,18 +2905,34 @@ def change_password(user):
 @require_auth
 def export_account(user):
     db = get_db()
-    row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
-    items = [row_to_item(r) for r in db.execute(
-        "SELECT * FROM items WHERE owner_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
-    sent_requests = [row_to_request(r) for r in db.execute(
-        "SELECT * FROM requests WHERE requester_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
-    favorites = [row_to_item(r, True) for r in db.execute(
-        "SELECT i.* FROM favorites f JOIN items i ON i.id = f.item_id "
-        "WHERE f.user_id = ? ORDER BY f.created_at DESC", (user["id"],)).fetchall()]
-    sessions = db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"]
-    my_ratings = [dict(r) for r in db.execute(
-        "SELECT request_id, rated_id, score, comment, created_at FROM ratings "
-        "WHERE rater_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+    try:
+        row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+        items = [row_to_item(r) for r in db.execute(
+            "SELECT * FROM items WHERE owner_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        sent_requests = [row_to_request(r) for r in db.execute(
+            "SELECT * FROM requests WHERE requester_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        received_requests = [row_to_request(r) for r in db.execute(
+            "SELECT * FROM requests WHERE item_id IN (SELECT id FROM items WHERE owner_id = ?) "
+            "ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        favorites = [row_to_item(r, True) for r in db.execute(
+            "SELECT i.* FROM favorites f JOIN items i ON i.id = f.item_id "
+            "WHERE f.user_id = ? ORDER BY f.created_at DESC", (user["id"],)).fetchall()]
+        sessions = db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"]
+        my_ratings = [dict(r) for r in db.execute(
+            "SELECT request_id, rated_id, score, comment, created_at FROM ratings "
+            "WHERE rater_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        # Valoraciones que otras personas escribieron sobre esta cuenta:
+        # se exportan igualmente porque son datos visibles para la persona
+        # interesada y el borrado no debe pillarla por sorpresa.
+        ratings_received = [dict(r) for r in db.execute(
+            "SELECT request_id, rater_id, score, comment, created_at FROM ratings "
+            "WHERE rated_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        reports_filed = [dict(r) for r in db.execute(
+            "SELECT item_id, reason, comment, status, created_at FROM reports "
+            "WHERE reporter_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+    except DB_ERRORS:
+        app.logger.exception("No se pudo generar la exportación")
+        return _storage_unavailable()
 
     payload = {
         "service": SERVICE_NAME,
@@ -2618,13 +2941,16 @@ def export_account(user):
         "profile": row_to_user(row),
         "items": items,
         "sent_requests": sent_requests,
+        "received_requests": received_requests,
         "favorites": favorites,
         "ratings_written": my_ratings,
+        "ratings_received": ratings_received,
+        "reports_filed": reports_filed,
         "session_count": sessions,
         "notes": [
-            "Exportación de los datos propios de la cuenta.",
-            "No se incluyen contraseñas, tokens de sesión, mensajes ni valoraciones escritas por otras personas.",
-            "La eliminación de cuenta borra perfil, sesiones, publicaciones, favoritos, solicitudes y valoraciones propias.",
+            "Exportación completa de los datos de la cuenta, incluidos los mensajes y valoraciones que otras personas escribieron y son visibles para ti.",
+            "No se incluyen contraseñas ni tokens de sesión.",
+            "La eliminación de cuenta borra tu perfil, tus sesiones, tus publicaciones, tus favoritos y tus valoraciones propias; las solicitudes recibidas, las valoraciones y los reportes escritos por otras personas se conservan en una cuenta eliminada para no destruir su historial.",
         ],
     }
     resp = jsonify(payload)
@@ -2639,21 +2965,85 @@ def delete_account(user):
     data = request.get_json(silent=True) or {}
     password = data.get("password") or ""
     db = get_db()
-    row = db.execute("SELECT password_hash FROM users WHERE id = ?", (user["id"],)).fetchone()
+    try:
+        row = db.execute("SELECT password_hash FROM users WHERE id = ?", (user["id"],)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer la cuenta para eliminarla")
+        return _storage_unavailable()
     if not row or not check_password_hash(row["password_hash"], password):
         return jsonify({"error": "invalid_password", "message": "Confirma tu contraseña para eliminar la cuenta."}), 401
 
-    image_urls = [r["image_url"] for r in db.execute(
-        "SELECT image_url FROM items WHERE owner_id = ?", (user["id"],)).fetchall()]
-    counts = {
-        "items": db.execute("SELECT COUNT(*) c FROM items WHERE owner_id = ?", (user["id"],)).fetchone()["c"],
-        "sent_requests": db.execute("SELECT COUNT(*) c FROM requests WHERE requester_id = ?", (user["id"],)).fetchone()["c"],
-        "favorites": db.execute("SELECT COUNT(*) c FROM favorites WHERE user_id = ?", (user["id"],)).fetchone()["c"],
-        "sessions": db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"],
-    }
-    db.execute("DELETE FROM users WHERE id = ?", (user["id"],))
-    db.commit()
-    removed_files = sum(1 for url in image_urls if remove_uploaded_file(url))
+    try:
+        _acquire_write_lock(db)
+        image_urls = sorted({r["image_url"] for r in db.execute(
+            "SELECT image_url FROM items WHERE owner_id = ? AND image_url <> ''",
+            (user["id"],)).fetchall()})
+        counts = {
+            "items": db.execute("SELECT COUNT(*) c FROM items WHERE owner_id = ?", (user["id"],)).fetchone()["c"],
+            "sent_requests": db.execute("SELECT COUNT(*) c FROM requests WHERE requester_id = ?", (user["id"],)).fetchone()["c"],
+            "received_requests": db.execute(
+                "SELECT COUNT(*) c FROM requests WHERE item_id IN (SELECT id FROM items WHERE owner_id = ?)",
+                (user["id"],)).fetchone()["c"],
+            "favorites": db.execute("SELECT COUNT(*) c FROM favorites WHERE user_id = ?", (user["id"],)).fetchone()["c"],
+            "sessions": db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"],
+            "ratings_written": db.execute("SELECT COUNT(*) c FROM ratings WHERE rater_id = ?", (user["id"],)).fetchone()["c"],
+            "ratings_received": db.execute("SELECT COUNT(*) c FROM ratings WHERE rated_id = ?", (user["id"],)).fetchone()["c"],
+            "reports_filed": db.execute("SELECT COUNT(*) c FROM reports WHERE reporter_id = ?", (user["id"],)).fetchone()["c"],
+        }
+
+        # --- Historial ajeno: se conserva, nunca se destruye ---------------
+        ghost = deleted_user_id(db)
+        if ghost:
+            # Los reportes emitidos son la evidencia de moderación de las
+            # publicaciones de otras personas. Si la cuenta fantasma ya tiene
+            # un reporte sobre el mismo objeto, se conserva el más antiguo.
+            db.execute(
+                "DELETE FROM reports WHERE reporter_id = ? AND item_id IN "
+                "(SELECT item_id FROM reports WHERE reporter_id = ?)",
+                (user["id"], ghost))
+            db.execute("UPDATE reports SET reporter_id = ? WHERE reporter_id = ?",
+                       (ghost, user["id"]))
+            # Mis solicitudes enviadas se anonimizan (sin mensaje) para que la
+            # otra persona conserve su historial; el texto era mío y se borra.
+            # Las pendientes duplicadas de la cuenta fantasma se cancelan para
+            # respetar la unicidad de una solicitud pendiente por objeto.
+            db.execute(
+                "UPDATE requests SET status = 'cancelada' "
+                "WHERE requester_id = ? AND status = 'pendiente' AND item_id IN "
+                "(SELECT item_id FROM requests WHERE requester_id = ? AND status = 'pendiente')",
+                (user["id"], ghost))
+            db.execute("UPDATE requests SET requester_id = ?, message = '' WHERE requester_id = ?",
+                       (ghost, user["id"]))
+            # Valoraciones recibidas son textos escritos por otras personas.
+            db.execute("UPDATE ratings SET rated_id = ? WHERE rated_id = ?", (ghost, user["id"]))
+            # Las publicaciones se vacían y ocultan: el contenido y la foto se
+            # borran de verdad, pero la referencia se conserva para no romper
+            # las solicitudes recibidas ni las valoraciones de otras personas.
+            db.execute(
+                "UPDATE items SET owner_id = ?, title = 'Publicación eliminada', description = '', "
+                "image_url = '', hidden_at = ? WHERE owner_id = ?",
+                (ghost, now_iso(), user["id"]))
+
+        # --- Datos propios: se eliminan -----------------------------------
+        db.execute("DELETE FROM sessions WHERE user_id = ?", (user["id"],))
+        db.execute("DELETE FROM favorites WHERE user_id = ?", (user["id"],))
+        db.execute("DELETE FROM ratings WHERE rater_id = ?", (user["id"],))
+        db.execute("DELETE FROM users WHERE id = ?", (user["id"],))
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo eliminar la cuenta")
+        return _storage_unavailable()
+
+    # Las fotos solo se borran del disco si ninguna publicación restante
+    # (por ejemplo, otra reutilizando la misma imagen) las referencia.
+    removed_files = 0
+    for url in image_urls:
+        try:
+            in_use = db.execute("SELECT 1 FROM items WHERE image_url = ?", (url,)).fetchone()
+        except DB_ERRORS:
+            in_use = None
+        if not in_use and remove_uploaded_file(url):
+            removed_files += 1
     return jsonify({"ok": True, "deleted": counts, "removed_images": removed_files})
 
 
@@ -2665,16 +3055,28 @@ def create_request(user, item_id):
     if limited:
         return limited
     db = get_db()
-    item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        # Escritura serializada: el estado del objeto se relee bajo el bloqueo
+        # para que dos peticiones concurrentes no reserven ni dupliquen.
+        _acquire_write_lock(db)
+        _lock_item_row(db, item_id)
+        item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer el objeto para solicitarlo")
+        return _storage_unavailable()
     if not item or item["hidden_at"]:
+        _rollback_quietly()
         return jsonify({"error": "not_found"}), 404
     if item["owner_id"] == user["id"]:
+        _rollback_quietly()
         return jsonify({"error": "own_item", "message": "No puedes solicitar tu propio objeto."}), 400
     if item["status"] != "disponible":
+        _rollback_quietly()
         return jsonify({"error": "not_available", "message": "Este objeto ya no está disponible."}), 400
     data = request.get_json(silent=True) or {}
     message = clean_text(data.get("message"), multiline=True, max_len=1000)
     if len(message) > 1000:
+        _rollback_quietly()
         return jsonify({"error": "message_too_long"}), 400
     # Punto de encuentro propuesto: por defecto, el que indica la publicación.
     handover_point = data.get("handover_point") or item["handover_point"]
@@ -2684,14 +3086,28 @@ def create_request(user, item_id):
         "SELECT * FROM requests WHERE item_id=? AND requester_id=? AND status='pendiente'",
         (item_id, user["id"])).fetchone()
     if existing:
+        _rollback_quietly()
         return jsonify({"error": "already_requested", "message": "Ya tienes una solicitud pendiente para este objeto."}), 409
-    cur = db.execute(
-        "INSERT INTO requests (item_id, requester_id, message, handover_point, status, "
-        "created_at) VALUES (?, ?, ?, ?, 'pendiente', ?) RETURNING id",
-        (item_id, user["id"], message, handover_point, now_iso()))
-    request_id = inserted_id(cur)
-    db.commit()
-    row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+    try:
+        cur = db.execute(
+            "INSERT INTO requests (item_id, requester_id, message, handover_point, status, "
+            "created_at) VALUES (?, ?, ?, ?, 'pendiente', ?) RETURNING id",
+            (item_id, user["id"], message, handover_point, now_iso()))
+        request_id = inserted_id(cur)
+        db.commit()
+    except DB_INTEGRITY_ERRORS:
+        # El índice único (objeto, solicitante, pendiente) es la última línea
+        # de defensa frente a dos peticiones simultáneas idénticas.
+        db.rollback()
+        return jsonify({"error": "already_requested", "message": "Ya tienes una solicitud pendiente para este objeto."}), 409
+    except DB_ERRORS:
+        app.logger.exception("No se pudo crear la solicitud")
+        return _storage_unavailable()
+    try:
+        row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo releer la solicitud creada")
+        return _storage_unavailable()
     return jsonify({"request": row_to_request(row)}), 201
 
 
@@ -2754,64 +3170,125 @@ def received_requests(user):
 @app.patch("/api/requests/<int:request_id>")
 @require_auth
 def update_request(user, request_id):
+    """Transiciones de la máquina de estados de solicitudes.
+
+    Toda la validación se hace dentro de una transacción serializada
+    (``BEGIN IMMEDIATE`` en SQLite, ``FOR UPDATE`` en PostgreSQL) y los
+    ``UPDATE`` condicionales comprueban el estado observado, de modo que
+    dos peticiones concurrentes no pueden reservar el mismo objeto dos
+    veces ni cerrar dos veces la misma solicitud.
+    """
     db = get_db()
-    row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+    try:
+        _acquire_write_lock(db)
+        row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+        if row:
+            _lock_item_row(db, row["item_id"])
+            # Releer bajo el bloqueo: el estado pudo cambiar entre lecturas.
+            row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+        item = db.execute("SELECT * FROM items WHERE id = ?", (row["item_id"],)).fetchone() if row else None
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer la solicitud para actualizarla")
+        return _storage_unavailable()
     if not row:
+        _rollback_quietly()
         return jsonify({"error": "not_found"}), 404
-    item = db.execute("SELECT * FROM items WHERE id = ?", (row["item_id"],)).fetchone()
     data = request.get_json(silent=True) or {}
     new_status = data.get("status")
     if new_status not in REQUEST_STATUSES:
+        _rollback_quietly()
         return jsonify({"error": "invalid_status"}), 400
     new_point = data.get("handover_point")
     if new_point and new_point not in HANDOVER_POINTS:
+        _rollback_quietly()
         return jsonify({"error": "invalid_handover_point"}), 400
 
     is_owner = item and item["owner_id"] == user["id"]
     is_requester = row["requester_id"] == user["id"]
     if not (is_owner or is_requester):
+        _rollback_quietly()
         return jsonify({"error": "forbidden"}), 403
     if row["status"] in ("completada", "rechazada", "cancelada"):
+        _rollback_quietly()
         return jsonify({
             "error": "request_closed",
             "message": "Esta solicitud ya está cerrada.",
         }), 400
     if is_owner and new_status not in ("aceptada", "rechazada", "completada"):
+        _rollback_quietly()
         return jsonify({"error": "invalid_transition"}), 400
     if is_requester and not is_owner and new_status != "cancelada":
+        _rollback_quietly()
         return jsonify({"error": "invalid_transition"}), 400
     if new_status == "completada" and row["status"] != "aceptada":
+        _rollback_quietly()
         return jsonify({
             "error": "invalid_transition",
             "message": "Acepta la solicitud antes de marcarla como entregada.",
         }), 400
+    if new_status == "aceptada" and row["status"] == "pendiente" and item:
+        # Una sola reserva por objeto: si otra solicitud ya está aceptada,
+        # no se puede aceptar otra en paralelo.
+        other = db.execute(
+            "SELECT 1 FROM requests WHERE item_id = ? AND id <> ? AND status = 'aceptada'",
+            (item["id"], request_id)).fetchone()
+        if other:
+            _rollback_quietly()
+            return jsonify({
+                "error": "already_reserved",
+                "message": "Otra solicitud ya está aceptada para este objeto.",
+            }), 409
 
-    db.execute("UPDATE requests SET status = ? WHERE id = ?", (new_status, request_id))
-    if new_point:
-        db.execute("UPDATE requests SET handover_point = ? WHERE id = ?", (new_point, request_id))
-    if item:
-        if new_status == "aceptada" and item["status"] == "disponible":
-            db.execute(
-                "UPDATE items SET status = 'reservado', delivered_at = '' WHERE id = ?",
-                (item["id"],))
-        if new_status == "completada":
-            db.execute(
-                "UPDATE items SET status = 'entregado', delivered_at = ? WHERE id = ?",
-                (item["delivered_at"] or now_iso(), item["id"]))
-            # El resto de solicitudes pendientes ya no tienen objeto libre.
-            db.execute(
-                "UPDATE requests SET status = 'rechazada' "
-                "WHERE item_id = ? AND id <> ? AND status = 'pendiente'",
-                (item["id"], request_id))
-        if new_status in ("rechazada", "cancelada") and item["status"] == "reservado":
-            other = db.execute(
-                "SELECT 1 FROM requests WHERE item_id = ? AND id <> ? AND status = 'aceptada'",
-                (item["id"], request_id)).fetchone()
-            if not other:
-                db.execute("UPDATE items SET status = 'disponible' WHERE id = ?", (item["id"],))
-    db.commit()
+    try:
+        # El UPDATE condicional exige que el estado siga siendo el observado:
+        # si otra transacción lo cambió antes, no se pisa (rowcount = 0).
+        cur = db.execute(
+            "UPDATE requests SET status = ?, handover_point = COALESCE(?, handover_point) "
+            "WHERE id = ? AND status = ?",
+            (new_status, new_point or None, request_id, row["status"]))
+        if cur.rowcount == 0:
+            db.rollback()
+            return jsonify({
+                "error": "request_conflict",
+                "message": "La solicitud cambió mientras se procesaba; recarga e inténtalo de nuevo.",
+            }), 409
+        if item:
+            if new_status == "aceptada" and row["status"] == "pendiente":
+                # Reserva condicional: solo pasa a reservado si sigue libre.
+                cur = db.execute(
+                    "UPDATE items SET status = 'reservado', delivered_at = '' "
+                    "WHERE id = ? AND status = 'disponible'", (item["id"],))
+                if cur.rowcount == 0:
+                    db.rollback()
+                    return jsonify({
+                        "error": "not_available",
+                        "message": "Este objeto ya no está disponible.",
+                    }), 409
+            if new_status == "completada":
+                db.execute(
+                    "UPDATE items SET status = 'entregado', delivered_at = ? WHERE id = ?",
+                    (item["delivered_at"] or now_iso(), item["id"]))
+                # El resto de solicitudes pendientes ya no tienen objeto libre.
+                db.execute(
+                    "UPDATE requests SET status = 'rechazada' "
+                    "WHERE item_id = ? AND id <> ? AND status = 'pendiente'",
+                    (item["id"], request_id))
+            if new_status in ("rechazada", "cancelada") and item["status"] == "reservado":
+                other = db.execute(
+                    "SELECT 1 FROM requests WHERE item_id = ? AND id <> ? AND status = 'aceptada'",
+                    (item["id"], request_id)).fetchone()
+                if not other:
+                    db.execute("UPDATE items SET status = 'disponible' WHERE id = ?", (item["id"],))
+        db.commit()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo actualizar la solicitud")
+        return _storage_unavailable()
     invalidate_stats()
-    row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+    try:
+        row = db.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo releer la solicitud actualizada")
+        return _storage_unavailable()
     return jsonify({"request": row_to_request(row)})
 
 
@@ -2893,30 +3370,55 @@ def rate_request(user, request_id):
 @app.post("/api/items/<int:item_id>/favorite")
 @require_auth
 def toggle_favorite(user, item_id):
+    """Alternancia atómica del favorito.
+
+    ``INSERT OR IGNORE`` / ``ON CONFLICT DO NOTHING`` decide el resultado
+    en una sola sentencia: si la fila no existía se crea (favorito) y si ya
+    existía se elimina. Dos clics simultáneos ya no pueden provocar un
+    error de clave duplicada ni dejar el favorito a medias.
+    """
     db = get_db()
-    item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    try:
+        item = db.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    except DB_ERRORS:
+        app.logger.exception("No se pudo leer el objeto para el favorito")
+        return _storage_unavailable()
     if not item or item["hidden_at"]:
         return jsonify({"error": "not_found"}), 404
-    existing = db.execute("SELECT 1 FROM favorites WHERE user_id=? AND item_id=?",
-                          (user["id"], item_id)).fetchone()
-    if existing:
+    try:
+        if USE_POSTGRES:
+            cur = db.execute(
+                "INSERT INTO favorites (user_id, item_id, created_at) VALUES (?, ?, ?) "
+                "ON CONFLICT DO NOTHING",
+                (user["id"], item_id, now_iso()))
+        else:
+            cur = db.execute(
+                "INSERT OR IGNORE INTO favorites (user_id, item_id, created_at) VALUES (?, ?, ?)",
+                (user["id"], item_id, now_iso()))
+        if cur.rowcount == 1:
+            db.commit()
+            return jsonify({"is_favorite": True})
+        # Ya existía: el clic lo retira.
         db.execute("DELETE FROM favorites WHERE user_id=? AND item_id=?", (user["id"], item_id))
         db.commit()
-        return jsonify({"is_favorite": False})
-    db.execute("INSERT INTO favorites (user_id, item_id, created_at) VALUES (?, ?, ?)",
-               (user["id"], item_id, now_iso()))
-    db.commit()
-    return jsonify({"is_favorite": True})
+    except DB_ERRORS:
+        app.logger.exception("No se pudo alternar el favorito")
+        return _storage_unavailable()
+    return jsonify({"is_favorite": False})
 
 
 @app.get("/api/favorites")
 @require_auth
 def favorites(user):
     db = get_db()
-    rows = db.execute(
-        "SELECT i.* FROM items i JOIN favorites f ON f.item_id = i.id "
-        "WHERE f.user_id = ? AND i.hidden_at = '' ORDER BY f.created_at DESC",
-        (user["id"],)).fetchall()
+    try:
+        rows = db.execute(
+            "SELECT i.* FROM items i JOIN favorites f ON f.item_id = i.id "
+            "WHERE f.user_id = ? AND i.hidden_at = '' ORDER BY f.created_at DESC",
+            (user["id"],)).fetchall()
+    except DB_ERRORS:
+        app.logger.exception("No se pudieron leer los favoritos")
+        return _storage_unavailable()
     return jsonify({"items": [row_to_item(r, True) for r in rows]})
 
 
@@ -2981,8 +3483,24 @@ def not_found(e):
     return resp
 
 
-bootstrap()
+@app.errorhandler(sqlite3.Error)
+@app.errorhandler(psycopg.Error)
+def db_error_handler(e):
+    """Red de seguridad: ningún error de BD llega al cliente como 500.
 
+    Las rutas críticas ya capturan ``DB_ERRORS`` con ``rollback()``
+    explícito; este manejador cubre cualquier ruta que no lo haga y
+    garantiza que la conexión no quede con la transacción envenenada
+    (en PostgreSQL, una transacción fallida bloquea todo hasta rollback).
+    """
+    app.logger.exception("Error de base de datos no capturado")
+    return _storage_unavailable()
+
+
+# Sin llamada a `bootstrap()` a nivel de módulo: importar `app` (tests,
+# gunicorn) no muta la base ni el disco. El arranque es perezoso en la
+# primera conexión (`get_db`) y explícito solo al ejecutar el servidor.
 if __name__ == "__main__":
+    bootstrap()
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=False)

@@ -49,10 +49,14 @@ del RGPD y la LOPDGDD:
 - **Sin email en perfiles públicos**: la ficha de objeto solo muestra nombre,
   campus y una insignia informativa de dominio académico. Esa insignia **no
   verifica matrícula, identidad ni pertenencia institucional**.
-- **Derechos realizables en la app**: `/api/account/export` descarga los datos
-  propios en JSON; `/api/account/delete` elimina cuenta, sesiones, objetos,
-  favoritos, solicitudes propias y ficheros subidos. El borrado pide la
-  contraseña actual.
+- **Derechos realizables en la app**: `/api/account/export` descarga todos los
+  datos de la cuenta en JSON (incluidos los mensajes y valoraciones de otras
+  personas visibles para la cuenta); `/api/account/delete` elimina cuenta,
+  sesiones, objetos, favoritos, valoraciones propias y ficheros subidos. Las
+  solicitudes recibidas, valoraciones y reportes escritos por otras personas se
+  conservan anonimizados en la cuenta «Cuenta eliminada» para no destruir su
+  historial, y las publicaciones quedan vaciadas y ocultas como referencia.
+  El borrado pide la contraseña actual.
 - **Renovación de consentimiento**: si cambia `LEGAL_VERSION`, una cuenta
   antigua ve un aviso no descartable y no puede publicar hasta aceptar la
   versión vigente.
@@ -152,7 +156,7 @@ el repositorio.
 | `APP_ENV` | `development` | Con `production`, exige `DATABASE_URL` y evita arrancar con SQLite efímero |
 | `PORT` | `5000` | Puerto de escucha, `0.0.0.0` |
 | `SEED_DEMO` | `1` | `0` desactiva los objetos de ejemplo |
-| `CONTACT_EMAIL` | `privacidad@circular-campus.example` | **Sustituir por un correo real antes de producción** |
+| `CONTACT_EMAIL` | `campuscircular@hotmail.com` | Correo de contacto y privacidad que aparece en los textos legales |
 | `CONTROLLER_NAME` | `Equipo Circular Campus (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
 | `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
 | `LEGAL_UPDATED` | `2026-11-20` | Fecha visible en los documentos |
@@ -161,6 +165,7 @@ el repositorio.
 | `RATE_LIMIT_ENABLED` | `1` | `0` desactiva los límites de peticiones (solo para depurar) |
 | `TRUST_PROXY` | `1` | Saltos de proxy de confianza para `X-Forwarded-For`/`-Proto`; `0` sin proxy delante |
 | `REPORT_HIDE_THRESHOLD` | `3` | Reportes de cuentas distintas que retiran una publicación |
+| `ADMIN_EMAILS` | (vacío) | Correos (separados por comas) de las cuentas que pueden revisar y restaurar publicaciones ocultas por reportes |
 | `ALLOW_EMBED` | `0` en producción, `1` en desarrollo | Permite embeber la app en un iframe ajeno; con `0` la CSP fija `frame-ancestors 'self'` |
 | `DEMO_TTL_HOURS` | `24` | Horas que vive una cuenta temporal; sus publicaciones se conservan |
 | `API_RATE_LIMIT` | `300` | Techo global de `/api/` por IP y minuto (súbelo en una exposición) |
@@ -310,7 +315,8 @@ aplican **en el servidor**; el navegador solo las imita para dar feedback.
 
 Los recursos ajenos devuelven `403`; los que no deben existir para el público
 (objetos retirados por moderación) devuelven `404`, para no filtrar su
-existencia. No hay rol de administrador.
+existencia. La única acción privilegiada es restaurar publicaciones ocultas por
+reportes, limitada a las cuentas de `ADMIN_EMAILS`.
 
 ### Validación en servidor
 
@@ -388,7 +394,12 @@ que tenerlo en cuenta.
   estadísticas, de favoritos y no admite solicitudes. Su dueño lo sigue viendo
   con la etiqueta «En revisión» y el número de reportes.
 - Los reportes se guardan en `reports` (`reason`, `comment`, `status`,
-  `created_at`). La revisión es manual:
+  `created_at`). La revisión se hace con la API: una cuenta incluida en
+  `ADMIN_EMAILS` puede restaurar una publicación oculta con
+  `POST /api/items/:id/restore`, que devuelve el objeto al catálogo y marca sus
+  reportes abiertos como `resuelto` (constancia del estado de moderación).
+  Si vuelven a acumularse reportes hasta el umbral, se oculta de nuevo.
+  El registro también se puede inspeccionar a mano:
 
 ```sql
 SELECT r.created_at, r.reason, r.comment, i.id, i.title
@@ -396,9 +407,7 @@ FROM reports r JOIN items i ON i.id = r.item_id
 WHERE i.hidden_at <> '' ORDER BY r.created_at DESC;
 ```
 
-Para devolver un objeto al catálogo tras revisarlo: `UPDATE items SET
-hidden_at = '' WHERE id = ?`. Para retirarlo sin reportes, el dueño puede
-eliminarlo desde **Mi área**.
+Para retirarlo sin reportes, el dueño puede eliminarlo desde **Mi área**.
 
 ## API (resumen)
 
@@ -416,21 +425,22 @@ eliminarlo desde **Mi área**.
 | DELETE | `/api/items/:id` | ✓ dueño | Eliminar objeto e imagen subida |
 | POST | `/api/upload` | ✓ | Subir JPG/PNG/WebP: valida magic bytes, recorta a 1200 px, convierte a WebP ≤400 KB y borra EXIF/GPS; guarda en `media` y devuelve la URL |
 | POST | `/api/auth/register` | — | Registro con `consent: true` |
-| POST | `/api/auth/demo` | — | Cuenta temporal de demostración (solo con `SEED_DEMO=1`); caduca en 12 h |
+| POST | `/api/auth/demo` | — | Cuenta temporal de demostración (solo con `SEED_DEMO=1`); caduca en `DEMO_TTL_HOURS` h (24 por defecto) |
 | POST | `/api/auth/login` | — | Login → token |
 | POST | `/api/auth/logout` | ✓ | Cerrar sesión actual |
 | GET | `/api/auth/me` | — | Usuario actual y versión legal |
 | POST | `/api/account/consent` | ✓ | Renovar consentimiento |
 | PATCH | `/api/account/profile` | ✓ | Cambiar nombre y campus (el email no se edita) |
 | POST | `/api/account/password` | ✓ + contraseña actual | Cambiar contraseña y cerrar las demás sesiones |
-| GET | `/api/account/export` | ✓ | Exportar datos propios en JSON |
-| DELETE | `/api/account/delete` | ✓ + contraseña | Suprimir cuenta y datos asociados |
+| GET | `/api/account/export` | ✓ | Exportar todos los datos de la cuenta en JSON (incluye recibidos) |
+| DELETE | `/api/account/delete` | ✓ + contraseña | Suprimir cuenta y datos propios; el historial ajeno se conserva anonimizado |
 | POST | `/api/items/:id/request` | ✓ | Solicitar objeto |
 | GET | `/api/requests/mine` | ✓ | Solicitudes enviadas |
 | GET | `/api/requests/received` | ✓ | Solicitudes recibidas |
 | PATCH | `/api/requests/:id` | ✓ | Aceptar/rechazar/completar/cancelar y ajustar el punto |
 | POST | `/api/requests/:id/rate` | ✓ | Valorar (1–5) una entrega completada |
 | POST | `/api/items/:id/report` | ✓ | Reportar (`reason` cerrado + comentario ≤300); 3 cuentas distintas retiran el objeto |
+| POST | `/api/items/:id/restore` | ✓ `ADMIN_EMAILS` | Revisar y restaurar un objeto oculto por reportes; marca los reportes como `resuelto` |
 | POST | `/api/items/:id/favorite` | ✓ | Alternar favorito |
 | GET | `/api/favorites` | ✓ | Favoritos |
 | GET | `/api/users/:id` | — | Perfil público mínimo con valoraciones y badges |
@@ -502,14 +512,14 @@ el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
 - **Backend como única autoridad**: permisos, límites, saneado y moderación se
   comprueban en servidor; las comprobaciones del navegador solo evitan idas y
   vueltas.
-- **Moderación sin panel**: el umbral retira automáticamente y el registro en
-  `reports` permite la revisión manual con SQL, sin inventar un rol de
-  administrador que no existe.
+- **Moderación por umbral con revisión**: el umbral retira automáticamente;
+  una cuenta de `ADMIN_EMAILS` puede revisar y restaurar con
+  `POST /api/items/:id/restore`, que deja constancia marcando los reportes como
+  `resuelto`. No hay panel de administración completo.
 
 ## Limitaciones honestas
 
 - No hay verificación real de matrícula, identidad ni titularidad de objetos.
-- No hay moderación ni reportes todavía.
 - En Render gratuito configura `DATABASE_URL` con PostgreSQL gestionado; si no,
   SQLite quedará en almacenamiento efímero y podría borrarse al reiniciar.
   Revisa los límites, pausas y copias del proveedor PostgreSQL.
@@ -528,8 +538,9 @@ el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
   identificación del responsable, el correo de contacto y una revisión
   jurídica/fiscal/LSSI específica.
 - La moderación es **comunitaria y automática por umbral**, sin panel de
-  administración ni apelaciones. Alguien debe revisar la tabla `reports` a mano;
-  si el tablón crece, hacen falta herramientas y un procedimiento de revisión.
+  administración ni apelaciones formales: la restauración se hace con
+  `POST /api/items/:id/restore` desde una cuenta de `ADMIN_EMAILS`. Si el
+  tablón crece, hacen falta herramientas y un procedimiento de revisión.
 - Los límites de peticiones son por proceso en memoria. Con más de un worker o
   varias instancias el límite efectivo se multiplica: haría falta Redis u otro
   almacén compartido.
