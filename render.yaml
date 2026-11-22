@@ -21,9 +21,9 @@ services:
         sync: false
       - key: SEED_DEMO
         value: "1"
-      # Sustituir por un correo real antes de usar datos personales reales.
+      # Correo de contacto/privacidad mostrado en los textos legales.
       - key: CONTACT_EMAIL
-        value: privacidad@circular-campus.example
+        value: campuscircular@hotmail.com
       # Sustituir por la identificación real del responsable antes de producción.
       - key: CONTROLLER_NAME
         value: Equipo Circular Campus (proyecto académico independiente)

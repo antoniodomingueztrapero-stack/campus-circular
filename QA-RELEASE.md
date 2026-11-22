@@ -1,6 +1,6 @@
 # QA de release — Circular Campus
 
-Fecha: 2026-11-20 · Rama: `arena/4ae4ed42-campus-circular` · Base: `b734500`
+Fecha: 2026-11-21 · Rama: `arena/d8a2e1e4-campus-circular` · Base: `9bb57ce`
 
 Este documento resume la verificación previa al despliegue: build/lint/tests,
 smoke test de flujos críticos, auditoría de interfaz y consola, y los pasos que
@@ -10,10 +10,10 @@ quedan en manos de una persona.
 
 | Comprobación | Comando | Resultado |
 | --- | --- | --- |
-| Sintaxis backend | `.venv/bin/python -c "import ast; ast.parse(open('app.py').read())"` | OK |
+| Sintaxis backend | `python3 -c "import ast; ast.parse(open('app.py').read())"` | OK |
 | Sintaxis frontend | `node --check static/js/app.js` | OK |
 | CSS | parseo con `css-tree` (vía jsdom toolchain) | 679 reglas, 0 errores |
-| Tests | `.venv/bin/python -m unittest discover -s tests` | **46 tests OK** (12,4 s) |
+| Tests | `python3 -m pytest tests/ -q` (equivalente: `python3 -m unittest discover -s tests`) | **87 tests OK** (≈30 s) |
 
 ## 2. Smoke test de flujos críticos
 
@@ -126,3 +126,56 @@ del proceso; los hilos cubren la concurrencia).
    se use el preview embebido.
 6. Probar el flujo de edición de perfil con una cuenta real (nombre con espacios
    dobles y cambio de campus).
+
+## 8. Bloque P0 — estabilidad, seguridad y bugs críticos (2026-11-21)
+
+Cambios verificados en esta rama, previos a cualquier refactor grande:
+
+1. **Arranque sin efectos al importar**: `import app` ya no crea ni migra la
+   base. El bootstrap es perezoso (primera petición) o explícito
+   (`python3 app.py`), y se repite si un test cambia `DATABASE`, `SEED_DEMO`
+   o `UPLOAD_DIR`. Cubierto por `tests/test_p0_hardening.py`
+   (`BootstrapTests`).
+2. **Errores de BD controlados**: las rutas críticas capturan `DB_ERRORS` con
+   `rollback()` y responden `503 storage_unavailable`; un manejador global
+   hace lo mismo para cualquier ruta no cubierta. En PostgreSQL una
+   transacción fallida ya no envenena la conexión. (`DbErrorHandlingTests`).
+3. **Concurrencia y máquina de estados**: escrituras serializadas
+   (`BEGIN IMMEDIATE` en SQLite, `FOR UPDATE` en PostgreSQL), actualizaciones
+   condicionales por estado observado, índice único de solicitud pendiente
+   por (objeto, solicitante), una sola reserva aceptada por objeto y toggle
+   de favoritos atómico. (`RequestStateMachineTests`).
+4. **Búsqueda segura**: los comodines `%`, `_` y `\` se escapan
+   (`escape_like` + `ESCAPE '\'`) y `folded_column` usa `translate()` en
+   PostgreSQL. (`SearchEscapeTests`).
+5. **Moderación reversible y borrado sin destruir historial ajeno**:
+   `POST /api/items/:id/restore` (cuentas de `ADMIN_EMAILS`) restaura objetos
+   ocultos y marca los reportes como `resuelto`; `delete_account` vacía y
+   oculta las publicaciones propias y anonimiza en «Cuenta eliminada» las
+   solicitudes, valoraciones y reportes escritos por otras personas;
+   `export_account` incluye ahora recibidos (`ModerationRestoreTests`,
+   `DeleteAccountHistoryTests`).
+6. **Textos legales y documentación alineados**: moderación por umbral con
+   restauración (antes se afirmaba «no hay moderación ni reportes»), TTL de
+   demo de `DEMO_TTL_HOURS` (24 h por defecto, no 12 h) y alcance real del
+   borrado de cuenta en ES/EN/GL (`static/js/app.js`, `README.md`).
+
+### Verificación ejecutada
+
+- `python3 -m pytest tests/ -q` → **87 tests OK** (72 previos + 15 nuevos).
+- `python3 -m unittest discover -s tests` → **87 tests OK**.
+- `python3 -c "import ast; ast.parse(open('app.py').read())"` y
+  `node --check static/js/app.js` → OK.
+
+### Pasos recomendados antes de P1
+
+1. Repetir el smoke test de la sección 2 (incluye borrado de cuenta y ahora
+   también: reportar hasta ocultar, restaurar con una cuenta de `ADMIN_EMAILS`
+   y comprobar que la exportación incluye `received_requests`).
+2. Probar con `gunicorn` que la primera petición inicializa la base
+   (arranque perezoso) y que `/healthz` sigue sin tocar la BD.
+3. En un PostgreSQL real, ejecutar la migración de una base con datos previos:
+   verifica que `idx_requests_pending_unique` se crea y que los duplicados
+   pendientes históricos se cancelan solos.
+4. Configurar `ADMIN_EMAILS` en producción antes de depender de la
+   restauración de moderación.
