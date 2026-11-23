@@ -757,13 +757,9 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline-offset
   overflow-wrap: anywhere;
 }
 .home-figures dt { color: var(--muted); font-size: var(--text-xs); line-height: 1.4; }
-.stats-row { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-block: var(--s5); }
+.stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 480px; margin-block: var(--s5); }
 .stats-row dd { font-size: var(--text-2xl); }
 .stats-row[aria-hidden] > div { flex-direction: column; gap: var(--s2); }
-.home-impact { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s6) var(--s8); }
-.impact-band { border-top: 1px solid var(--line); padding-top: var(--s4); }
-.impact-band h3 { font-size: var(--text-md); }
-.figure-note { margin-top: var(--s3); font-size: var(--text-sm); color: var(--muted); max-width: var(--measure); }
 
 /* 10. Catalog & filters -------------------------------------------------- */
 .catalog .section-title { margin: var(--s8) 0 var(--s2); }
@@ -1843,7 +1839,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline-offset
   .hero-badges { column-gap: var(--s4); }
   .chips-scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; }
   .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .two-col, .form-grid, .home-guide, .home-impact { grid-template-columns: 1fr; }
+  .two-col, .form-grid, .home-guide { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: var(--s3); }
   .grid-items { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: var(--s4); }
   .card-body, .skeleton-card .sk-body { padding: var(--s3); }
@@ -1908,18 +1904,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline-offset
   .catalog-sort { flex: 1 1 100%; justify-content: space-between; }
 }
 @media (max-width: 430px) {
-  .impact-band .home-figures { grid-template-columns: 1fr; gap: 0; }
-  .impact-band .home-figures > div {
-    display: grid;
-    grid-template-columns: minmax(0, 6rem) minmax(0, 1fr);
-    align-items: baseline;
-    gap: var(--s2);
-    padding: var(--s2) 0;
-    border: 0;
-    border-bottom: 1px solid var(--line-soft);
-  }
-  .impact-band dt { grid-column: 2; }
-  .impact-band dd { grid-area: 1 / 1; }
   .brand-mark { width: 32px; height: 32px; }
   .brand { gap: 6px; }
   .brand-text strong { font-size: 0.875rem; }
@@ -1969,58 +1953,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline-offset
   a { color: var(--ink); text-decoration: none; }
 }
 
-/* 18. Confianza, entregas e impacto -------------------------------------- */
-.impact-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--s3);
-}
-.impact-cell {
-  display: flex;
-  align-items: center;
-  gap: var(--s3);
-  background: var(--green-50);
-  border-radius: var(--r-md);
-  padding: var(--s3) var(--s4);
-}
-.impact-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 auto;
-  border-radius: var(--r-pill);
-  background: var(--surface);
-  color: var(--green-700);
-}
-.impact-cell strong {
-  display: block;
-  font-size: var(--text-lg);
-  font-variant-numeric: tabular-nums;
-  color: var(--green-900);
-}
-.impact-cell div > span { color: var(--muted); font-size: var(--text-xs); line-height: 1.3; }
-.impact-note {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--s2);
-  margin-top: var(--s3);
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-.impact-note .icon { width: 15px; height: 15px; margin-top: 2px; }
-.impact-line {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--s2);
-  margin-top: var(--s3);
-  color: var(--green-800);
-  font-size: var(--text-sm);
-}
-.impact-line .icon { width: 16px; height: 16px; margin-top: 2px; }
-.impact-grid-inline { margin-top: var(--s2); }
-
+/* 18. Confianza y entregas ------------------------------------------------ */
 .stars { display: inline-flex; align-items: center; gap: 2px; flex-wrap: wrap; }
 .star { display: inline-flex; color: var(--line-strong); }
 .star .icon { width: 15px; height: 15px; fill: none; stroke: currentColor; }
@@ -2219,8 +2152,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline-offset
   .trust-panel { padding: var(--s4); border-radius: var(--r-md); }
   .form-section-flush { padding: var(--s3) var(--s4); }
   .form-optional > summary { padding: var(--s3) var(--s4); }
-  .impact-cell { padding: var(--s2) var(--s3); }
-  .impact-icon { width: 34px; height: 34px; }
   .rate-option-inner { min-width: 52px; }
 }
 

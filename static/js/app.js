@@ -54,14 +54,12 @@ const I18N = {
     credit_label: "Equipo del proyecto", payment_eyebrow: "Pagos", noscript: "Campus Circular necesita JavaScript para mostrar el catálogo y gestionar la cuenta.",
     title_home: "Explorar", catalog_title: "Catálogo de segunda vida", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas y confianza",
     title_about: "El proyecto", title_my: "Mi área", title_legal: "Aviso legal", title_privacy: "Privacidad y datos", title_terms: "Condiciones de uso",
-    hero_eyebrow: "Reutilización e intercambio", hero_title: "Segunda vida en el campus.",
-    hero_lead: "Encuentra o publica libros, ropa, muebles y material de estudio de segunda mano. Acuerda la entrega en un lugar público.",
+    hero_eyebrow: "Reutilización e intercambio", hero_title: "Lo que ya no usas puede seguir teniendo una buena historia.",
+    hero_lead: "Encuentra o publica libros, ropa, muebles y material de estudio de segunda mano entre estudiantes de la Universidade de Vigo. Acuerda la entrega en un lugar público.",
     hero_search_label: "Buscar en el catálogo", hero_image_alt: "Auriculares, un teclado, un libro abierto y una mochila.",
     hero_search_ph: "Libros, ropa, muebles…", hero_search_btn: "Buscar", publish_cta: "Publicar un objeto",
-    stat_items: "objetos publicados", stat_available: "disponibles ahora", stat_delivered: "entregas marcadas", stat_users: "cuentas creadas",
+    stat_items: "objetos publicados", stat_users: "cuentas creadas",
     stats_title: "Campus Circular en cifras", stats_unavailable: "Las cifras no están disponibles en este momento.",
-    potential_title: "Potencial de los anuncios activos", potential_kg: "kg que podrían reutilizarse", potential_savings: "ahorro potencial",
-    potential_note: "Estimación ilustrativa: 2 kg y 15 € por objeto disponible. No representa entregas realizadas.",
     payment_banner_title: "Sin pasarela de pago",
     payment_banner_body: "Campus Circular no procesa pagos, no cobra comisiones, no custodia dinero ni garantiza objetos. «Vender» muestra solo un precio orientativo: cualquier pago se acuerda directamente entre particulares, fuera de la plataforma.",
     all: "Todo", search: "Buscar", filters: "Filtros", campus: "Campus", condition: "Estado", type: "Tipo", sort: "Ordenar",
@@ -73,7 +71,7 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Acordad un lugar seguro y marcado como entregado cuando terminéis.",
     trust_title: "Diseñado con criterios claros", trust_1: "Consentimiento explícito, aviso legal, privacidad y condiciones en tres idiomas.",
     trust_2: "Exportación y supresión de cuenta desde Mi área; sin analítica, cookies de terceros ni rastreadores.",
-    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones ni fondos retenidos. Las cifras de impacto son estimaciones transparentes por categoría.",
+    trust_3: "Imágenes locales, sin pasarela de pago, sin comisiones ni fondos retenidos.",
     login: "Iniciar sesión", register: "Crear cuenta", logout: "Cerrar sesión", my_area: "Mi área",
     my_items: "Mis objetos", my_requests: "Mis solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Campus Circular no gestiona cobros.",
@@ -201,29 +199,12 @@ const I18N = {
     publishing: "Publicando…", sending: "Enviando…", saving: "Guardando…",
     title_ph: "Ej.: Lámpara de escritorio LED",
     my_area_subtitle: "Tus publicaciones, solicitudes y datos.",
-    faculty: "Facultad",
-    fac_none: "Sin especificar",
-    fac_ingenieria: "Ingeniería",
-    fac_ciencias: "Ciencias",
-    fac_salud: "Salud",
-    fac_sociales: "Ciencias sociales",
-    fac_humanidades: "Humanidades",
-    fac_artes: "Artes",
-    f_faculty: "Facultad (opcional)",
     hand_conserjeria: "Conserjería",
     points_conserjeria_t: "Conserjería",
     points_conserjeria_b: "Punto de información a la entrada, con personal y zona de paso.",
-    impact_title: "Impacto de la comunidad",
-    impact_lead: "Estimación a partir de los objetos que ya han cambiado de manos.",
-    impact_reused: "objetos reutilizados",
-    impact_kg: "kg de residuos evitados (est.)",
-    impact_savings: "€ de ahorro estimado",
-    impact_note: "Cifras orientativas por categoría: no son una medición ni una auditoría.",
-    impact_my_title: "Tu impacto",
-    impact_item: "Reutilizarlo evita unos {kg} kg de residuos y {eur} € de gasto (estimación).",
     estimate_word: "estimación",
     trust_panel_title: "Confianza y trayectoria",
-    verified_badge: "Estudiante verificado",
+    verified_badge: "Dominio académico",
     rating_aria: "Valoración: {n} de 5 ({c} valoraciones)",
     rating_none: "Sin valoraciones todavía",
     rating_none_short: "sin valoraciones",
@@ -241,10 +222,9 @@ const I18N = {
     level_max: "Nivel máximo alcanzado",
     exchanges_short: "intercambios",
     badges_title: "Insignias",
-    badge_verified: "Estudiante verificado",
+    badge_verified: "Email de dominio académico",
     badge_first_delivery: "Primera entrega",
     badge_five_exchanges: "Cinco intercambios",
-    badge_ten_kg: "10 kg evitados",
     badge_rated: "Perfil valorado",
     badge_earned: "conseguida",
     badge_locked: "pendiente",
@@ -269,12 +249,12 @@ const I18N = {
     image_required_hint: "Obligatoria: es la foto que verá quien reciba el objeto.",
     toast_image_required: "Añade una foto para publicar.",
     required_word: "obligatorio",
-    status_help: "Reservado indica que ya hay un acuerdo; entregado cierra el intercambio y suma a tu impacto.",
+    status_help: "Reservado indica que ya hay un acuerdo; entregado cierra el intercambio.",
     req_handover: "Punto propuesto",
     request_point: "Punto de encuentro",
     request_point_hint: "Elige un sitio público y concurrido; podéis ajustarlo al aceptar.",
     req_rated: "Valorado con {n}/5",
-    my_impact_error: "No se pudo cargar tu impacto.",
+    trust_error: "No se pudo cargar tu perfil de confianza.",
     searching: "Buscando…",
     cold_title: "El servidor se está despertando",
     cold_body: "El plan gratuito se suspende por inactividad: la primera petición puede tardar unos segundos.",
@@ -337,14 +317,12 @@ const I18N = {
     credit_label: "Project team", payment_eyebrow: "Payments", noscript: "Campus Circular needs JavaScript to show the catalogue and manage your account.",
     title_home: "Browse", catalog_title: "Second-life catalogue", title_publish: "List an item", title_points: "Handover points", title_rules: "Rules & trust",
     title_about: "The project", title_my: "My area", title_legal: "Legal notice", title_privacy: "Privacy & data", title_terms: "Terms of use",
-    hero_eyebrow: "Reuse and exchange", hero_title: "A second life on campus.",
-    hero_lead: "Find or list second-hand books, clothing, furniture and study materials. Arrange handover in a public place.",
+    hero_eyebrow: "Reuse and exchange", hero_title: "What you no longer use can still have a good story.",
+    hero_lead: "Find or list second-hand books, clothing, furniture and study materials among University of Vigo students. Arrange handover in a public place.",
     hero_search_label: "Search the catalogue", hero_image_alt: "Headphones, a keyboard, an open book and a backpack.",
     hero_search_ph: "Books, clothes, furniture…", hero_search_btn: "Search", publish_cta: "List an item",
-    stat_items: "items listed", stat_available: "available now", stat_delivered: "handovers marked", stat_users: "accounts created",
+    stat_items: "items listed", stat_users: "accounts created",
     stats_title: "Campus Circular in numbers", stats_unavailable: "Figures are currently unavailable.",
-    potential_title: "Potential of active listings", potential_kg: "kg that could be reused", potential_savings: "potential savings",
-    potential_note: "Illustrative estimate: 2 kg and €15 per available item. These figures do not represent completed handovers.",
     payment_banner_title: "No payment gateway",
     payment_banner_body: "Campus Circular does not process payments, charge fees, hold funds or guarantee items. “Sell” shows an indicative price only: any payment is agreed directly between private individuals, outside the platform.",
     all: "All", search: "Search", filters: "Filters", campus: "Campus", condition: "Condition", type: "Type", sort: "Sort",
@@ -356,7 +334,7 @@ const I18N = {
     how_3_t: "3. Meet in public", how_3_b: "Choose a safe public place and mark the item as handed over when you are done.",
     trust_title: "Built with clear choices", trust_1: "Explicit consent, legal notice, privacy policy and terms in three languages.",
     trust_2: "Account export and deletion in My area; no analytics, third-party cookies or trackers.",
-    trust_3: "Local images, no payment gateway, no fees or held funds. Impact figures are transparent estimates by category.",
+    trust_3: "Local images, no payment gateway, no fees or held funds.",
     login: "Log in", register: "Create account", logout: "Log out", my_area: "My area",
     my_items: "My items", my_requests: "My requests", received: "Received requests", favorites: "Favorites",
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Campus Circular does not handle payments.",
@@ -484,29 +462,12 @@ const I18N = {
     publishing: "Publishing…", sending: "Sending…", saving: "Saving…",
     title_ph: "E.g. LED desk lamp",
     my_area_subtitle: "Your listings, requests and data.",
-    faculty: "Faculty",
-    fac_none: "Not specified",
-    fac_ingenieria: "Engineering",
-    fac_ciencias: "Sciences",
-    fac_salud: "Health",
-    fac_sociales: "Social sciences",
-    fac_humanidades: "Humanities",
-    fac_artes: "Arts",
-    f_faculty: "Faculty (optional)",
     hand_conserjeria: "Reception desk",
     points_conserjeria_t: "Reception desk",
     points_conserjeria_b: "Information desk at the entrance, staffed and with foot traffic.",
-    impact_title: "Community impact",
-    impact_lead: "Estimate based on the items that have already changed hands.",
-    impact_reused: "items reused",
-    impact_kg: "kg of waste avoided (est.)",
-    impact_savings: "estimated savings",
-    impact_note: "Indicative figures by category: not a measurement or an audit.",
-    impact_my_title: "Your impact",
-    impact_item: "Reusing it avoids about {kg} kg of waste and {eur} € of spending (estimate).",
     estimate_word: "estimate",
     trust_panel_title: "Trust and track record",
-    verified_badge: "Verified student",
+    verified_badge: "Academic domain",
     rating_aria: "Rating: {n} out of 5 ({c} reviews)",
     rating_none: "No ratings yet",
     rating_none_short: "no ratings",
@@ -524,10 +485,9 @@ const I18N = {
     level_max: "Top level reached",
     exchanges_short: "exchanges",
     badges_title: "Badges",
-    badge_verified: "Verified student",
+    badge_verified: "Academic-domain email",
     badge_first_delivery: "First handover",
     badge_five_exchanges: "Five exchanges",
-    badge_ten_kg: "10 kg avoided",
     badge_rated: "Reviewed profile",
     badge_earned: "earned",
     badge_locked: "locked",
@@ -552,12 +512,12 @@ const I18N = {
     image_required_hint: "Required: this is the photo the receiver will see.",
     toast_image_required: "Add a photo to publish.",
     required_word: "required",
-    status_help: "Reserved means a deal is in place; delivered closes the exchange and adds to your impact.",
+    status_help: "Reserved means a deal is in place; delivered closes the exchange.",
     req_handover: "Proposed point",
     request_point: "Handover point",
     request_point_hint: "Choose a public, busy place; you can adjust it when accepting.",
     req_rated: "Rated {n}/5",
-    my_impact_error: "Could not load your impact.",
+    trust_error: "Could not load your trust profile.",
     searching: "Searching…",
     cold_title: "The server is waking up",
     cold_body: "The free plan sleeps when idle: the first request may take a few seconds.",
@@ -620,14 +580,12 @@ const I18N = {
     credit_label: "Equipo do proxecto", payment_eyebrow: "Pagos", noscript: "Campus Circular necesita JavaScript para amosar o catálogo e xestionar a conta.",
     title_home: "Explorar", catalog_title: "Catálogo de segunda vida", title_publish: "Publicar", title_points: "Puntos de entrega", title_rules: "Normas e confianza",
     title_about: "O proxecto", title_my: "A miña área", title_legal: "Aviso legal", title_privacy: "Privacidade e datos", title_terms: "Condicións de uso",
-    hero_eyebrow: "Reutilización e intercambio", hero_title: "Segunda vida no campus.",
-    hero_lead: "Atopa ou publica libros, roupa, mobles e material de estudo de segunda man. Acorda a entrega nun lugar público.",
+    hero_eyebrow: "Reutilización e intercambio", hero_title: "O que xa non usas pode seguir tendo unha boa historia.",
+    hero_lead: "Atopa ou publica libros, roupa, mobles e material de estudo de segunda man entre estudantes da Universidade de Vigo. Acorda a entrega nun lugar público.",
     hero_search_label: "Buscar no catálogo", hero_image_alt: "Auriculares, un teclado, un libro aberto e unha mochila.",
     hero_search_ph: "Libros, roupa, mobles…", hero_search_btn: "Buscar", publish_cta: "Publicar un obxecto",
-    stat_items: "obxectos publicados", stat_available: "dispoñibles agora", stat_delivered: "entregas marcadas", stat_users: "contas creadas",
+    stat_items: "obxectos publicados", stat_users: "contas creadas",
     stats_title: "Campus Circular en cifras", stats_unavailable: "As cifras non están dispoñibles neste momento.",
-    potential_title: "Potencial dos anuncios activos", potential_kg: "kg que se poderían reutilizar", potential_savings: "aforro potencial",
-    potential_note: "Estimación ilustrativa: 2 kg e 15 € por obxecto dispoñible. Non representa entregas realizadas.",
     payment_banner_title: "Sen pasarela de pago",
     payment_banner_body: "Campus Circular non procesa pagos, non cobra comisións, non custodia cartos nin garante obxectos. «Vender» amosa só un prezo orientativo: calquera pago acórdase directamente entre particulares, fóra da plataforma.",
     all: "Todo", search: "Buscar", filters: "Filtros", campus: "Campus", condition: "Estado", type: "Tipo", sort: "Ordenar",
@@ -639,7 +597,7 @@ const I18N = {
     how_3_t: "3. Queda en público", how_3_b: "Escollede un lugar seguro e marcade como entregado ao rematar.",
     trust_title: "Deseñado con criterios claros", trust_1: "Consentimento explícito, aviso legal, privacidade e condicións en tres idiomas.",
     trust_2: "Exportación e supresión de conta na Miña área; sen analítica, cookies de terceiros nin rastrexadores.",
-    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións nin fondos retidos. As cifras de impacto son estimacións transparentes por categoría.",
+    trust_3: "Imaxes locais, sen pasarela de pago, sen comisións nin fondos retidos.",
     login: "Iniciar sesión", register: "Crear conta", logout: "Pechar sesión", my_area: "A miña área",
     my_items: "Os meus obxectos", my_requests: "As miñas solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Campus Circular non xestiona cobros.",
@@ -767,29 +725,12 @@ const I18N = {
     publishing: "Publicando…", sending: "Enviando…", saving: "Gardando…",
     title_ph: "Ex.: Lámpara de escritorio LED",
     my_area_subtitle: "As túas publicacións, solicitudes e datos.",
-    faculty: "Facultade",
-    fac_none: "Sen especificar",
-    fac_ingenieria: "Enxeñaría",
-    fac_ciencias: "Ciencias",
-    fac_salud: "Saúde",
-    fac_sociales: "Ciencias sociais",
-    fac_humanidades: "Humanidades",
-    fac_artes: "Artes",
-    f_faculty: "Facultade (opcional)",
     hand_conserjeria: "Conserxería",
     points_conserjeria_t: "Conserxería",
     points_conserjeria_b: "Punto de información á entrada, con persoal e zona de paso.",
-    impact_title: "Impacto da comunidade",
-    impact_lead: "Estimación a partir dos obxectos que xa cambiaron de mans.",
-    impact_reused: "obxectos reutilizados",
-    impact_kg: "kg de residuos evitados (est.)",
-    impact_savings: "€ de aforro estimado",
-    impact_note: "Cifras orientativas por categoría: non son unha medición nin unha auditoría.",
-    impact_my_title: "O teu impacto",
-    impact_item: "Reutilizalo evita uns {kg} kg de residuos e {eur} € de gasto (estimación).",
     estimate_word: "estimación",
     trust_panel_title: "Confianza e traxectoria",
-    verified_badge: "Estudante verificado",
+    verified_badge: "Dominio académico",
     rating_aria: "Valoración: {n} de 5 ({c} valoracións)",
     rating_none: "Sen valoracións aínda",
     rating_none_short: "sen valoracións",
@@ -807,10 +748,9 @@ const I18N = {
     level_max: "Nivel máximo acadado",
     exchanges_short: "intercambios",
     badges_title: "Insignias",
-    badge_verified: "Estudante verificado",
+    badge_verified: "Email de dominio académico",
     badge_first_delivery: "Primeira entrega",
     badge_five_exchanges: "Cinco intercambios",
-    badge_ten_kg: "10 kg evitados",
     badge_rated: "Perfil valorado",
     badge_earned: "acadada",
     badge_locked: "pendente",
@@ -835,12 +775,12 @@ const I18N = {
     image_required_hint: "Obrigatoria: é a foto que verá quen reciba o obxecto.",
     toast_image_required: "Engade unha foto para publicar.",
     required_word: "obrigatorio",
-    status_help: "Reservado indica que xa hai un acordo; entregado pecha o intercambio e suma ao teu impacto.",
+    status_help: "Reservado indica que xa hai un acordo; entregado pecha o intercambio.",
     req_handover: "Punto proposto",
     request_point: "Punto de encontro",
     request_point_hint: "Escolle un sitio público e concorrido; podedes axustalo ao aceptar.",
     req_rated: "Valorado con {n}/5",
-    my_impact_error: "Non se puido cargar o teu impacto.",
+    trust_error: "Non se puido cargar o teu perfil de confianza.",
     searching: "Buscando…",
     cold_title: "O servidor está espertando",
     cold_body: "O plan gratuíto suspéndese por inactividade: a primeira petición pode tardar uns segundos.",
@@ -914,7 +854,7 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["El servicio está pensado para personas adultas. No se recoge fecha de nacimiento y no se admite el registro de menores de 14 años. Si eres menor de edad, no publiques datos personales ni quedes sin acompañamiento."] },
       { h: "10. Cookies, analítica y recursos de terceros", p: ["No se usan cookies de sesión, cookies publicitarias, analítica, píxeles ni rastreadores. El idioma y el token se guardan en el almacenamiento local del navegador; puedes borrarlos desde su configuración.", "Las imágenes de ejemplo y de categoría se sirven desde este mismo dominio. Para privacidad, no se aceptan URL de imágenes externas en las publicaciones."] },
       { h: "11. Fotografías", p: ["Las fotos de objetos que subas pueden contener datos personales si muestras cartas, pantallas, etiquetas o documentos: revísalas antes de publicar.", "La fotografía de grupo de la página del proyecto forma parte de los materiales del proyecto. Las imágenes de personas son datos personales; si apareces en ella y deseas que se retire, escribe a {contact}."] },
-      { h: "12. Valoraciones e impacto", p: ["Tras una entrega completada, ambas partes pueden puntuar de 1 a 5 y dejar un comentario opcional. Se guardan la puntuación, el comentario, la fecha y el vínculo con el intercambio; la media aparece en el perfil público junto al nombre visible de quien valora.", "Las cifras de impacto (objetos reutilizados, kilos evitados y ahorro estimado) se calculan en el servidor a partir de estimaciones por categoría. No proceden de mediciones ni de terceros y no se usan para publicidad ni para decisiones automatizadas."] },
+      { h: "12. Valoraciones", p: ["Tras una entrega completada, ambas partes pueden puntuar de 1 a 5 y dejar un comentario opcional. Se guardan la puntuación, el comentario, la fecha y el vínculo con el intercambio; la media aparece en el perfil público junto al nombre visible de quien valora."] },
       { h: "13. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
     ],
     terms: [
@@ -927,7 +867,7 @@ const LEGAL_DOCS = {
       { h: "7. Usos prohibidos", p: ["Prohibido publicar datos de contacto en abierto, suplantar identidades, acosar, estafar, vender como profesional, eludir la validación de imágenes, introducir URL externas o intentar usar la plataforma como monedero, escrow o sistema de comisiones.", "Prohibido subir contenido ilegal, peligroso, discriminatorio o que vulnere derechos de terceros."] },
       { h: "8. Responsabilidad", p: ["Campus Circular ofrece una herramienta técnica de publicación y solicitud, pero no verifica objetos, no participa en los acuerdos y no responde por su cumplimiento, estado, precio, pago, devolución o daños.", "El prototipo puede tener errores, reiniciarse o perder datos en un alojamiento gratuito efímero. No lo uses como único repositorio de información importante."] },
       { h: "9. Datos y supresión", p: ["El tratamiento de datos se describe en {privacyLink}. Puedes descargar una copia y eliminar la cuenta desde Mi área, o escribir a {contact}.", "La supresión elimina perfil, sesiones, publicaciones, favoritos y solicitudes propias; no crea una copia de respaldo. Las solicitudes recibidas, las valoraciones y los reportes escritos por otras personas se conservan de forma anonimizada para no destruir su historial."] },
-      { h: "11. Valoraciones e impacto", p: ["Solo se puede valorar un intercambio cuando la entrega figura como completada. Las valoraciones son públicas, no se editan y deben describir la entrega sin insultos, datos personales ni acusaciones no contrastadas.", "Las cifras de impacto son orientativas y no constituyen una certificación ambiental ni económica."] },
+      { h: "11. Valoraciones", p: ["Solo se puede valorar un intercambio cuando la entrega figura como completada. Las valoraciones son públicas, no se editan y deben describir la entrega sin insultos, datos personales ni acusaciones no contrastadas."] },
       { h: "11. Cambios y ley aplicable", p: ["Podemos actualizar estas condiciones para reflejar cambios técnicos o legales; la versión vigente es {version}, de {updated}.", "Estas condiciones se interpretan conforme a la normativa española y europea aplicable, en particular RGPD, LOPDGDD y LSSI cuando corresponda. No constituyen asesoramiento jurídico, fiscal o de consumo."] },
     ],
   },
@@ -951,7 +891,7 @@ const LEGAL_DOCS = {
       { h: "9. Minors", p: ["The service is intended for adults. No date of birth is collected and registration by children under 14 is not accepted. Minors should not post personal data or attend handovers unaccompanied."] },
       { h: "10. Cookies, analytics and third-party resources", p: ["No session cookies, advertising cookies, analytics, pixels or trackers are used. Language and token are stored in browser local storage and can be cleared in browser settings.", "Sample and category images are served from this same domain. For privacy, external image URLs are not accepted in listings."] },
       { h: "11. Photographs", p: ["Photos you upload may contain personal data if they show letters, screens, labels or documents: check them before publishing.", "The group photo on the project page is part of the project materials. Images of people are personal data; if you appear in it and want it removed, write to {contact}."] },
-      { h: "12. Ratings and impact", p: ["After a completed handover, both parties may rate from 1 to 5 and leave an optional comment. The score, comment, date and link to the exchange are stored; the average appears on the public profile next to the rater's display name.", "Impact figures (items reused, kilograms avoided and estimated savings) are calculated on the server from category estimates. They do not come from measurements or third parties and are not used for advertising or automated decisions."] },
+      { h: "12. Ratings", p: ["After a completed handover, both parties may rate from 1 to 5 and leave an optional comment. The score, comment, date and link to the exchange are stored; the average appears on the public profile next to the rater's display name."] },
       { h: "13. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
     ],
     terms: [
@@ -964,7 +904,7 @@ const LEGAL_DOCS = {
       { h: "7. Prohibited uses", p: ["Do not post open contact details, impersonate others, harass, defraud, sell professionally, bypass image validation, insert external URLs or try to use the platform as a wallet, escrow or commission system.", "Do not upload illegal, dangerous, discriminatory content or material that infringes third-party rights."] },
       { h: "8. Liability", p: ["Campus Circular provides a technical listing and request tool, but does not verify items, take part in agreements or answer for their performance, condition, price, payment, return or damages.", "The prototype may contain errors, restart or lose data on a free ephemeral host. Do not use it as the only repository for important information."] },
       { h: "9. Data and erasure", p: ["Data processing is described in {privacyLink}. You can download a copy and delete your account from My area, or write to {contact}.", "Erasure removes the profile, sessions, listings, favorites and own requests; it does not create a backup copy. Requests received, ratings and reports written by other people are kept anonymised so their history is not destroyed."] },
-      { h: "11. Ratings and impact", p: ["An exchange can only be rated once the handover is marked as completed. Ratings are public, cannot be edited and must describe the handover without insults, personal data or unverified accusations.", "Impact figures are indicative and are not an environmental or economic certification."] },
+      { h: "11. Ratings", p: ["An exchange can only be rated once the handover is marked as completed. Ratings are public, cannot be edited and must describe the handover without insults, personal data or unverified accusations."] },
       { h: "11. Changes and applicable law", p: ["These terms may be updated to reflect technical or legal changes; the current version is {version}, dated {updated}.", "They are interpreted under applicable Spanish and EU law, in particular GDPR, LOPDGDD and LSSI where relevant. They are not legal, tax or consumer advice."] },
     ],
   },
@@ -988,7 +928,7 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["O servizo está pensado para persoas adultas. Non se recolle data de nacemento e non se admite o rexistro de menores de 14 anos. Se es menor, non publiques datos persoais nin quedes sen acompañamento."] },
       { h: "10. Cookies, analítica e recursos de terceiros", p: ["Non se usan cookies de sesión, cookies publicitarias, analítica, píxeles nin rastrexadores. O idioma e o token gárdanse no almacenamento local do navegador; podes borralos desde a súa configuración.", "As imaxes de exemplo e de categoría sírvense desde este mesmo dominio. Para privacidade, non se aceptan URL de imaxes externas nas publicacións."] },
       { h: "11. Fotografías", p: ["As fotos de obxectos que subas poden conter datos persoais se amosan cartas, pantallas, etiquetas ou documentos: revísaas antes de publicar.", "A fotografía de grupo da páxina do proxecto forma parte dos materiais do proxecto. As imaxes de persoas son datos persoais; se apareces nela e desexas que se retire, escribe a {contact}."] },
-      { h: "12. Valoracións e impacto", p: ["Tras unha entrega completada, ambas as partes poden puntuar de 1 a 5 e deixar un comentario opcional. Gárdanse a puntuación, o comentario, a data e o vínculo co intercambio; a media aparece no perfil público xunto ao nome visible de quen valora.", "As cifras de impacto (obxectos reutilizados, quilos evitados e aforro estimado) calcúlanse no servidor a partir de estimacións por categoría. Non proceden de medicións nin de terceiros e non se usan para publicidade nin para decisións automatizadas."] },
+      { h: "12. Valoracións", p: ["Tras unha entrega completada, ambas as partes poden puntuar de 1 a 5 e deixar un comentario opcional. Gárdanse a puntuación, o comentario, a data e o vínculo co intercambio; a media aparece no perfil público xunto ao nome visible de quen valora."] },
       { h: "13. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
     ],
     terms: [
@@ -1001,7 +941,7 @@ const LEGAL_DOCS = {
       { h: "7. Usos prohibidos", p: ["Prohíbese publicar datos de contacto en aberto, suplantar identidades, acosar, estafar, vender como profesional, eludir a validación de imaxes, introducir URL externas ou intentar usar a plataforma como moedeiro, escrow ou sistema de comisións.", "Prohíbese subir contido ilegal, perigoso, discriminatorio ou que vulnere dereitos de terceiros."] },
       { h: "8. Responsabilidade", p: ["Campus Circular ofrece unha ferramenta técnica de publicación e solicitude, pero non verifica obxectos, non participa nos acordos e non responde polo seu cumprimento, estado, prezo, pago, devolución ou danos.", "O prototipo pode ter erros, reiniciarse ou perder datos nun aloxamento gratuíto efémero. Non o uses como único repositorio de información importante."] },
       { h: "9. Datos e supresión", p: ["O tratamento de datos descríbese en {privacyLink}. Podes descargar unha copia e eliminar a conta na Miña área, ou escribir a {contact}.", "A supresión elimina perfil, sesións, publicacións, favoritos e solicitudes propias; non crea unha copia de respaldo. As solicitudes recibidas, as valoracións e os reportes escritos por outras persoas consérvanse de forma anonimizada para non destruír o seu historial."] },
-      { h: "11. Valoracións e impacto", p: ["Só se pode valorar un intercambio cando a entrega figura como completada. As valoracións son públicas, non se editan e deben describir a entrega sen insultos, datos persoais nin acusacións non contrastadas.", "As cifras de impacto son orientativas e non constitúen unha certificación ambiental nin económica."] },
+      { h: "11. Valoracións", p: ["Só se pode valorar un intercambio cando a entrega figura como completada. As valoracións son públicas, non se editan e deben describir a entrega sen insultos, datos persoais nin acusacións non contrastadas."] },
       { h: "11. Cambios e lei aplicable", p: ["Podemos actualizar estas condicións para reflectir cambios técnicos ou legais; a versión vixente é {version}, de {updated}.", "Estas condicións interprétanse conforme á normativa española e europea aplicable, en particular RGPD, LOPDGDD e LSSI cando corresponda. Non constitúen asesoramento xurídico, fiscal ou de consumo."] },
     ],
   }
@@ -1012,7 +952,6 @@ const CONDITIONS = ["nuevo", "como_nuevo", "bueno", "usable"];
 const TYPES = ["regalar", "prestar", "intercambiar", "vender"];
 const CAMPUSES = ["vigo", "pontevedra", "ourense"];
 const HANDOVERS = ["biblioteca", "conserjeria", "cafeteria", "entrada", "punto", "acordado"];
-const FACULTIES = ["ingenieria", "ciencias", "salud", "sociales", "humanidades", "artes"];
 
 const initialLang = ["es", "en", "gl"].includes(localStorage.getItem("cc_lang"))
   ? localStorage.getItem("cc_lang") : "es";
@@ -1022,7 +961,7 @@ const state = {
   token: localStorage.getItem("cc_token") || null,
   view: BOOT.view || PATH_VIEWS[location.pathname] || "home",
   myTab: "items",
-  filters: { q: "", category: "", campus: "", condition: "", type: "", faculty: "", sort: "recent" },
+  filters: { q: "", category: "", campus: "", condition: "", type: "", sort: "recent" },
   items: [],
   totalResults: null,
   stats: null,
@@ -1037,7 +976,6 @@ const typeLabel = (c) => t("type_" + c);
 const typeBadge = (c) => t("type_badge_" + c);
 const campusLabel = (c) => t("campus_" + c);
 const handLabel = (c) => t("hand_" + c);
-const facLabel = (c) => t("fac_" + c);
 const levelLabel = (k) => t("level_" + k);
 const statusLabel = (s) => t("status_" + s);
 const reqLabel = (s) => t("req_" + s);
@@ -1308,7 +1246,7 @@ function skeletonRows(n = 3) {
 }
 
 function statSkeleton() {
-  return `<div class="home-figures stats-row" aria-hidden="true">${Array.from({ length: 4 }, () => `
+  return `<div class="home-figures stats-row" aria-hidden="true">${Array.from({ length: 2 }, () => `
     <div><div class="skeleton sk-num"></div><div class="skeleton sk-stat-label"></div></div>`).join("")}
   </div>`;
 }
@@ -1776,7 +1714,6 @@ function filterParams() {
   if (f.campus) params.set("campus", f.campus);
   if (f.condition) params.set("condition", f.condition);
   if (f.type) params.set("type", f.type);
-  if (f.faculty) params.set("faculty", f.faculty);
   if (f.sort) params.set("sort", f.sort);
   return params;
 }
@@ -1844,7 +1781,7 @@ async function loadMoreItems(btn) {
 
 function hasFilters() {
   const f = state.filters;
-  return Boolean(f.q || f.category || f.campus || f.condition || f.type || f.faculty);
+  return Boolean(f.q || f.category || f.campus || f.condition || f.type);
 }
 
 function clearFilters() {
@@ -1853,7 +1790,6 @@ function clearFilters() {
   state.filters.campus = "";
   state.filters.condition = "";
   state.filters.type = "";
-  state.filters.faculty = "";
   state.filters.sort = "recent";
   syncHeroSearch();
 }
@@ -1897,31 +1833,6 @@ function homeFigures(cells, extra = "") {
   </dl>`;
 }
 
-function impactBand(stats) {
-  const imp = stats.impact || {};
-  return `<section class="impact-band" aria-labelledby="impact-title">
-    <h3 id="impact-title">${esc(t("impact_title"))}</h3>
-    ${homeFigures([
-      ["impact_reused", fmtNum(imp.reused, 0)],
-      ["impact_kg", `${fmtNum(imp.kg, 1)} kg`],
-      ["impact_savings", `${fmtNum(imp.savings, 0)} €`]
-    ])}
-    <p class="figure-note">${esc(t("impact_lead"))} ${esc(t("impact_note"))}</p>
-  </section>`;
-}
-
-function impactCells(impact) {
-  const imp = impact || { reused: 0, kg: 0, savings: 0 };
-  return [
-    { icon: "refresh", value: fmtNum(imp.reused, 0), label: t("impact_reused") },
-    { icon: "leaf", value: `${fmtNum(imp.kg, 1)} kg`, label: t("impact_kg") },
-    { icon: "tag", value: `${fmtNum(imp.savings, 0)} €`, label: t("impact_savings") }
-  ].map(c => `<div class="impact-cell">
-      <span class="impact-icon" aria-hidden="true">${icon(c.icon)}</span>
-      <div><strong>${esc(c.value)}</strong><span>${esc(c.label)}</span></div>
-    </div>`).join("");
-}
-
 function trustPanel(data) {
   const rating = data.rating || { count: 0, average: 0 };
   const ex = data.exchanges || { completed: 0, given: 0, received: 0 };
@@ -1946,8 +1857,6 @@ function trustPanel(data) {
         <small>${level.next ? `${esc(t("level_next"))} ${esc(levelLabel(level.next))} · ${remaining} ${esc(t("exchanges_short"))}` : esc(t("level_max"))}</small>
       </div>
     </div>
-    <h3 class="trust-sub">${esc(t("impact_my_title"))}</h3>
-    <div class="impact-grid impact-grid-inline">${impactCells(data.impact)}</div>
     <h3 class="trust-sub">${esc(t("badges_title"))}</h3>
     <ul class="badge-row">
       ${badges.map(b => `<li class="badge-chip${b.earned ? " is-earned" : ""}">
@@ -1955,7 +1864,6 @@ function trustPanel(data) {
         <span class="sr-only"> — ${esc(b.earned ? t("badge_earned") : t("badge_locked"))}</span>
       </li>`).join("")}
     </ul>
-    <p class="impact-note">${icon("info")}<span>${esc(t("impact_note"))}</span></p>
   </section>`;
 }
 
@@ -2055,8 +1963,7 @@ function activeFilterChips() {
     ["category", f.category && catLabel(f.category)],
     ["campus", f.campus && campusLabel(f.campus)],
     ["condition", f.condition && condLabel(f.condition)],
-    ["type", f.type && typeLabel(f.type)],
-    ["faculty", f.faculty && facLabel(f.faculty)]
+    ["type", f.type && typeLabel(f.type)]
   ].filter(([, label]) => label);
   if (!labels.length) return "";
   return `${labels.map(([key, label]) => `<span class="active-filter"><span>${esc(label)}</span><button type="button" data-remove-filter="${key}" aria-label="${esc(t("filter_remove").replace("{value}", label))}">${icon("close")}</button></span>`).join("")}
@@ -2074,7 +1981,7 @@ function syncFilterUI() {
     b.classList.toggle("active", active);
     b.setAttribute("aria-pressed", String(active));
   });
-  const count = ["campus", "condition", "type", "faculty"].filter(k => state.filters[k]).length;
+  const count = ["campus", "condition", "type"].filter(k => state.filters[k]).length;
   const dot = $("#filter-dot");
   if (dot) {
     dot.textContent = count ? String(count) : "";
@@ -2196,7 +2103,7 @@ function itemCard(it) {
         <span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span>
       </div>
       <h3 class="card-title"><button type="button" class="card-open" data-view="${it.id}" aria-label="${esc(openLabel)}"><span>${esc(it.title)}</span>${icon("arrow")}</button></h3>
-      <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}${it.faculty ? ` · ${esc(facLabel(it.faculty))}` : ""}</span></p>
+      <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}</span></p>
       <p class="card-location">${icon("tag")}<span>${esc(handLabel(it.handover_point))} · ${esc(condLabel(it.condition))}</span></p>
       <div class="card-foot">
         <div>
@@ -2209,28 +2116,11 @@ function itemCard(it) {
   </article>`;
 }
 
-function congressMetrics(stats) {
-  const active = Number(stats.available) || 0;
-  // Orientative estimates for active listings, not verified completed exchanges.
-  return `<section class="impact-band" aria-labelledby="potential-title">
-    <h3 id="potential-title">${esc(t("potential_title"))}</h3>
-    ${homeFigures([
-      ["stat_available", active],
-      ["potential_kg", `${active * 2} kg`],
-      ["potential_savings", `${active * 15} €`]
-    ])}
-    <p class="figure-note">${esc(t("potential_note"))}</p>
-  </section>`;
-}
-
 function homeStats(stats) {
-  return `${homeFigures([
+  return homeFigures([
     ["stat_items", fmtNum(stats.total_items, 0)],
-    ["stat_available", fmtNum(stats.available, 0)],
-    ["stat_delivered", fmtNum(stats.delivered, 0)],
     ["stat_users", fmtNum(stats.users, 0)]
-  ], "stats-row")}
-  <div class="home-impact">${impactBand(stats)}${congressMetrics(stats)}</div>`;
+  ], "stats-row");
 }
 
 function option(value, label, selected) {
@@ -2272,13 +2162,6 @@ function openFilters() {
         </select>
       </div>
       <div class="field">
-        <label for="fl-faculty">${esc(t("faculty"))}</label>
-        <select id="fl-faculty" name="faculty">
-          ${option("", `${t("faculty")}: ${t("all")}`, !f.faculty)}
-          ${FACULTIES.map(c => option(c, facLabel(c), f.faculty === c)).join("")}
-        </select>
-      </div>
-      <div class="field">
         <label for="fl-sort">${esc(t("sort_by"))}</label>
         <select id="fl-sort" name="sort">
           ${catalogSortOptions(f.sort)}
@@ -2299,7 +2182,6 @@ function openFilters() {
     state.filters.campus = fd.get("campus") || "";
     state.filters.condition = fd.get("condition") || "";
     state.filters.type = fd.get("type") || "";
-    state.filters.faculty = fd.get("faculty") || "";
     state.filters.sort = fd.get("sort") || "recent";
     syncHeroSearch();
   };
@@ -2567,10 +2449,6 @@ function renderPublish(app) {
             <div class="field">
               <label for="p-campus">${esc(t("f_campus"))}</label>
               <select id="p-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), state.user.campus === c)).join("")}</select>
-            </div>
-            <div class="field">
-              <label for="p-faculty">${esc(t("f_faculty"))}</label>
-              <select id="p-faculty" name="faculty">${option("", t("fac_none"), true)}${FACULTIES.map(c => option(c, facLabel(c))).join("")}</select>
             </div>
             <div class="field">
               <label for="p-handover">${esc(t("f_handover"))}</label>
@@ -3083,7 +2961,7 @@ async function loadTrustPanel() {
   const box = $("#trust-panel");
   if (!box || !state.user) return;
   try {
-    const data = await api("/api/impact/me");
+    const data = await api("/api/trust/me");
     if (!box.isConnected) return;
     box.innerHTML = trustPanel(data);
     const bar = $("[data-level-bar]", box);
@@ -3091,7 +2969,7 @@ async function loadTrustPanel() {
     if (bar) bar.style.width = `${progress}%`;
   } catch (err) {
     if (box.isConnected) {
-      box.innerHTML = `<p class="muted small">${icon("info")} ${esc(t("my_impact_error"))}</p>`;
+      box.innerHTML = `<p class="muted small">${icon("info")} ${esc(t("trust_error"))}</p>`;
     }
   }
 }
@@ -3132,13 +3010,6 @@ function openItemEditor(item) {
           <select id="e-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), item.campus === c)).join("")}</select>
         </div>
         <div class="field">
-          <label for="e-faculty">${esc(t("faculty"))}</label>
-          <select id="e-faculty" name="faculty">
-            ${option("", `${t("faculty")}: ${t("all")}`, !item.faculty)}
-            ${FACULTIES.map(c => option(c, facLabel(c), item.faculty === c)).join("")}
-          </select>
-        </div>
-        <div class="field">
           <label for="e-point">${esc(t("handover_label"))}</label>
           <select id="e-point" name="handover_point">${HANDOVERS.map(c => option(c, handLabel(c), item.handover_point === c)).join("")}</select>
         </div>
@@ -3171,7 +3042,6 @@ function openItemEditor(item) {
           condition: fd.get("condition"),
           exchange_type: fd.get("exchange_type"),
           campus: fd.get("campus"),
-          faculty: fd.get("faculty") || "",
           handover_point: fd.get("handover_point"),
           price: Number(fd.get("price") || 0),
         }),
@@ -3439,7 +3309,7 @@ async function openItem(id) {
         <div class="detail-kicker"><span class="card-category">${esc(catLabel(it.category))}</span><span class="status-pill status-${esc(it.status)}">${esc(statusLabel(it.status))}</span></div>
         <h2 class="detail-title" id="detail-title">${esc(it.title)}</h2>
         <p class="detail-meta">${esc(typeLabel(it.exchange_type))} · ${esc(condLabel(it.condition))}</p>
-        <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}${it.faculty ? ` · ${esc(facLabel(it.faculty))}` : ""}</span></p>
+        <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}</span></p>
         <div class="detail-price-row">
           <div><span class="price">${price}</span>${isSale ? `<span class="price-sub">${esc(t("price_orientative"))}</span>` : ""}</div>
           <p class="card-location">${icon("tag")}<span>${esc(t("handover_label"))}: ${esc(handLabel(it.handover_point))}</span></p>
@@ -3460,7 +3330,6 @@ async function openItem(id) {
       <section class="detail-section">
         <h3>${esc(t("detail_description"))}</h3>
         <p class="detail-desc">${it.description ? esc(it.description) : `<span class="muted">${esc(t("detail_no_desc"))}</span>`}</p>
-        <p class="impact-line">${icon("leaf")}<span>${esc(t("impact_item").replace("{kg}", fmtNum((it.impact || {}).kg, 1)).replace("{eur}", fmtNum((it.impact || {}).savings, 0)))}</span></p>
       </section>
       <section class="detail-section">
         <h3>${esc(t("owner"))}</h3>
@@ -3473,7 +3342,6 @@ async function openItem(id) {
             <p class="owner-trust">${starsHtml((owner.rating || {}).average, (owner.rating || {}).count)}</p>
             <p class="owner-stats">
               <span>${icon("refresh")}${(owner.exchanges || {}).completed || 0} ${esc(t("exchanges_short"))}</span>
-              <span>${icon("leaf")}${fmtNum((owner.impact || {}).kg, 1)} kg</span>
               <span class="level-pill">${esc(t("level_label"))}: ${esc(levelLabel((owner.level || {}).key || "semilla"))}</span>
             </p>
             <small>${esc(t("identity_note"))}</small>

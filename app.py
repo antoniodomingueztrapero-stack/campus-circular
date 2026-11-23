@@ -93,7 +93,6 @@ CONDITIONS = ["nuevo", "como_nuevo", "bueno", "usable"]
 EXCHANGE_TYPES = ["regalar", "prestar", "intercambiar", "vender"]
 CAMPUSES = ["vigo", "pontevedra", "ourense"]
 HANDOVER_POINTS = ["biblioteca", "conserjeria", "cafeteria", "entrada", "punto", "acordado"]
-FACULTIES = ["ingenieria", "ciencias", "salud", "sociales", "humanidades", "artes"]
 ITEM_STATUSES = ["disponible", "reservado", "entregado"]
 # Cuentas de demostración: efímeras, sin datos personales y solo con SEED_DEMO=1.
 # Lo que publican NO se borra: al caducar la cuenta, sus objetos se transfieren a
@@ -126,21 +125,10 @@ UNIVERSITY_DOMAINS = frozenset(
     if d.strip()
 )
 
-# Estimaciones orientativas por categoría (no medidas): peso medio de un objeto
-# reutilizado y valor de reposición aproximado. Se muestran siempre como
-# estimación y nunca se presentan como impacto auditado.
-CATEGORY_IMPACT = {
-    "libros": {"kg": 1.1, "value": 18},
-    "ropa": {"kg": 0.9, "value": 22},
-    "muebles": {"kg": 11.0, "value": 45},
-    "estudio": {"kg": 0.6, "value": 24},
-    "electronica": {"kg": 1.4, "value": 38},
-    "cocina": {"kg": 2.4, "value": 26},
-    "electrodomesticos": {"kg": 4.2, "value": 40},
-    "deporte": {"kg": 2.0, "value": 25},
-    "otros": {"kg": 1.5, "value": 15},
-}
-IMPACT_LEVELS = [("semilla", 0), ("brote", 2), ("arbol", 5), ("bosque", 10)]
+# Niveles de actividad por intercambios completados. No hay cifras de kilos ni
+# de ahorro: cualquier claim de ese tipo exigiría datos reales de los
+# intercambios (ver el guion de la presentación CTC-07).
+LEVELS = [("semilla", 0), ("brote", 2), ("arbol", 5), ("bosque", 10)]
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 # Las fotos se reescalan y recomprimen en servidor: el máximo real servido
@@ -500,7 +488,6 @@ def init_db():
             price REAL NOT NULL DEFAULT 0,
             campus TEXT NOT NULL,
             handover_point TEXT NOT NULL DEFAULT 'punto',
-            faculty TEXT NOT NULL DEFAULT '',
             image_url TEXT NOT NULL DEFAULT '',
             status TEXT NOT NULL DEFAULT 'disponible',
             delivered_at TEXT NOT NULL DEFAULT '',
@@ -582,8 +569,8 @@ def migrate_db():
             db.execute("LOCK TABLE users, sessions, items, requests IN ACCESS EXCLUSIVE MODE")
             db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_at TEXT NOT NULL DEFAULT ''")
             db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_version TEXT NOT NULL DEFAULT ''")
-            db.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS faculty TEXT NOT NULL DEFAULT ''")
             db.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS delivered_at TEXT NOT NULL DEFAULT ''")
+            db.execute("ALTER TABLE items DROP COLUMN IF EXISTS faculty")
             db.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS hidden_at TEXT NOT NULL DEFAULT ''")
             db.execute("ALTER TABLE requests ADD COLUMN IF NOT EXISTS handover_point TEXT NOT NULL DEFAULT ''")
             cols = {r["column_name"] for r in db.execute(
@@ -598,8 +585,8 @@ def migrate_db():
             if "consent_version" not in cols:
                 db.execute("ALTER TABLE users ADD COLUMN consent_version TEXT NOT NULL DEFAULT ''")
             item_cols = {r["name"] for r in db.execute("PRAGMA table_info(items)").fetchall()}
-            if "faculty" not in item_cols:
-                db.execute("ALTER TABLE items ADD COLUMN faculty TEXT NOT NULL DEFAULT ''")
+            if "faculty" in item_cols:
+                db.execute("ALTER TABLE items DROP COLUMN faculty")
             if "delivered_at" not in item_cols:
                 db.execute("ALTER TABLE items ADD COLUMN delivered_at TEXT NOT NULL DEFAULT ''")
             if "hidden_at" not in item_cols:
@@ -609,7 +596,7 @@ def migrate_db():
                 db.execute("ALTER TABLE requests ADD COLUMN handover_point TEXT NOT NULL DEFAULT ''")
 
         # Los objetos ya entregados antes de existir `delivered_at` se fechan con
-        # su fecha de publicación para no perder el histórico de impacto.
+        # su fecha de publicación para no perder el histórico de entregas.
         db.execute(
             "UPDATE items SET delivered_at = created_at "
             "WHERE status = 'entregado' AND delivered_at = ''"
@@ -704,14 +691,12 @@ def row_to_item(r, fav=False):
         "exchange_type": r["exchange_type"],
         "price": float(r["price"]),
         "campus": r["campus"],
-        "faculty": r["faculty"] or "",
         "handover_point": r["handover_point"],
         "image_url": r["image_url"],
         "status": r["status"],
         "created_at": r["created_at"],
         "delivered_at": r["delivered_at"] or "",
         "hidden": bool(r["hidden_at"]) if "hidden_at" in r.keys() else False,
-        "impact": item_impact(r),
         "is_favorite": bool(fav),
     }
 
@@ -731,63 +716,12 @@ def row_to_request(r):
 
 
 # ---------------------------------------------------------------------------
-# Impacto, confianza y valoraciones
+# Confianza y valoraciones
 # ---------------------------------------------------------------------------
-def item_impact(item) -> dict:
-    """Estimación transparente por categoría: peso medio y valor de reposición.
-
-    No es una medición: sirve para dar una idea del orden de magnitud y se
-    presenta siempre como estimación en la interfaz.
-    """
-    estimate = CATEGORY_IMPACT.get(item["category"], CATEGORY_IMPACT["otros"])
-    price = float(item["price"] or 0)
-    if item["exchange_type"] == "vender":
-        savings = max(0.0, estimate["value"] - price)
-    else:
-        savings = float(estimate["value"])
-    return {
-        "kg": estimate["kg"],
-        "savings": round(savings, 2),
-        "retail_value": estimate["value"],
-    }
-
-
-def impact_summary(db, owner_id=None) -> dict:
-    sql = ("SELECT category, exchange_type, price FROM items "
-           "WHERE status = 'entregado' AND hidden_at = ''")
-    params = ()
-    if owner_id is not None:
-        sql += " AND owner_id = ?"
-        params = (owner_id,)
-    rows = db.execute(sql, params).fetchall()
-    kg = 0.0
-    savings = 0.0
-    by_category = {}
-    for r in rows:
-        impact = item_impact(r)
-        kg += impact["kg"]
-        savings += impact["savings"]
-        bucket = by_category.setdefault(
-            r["category"], {"category": r["category"], "count": 0, "kg": 0.0, "savings": 0.0}
-        )
-        bucket["count"] += 1
-        bucket["kg"] += impact["kg"]
-        bucket["savings"] += impact["savings"]
-    for bucket in by_category.values():
-        bucket["kg"] = round(bucket["kg"], 1)
-        bucket["savings"] = round(bucket["savings"], 2)
-    return {
-        "reused": len(rows),
-        "kg": round(kg, 1),
-        "savings": round(savings, 2),
-        "by_category": sorted(by_category.values(), key=lambda b: (-b["count"], b["category"])),
-    }
-
-
 def level_for(count: int) -> dict:
-    current = IMPACT_LEVELS[0]
+    current = LEVELS[0]
     following = None
-    for key, threshold in IMPACT_LEVELS:
+    for key, threshold in LEVELS:
         if count >= threshold:
             current = (key, threshold)
         elif following is None:
@@ -849,14 +783,13 @@ def exchange_summary(db, user_id) -> dict:
 
 
 def user_trust(db, user_row) -> dict:
-    """Capa de confianza pública: insignia, valoraciones, historial e impacto."""
+    """Capa de confianza pública: insignia, valoraciones e historial."""
     uid = user_row["id"]
     exchanges = exchange_summary(db, uid)
     return {
         "verified": bool(user_row["verified"]) or is_university_email(user_row["email"]),
         "rating": rating_summary(db, uid),
         "exchanges": exchanges,
-        "impact": impact_summary(db, uid),
         "level": level_for(exchanges["completed"]),
     }
 
@@ -867,7 +800,6 @@ def badges_for(trust) -> list:
         {"key": "verified", "earned": bool(trust["verified"])},
         {"key": "first_delivery", "earned": exchanges["given"] >= 1},
         {"key": "five_exchanges", "earned": exchanges["completed"] >= 5},
-        {"key": "ten_kg", "earned": trust["impact"]["kg"] >= 10},
         {"key": "rated", "earned": trust["rating"]["count"] >= 1},
     ]
 
@@ -1249,54 +1181,18 @@ SEED_OWNER = {
 }
 
 SEED_ITEMS = [
-    {"owner": 0, "title": "Libro de Derecho Civil — edición 2023",
-     "description": "Libro de texto usado un curso. Subrayados leves en los primeros capítulos, resto limpio. Incluyo apuntes de clase en PDF. Se entrega en mano.",
-     "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "faculty": "sociales", "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/libro-derecho.jpg"},
-    {"owner": 0, "title": "Calculadora científica",
-     "description": "Calculadora en perfecto estado, con funda y tapa. Puedo prestarla por un cuatrimestre; acordamos por escrito la fecha de devolución.",
-     "category": "estudio", "condition": "como_nuevo", "exchange_type": "prestar", "price": 0,
-     "faculty": "ciencias", "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/calculadora.jpg"},
-    {"owner": 0, "title": "Chaqueta de invierno talla M",
-     "description": "Chaqueta en buen estado, sin manchas ni roturas. Busco intercambiarla por otra talla o regalarla a quien la necesite.",
-     "category": "ropa", "condition": "bueno", "exchange_type": "intercambiar", "price": 0,
-     "faculty": "sociales", "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/chaqueta.jpg"},
     {"owner": 0, "title": "Escritorio pequeño para piso compartido",
      "description": "Escritorio de 110 x 55 cm, estable y sin daños. Hay que desmontarlo; puedo ayudar con el desmontaje en el punto de entrega.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "faculty": "ingenieria", "campus": "vigo", "handover_point": "conserjeria", "image_url": "/static/img/items/escritorio.jpg"},
-    {"owner": 0, "title": "Estantería pequeña de 3 baldas",
-     "description": "Estantería de madera clara para libros y apuntes. En buen estado, sin arañazos visibles. Se entrega desmontada.",
-     "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "faculty": "humanidades", "campus": "pontevedra", "handover_point": "biblioteca", "image_url": "/static/img/items/estanteria.jpg"},
-    {"owner": 0, "title": "Auriculares inalámbricos",
-     "description": "Auriculares con estuche de carga y batería en buen estado. Precio orientativo; el pago, si procede, se acuerda directamente y fuera de la plataforma.",
-     "category": "electronica", "condition": "como_nuevo", "exchange_type": "vender", "price": 15,
-     "faculty": "ingenieria", "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/auriculares.jpg"},
-    {"owner": 0, "title": "Juego de ollas y sartenes",
-     "description": "Set de cocina para piso compartido: dos ollas, dos sartenes y tapas. Usados pero en buen estado. Préstamo temporal con devolución acordada.",
-     "category": "cocina", "condition": "bueno", "exchange_type": "prestar", "price": 0,
-     "faculty": "sociales", "campus": "ourense", "handover_point": "cafeteria", "image_url": "/static/img/items/ollas.jpg"},
-    {"owner": 0, "title": "Freidora de aire 4 L",
-     "description": "Freidora de aire en buen estado, funciona sin problemas y se entrega con manual. La regalo porque en mi piso nuevo ya hay una.",
-     "category": "electrodomesticos", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "faculty": "sociales", "campus": "vigo", "handover_point": "punto", "image_url": "/static/img/items/freidora.jpg"},
-    {"owner": 0, "title": "Apuntes completos de Ingeniería",
-     "description": "Carpeta con apuntes, exámenes resueltos y prácticas de primeros cursos. En papel; puedo enviar fotos si hace falta antes de quedar.",
-     "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "faculty": "ingenieria", "campus": "vigo", "handover_point": "biblioteca", "image_url": "/static/img/items/apuntes.jpg"},
-    {"owner": 0, "title": "Mochila 25 L con compartimento para portátil",
-     "description": "Mochila resistente, como nueva y sin roturas. La intercambio por una más pequeña o la regalo.",
-     "category": "ropa", "condition": "como_nuevo", "exchange_type": "intercambiar", "price": 0,
-     "faculty": "artes", "campus": "vigo", "handover_point": "entrada", "image_url": "/static/img/items/mochila.jpg"},
+     "campus": "vigo", "handover_point": "conserjeria", "image_url": "/static/img/items/escritorio.jpg"},
     {"owner": 0, "title": "Lámpara de escritorio LED",
      "description": "Lámpara con luz regulable, ideal para estudiar. En buen estado. Se entrega en un lugar público y acordado.",
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "faculty": "artes", "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/lampara.jpg"},
+     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/lampara.jpg"},
     {"owner": 0, "title": "Teclado inalámbrico silencioso",
      "description": "Teclado perfecto para biblioteca y aulas, funciona con pilas AA. Precio simbólico orientativo; Campus Circular no gestiona el cobro.",
      "category": "electronica", "condition": "bueno", "exchange_type": "vender", "price": 10,
-     "faculty": "ciencias", "campus": "pontevedra", "handover_point": "conserjeria", "image_url": "/static/img/items/teclado.jpg"},
+     "campus": "pontevedra", "handover_point": "conserjeria", "image_url": "/static/img/items/teclado.jpg"},
 ]
 
 
@@ -1304,105 +1200,6 @@ SEED_PEERS = [
     {"name": "Lucía Ferreiro", "email": "lucia.ferreiro@uvigo.gal", "campus": "vigo"},
     {"name": "Diego Camba", "email": "diego.camba@uvigo.gal", "campus": "vigo"},
 ]
-
-# Historial de entregas ya cerradas: da contexto a las valoraciones y a las
-# cifras de impacto de la demo. Las cifras son estimaciones por categoría.
-SEED_HISTORY = [
-    {"owner": 0, "title": "Bicicleta urbana revisada",
-     "description": "Bicicleta de ciudad con frenos y cambios revisados. La compré de segunda mano y la vendo al acabar el curso.",
-     "category": "deporte", "condition": "bueno", "exchange_type": "vender", "price": 45,
-     "campus": "vigo", "faculty": "ingenieria", "handover_point": "conserjeria",
-     "image_url": "/static/img/items/deporte.jpg", "days_ago": 26},
-    {"owner": 0, "title": "Tres libros de primero de carrera",
-     "description": "Manuales de primero con subrayados a lápiz. Los regalo juntos para que no acaben en un contenedor.",
-     "category": "libros", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "faculty": "sociales", "handover_point": "biblioteca",
-     "image_url": "/static/img/items/libros.jpg", "days_ago": 19},
-    {"owner": 0, "title": "Silla plegable de escritorio",
-     "description": "Silla sencilla y estable, se pliega para transportarla. Perfecta para pisos pequeños.",
-     "category": "muebles", "condition": "usable", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "faculty": "ingenieria", "handover_point": "punto",
-     "image_url": "/static/img/items/muebles.jpg", "days_ago": 15},
-    {"owner": 1, "title": "Juego de sartenes antiadherentes",
-     "description": "Dos sartenes en buen estado, con alguna marca de uso. Las dejé limpias para la entrega.",
-     "category": "cocina", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "faculty": "sociales", "handover_point": "cafeteria",
-     "image_url": "/static/img/items/cocina.jpg", "days_ago": 12},
-    {"owner": 1, "title": "Monitor de 22 pulgadas",
-     "description": "Monitor con cable HDMI y base original. Lo cambié por uno más grande y funciona sin problemas.",
-     "category": "electronica", "condition": "bueno", "exchange_type": "vender", "price": 25,
-     "campus": "vigo", "faculty": "ingenieria", "handover_point": "conserjeria",
-     "image_url": "/static/img/items/electronica.jpg", "days_ago": 9},
-    {"owner": 0, "title": "Jersey de lana talla L",
-     "description": "Jersey de invierno en muy buen estado, sin bolitas. Lo intercambié por otro de otra talla.",
-     "category": "ropa", "condition": "como_nuevo", "exchange_type": "intercambiar", "price": 0,
-     "campus": "vigo", "faculty": "artes", "handover_point": "entrada",
-     "image_url": "/static/img/items/ropa.jpg", "days_ago": 7},
-    {"owner": 0, "title": "Calculadora con funda",
-     "description": "Calculadora científica completa, con funda y pilas nuevas.",
-     "category": "estudio", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "faculty": "ciencias", "handover_point": "biblioteca",
-     "image_url": "/static/img/items/estudio.jpg", "days_ago": 4},
-    {"owner": 2, "title": "Microondas pequeño de 700 W",
-     "description": "Microondas de sobremesa que funcionaba perfectamente. Se lo quedó otra persona del campus.",
-     "category": "electrodomesticos", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "pontevedra", "faculty": "ciencias", "handover_point": "punto",
-     "image_url": "/static/img/items/electrodomesticos.jpg", "days_ago": 3},
-]
-
-# Intercambios cerrados de la demo: (índice de SEED_HISTORY, solicitante).
-# El solicitante 0 es la cuenta del equipo; 1 y 2, las personas de ejemplo.
-SEED_DEALS = [(0, 1, 5, "Todo perfecto: la bici estaba como decía y la entrega fue puntual."),
-              (1, 2, 4, "Los libros llegaron limpios y bien embalados. Gracias."),
-              (3, 0, 5, "Muy amable y flexible con el horario de entrega."),
-              (4, 0, 4, "El monitor funciona bien; quedamos en conserjería sin problema.")]
-
-
-def iso_days_ago(days: int, hours: int = 0) -> str:
-    return (datetime.now(timezone.utc) - timedelta(days=days, hours=hours)).isoformat()
-
-
-def _insert_history(db, owner_ids, peer_ids):
-    """Inserta el historial de entregas y las valoraciones de la demo."""
-    if db.execute("SELECT 1 FROM items WHERE status = 'entregado' LIMIT 1").fetchone():
-        return
-    item_ids = []
-    for entry in SEED_HISTORY:
-        created = iso_days_ago(entry["days_ago"], hours=6)
-        delivered = iso_days_ago(entry["days_ago"] - 2) if entry["days_ago"] > 2 else created
-        cur = db.execute(
-            "INSERT INTO items (owner_id, title, description, category, condition, "
-            "exchange_type, price, campus, handover_point, faculty, image_url, status, "
-            "delivered_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'entregado', ?, ?) "
-            "RETURNING id",
-            (owner_ids[entry["owner"]], entry["title"], entry["description"], entry["category"],
-             entry["condition"], entry["exchange_type"], entry["price"], entry["campus"],
-             entry["handover_point"], entry["faculty"], entry["image_url"], delivered, created),
-        )
-        item_ids.append(inserted_id(cur))
-
-    for item_index, requester, score, comment in (SEED_DEALS if peer_ids else []):
-        item_id = item_ids[item_index]
-        owner_id = owner_ids[SEED_HISTORY[item_index]["owner"]]
-        if requester == 0:
-            requester_id = owner_ids[0]
-        else:
-            requester_id = peer_ids[requester - 1]
-        created = iso_days_ago(SEED_HISTORY[item_index]["days_ago"] - 1)
-        cur = db.execute(
-            "INSERT INTO requests (item_id, requester_id, message, handover_point, status, "
-            "created_at) VALUES (?, ?, ?, ?, 'completada', ?) RETURNING id",
-            (item_id, requester_id, "", SEED_HISTORY[item_index]["handover_point"], created),
-        )
-        request_id = inserted_id(cur)
-        if requester_id == owner_id:
-            continue
-        db.execute(
-            "INSERT INTO ratings (request_id, rater_id, rated_id, score, comment, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (request_id, requester_id, owner_id, score, comment, iso_days_ago(1)),
-        )
-
 
 def seed_if_empty():
     """Datos de demostración, serializados entre workers.
@@ -1427,13 +1224,6 @@ def seed_if_empty():
 
 def _seed_locked(db):
     if db.execute("SELECT COUNT(*) c FROM users").fetchone()["c"] > 0:
-        # Bases ya existentes: solo se completa el historial de la demo cuando
-        # la única cuenta es la del equipo y todavía no hay entregas.
-        if SEED_DEMO:
-            existing = db.execute("SELECT id, email FROM users").fetchall()
-            if len(existing) == 1 and existing[0]["email"] == SEED_OWNER["email"]:
-                _insert_history(db, [existing[0]["id"], existing[0]["id"], existing[0]["id"]], [])
-                db.commit()
         return
 
     ts = now_iso()
@@ -1445,28 +1235,24 @@ def _seed_locked(db):
          SEED_OWNER["campus"], ts),
     )
     owner_id = inserted_id(cur)
-    peer_ids = []
     for peer in SEED_PEERS:
-        cur = db.execute(
+        db.execute(
             "INSERT INTO users (name, email, password_hash, campus, degree, verified, "
-            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', ?, '', '', ?) "
-            "RETURNING id",
+            "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', ?, '', '', ?) ",
             (peer["name"], peer["email"], generate_password_hash(secrets.token_urlsafe(32)),
              peer["campus"], 1 if is_university_email(peer["email"]) else 0, ts),
         )
-        peer_ids.append(inserted_id(cur))
 
     for it in SEED_ITEMS:
         db.execute(
             "INSERT INTO items (owner_id, title, description, category, condition, "
-            "exchange_type, price, campus, handover_point, faculty, image_url, status, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?)",
+            "exchange_type, price, campus, handover_point, image_url, status, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?)",
             (owner_id, it["title"], it["description"], it["category"], it["condition"],
              it["exchange_type"], it["price"], it["campus"], it["handover_point"],
-             it["faculty"], it["image_url"], ts),
+             it["image_url"], ts),
         )
 
-    _insert_history(db, [owner_id] + peer_ids, peer_ids)
     db.commit()
 
 
@@ -1914,7 +1700,6 @@ def stats():
             "delivered": row["delivered"] or 0,
             "users": users,
             "by_category": [{"category": r["category"], "count": r["c"]} for r in by_category],
-            "impact": impact_summary(db),
         }
         _STATS_CACHE[key] = (now, payload)
     resp = jsonify(payload)
@@ -1922,14 +1707,13 @@ def stats():
     return resp
 
 
-@app.get("/api/impact/me")
+@app.get("/api/trust/me")
 @require_auth
-def my_impact(user):
+def my_trust(user):
     db = get_db()
     row = db.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
     trust = user_trust(db, row)
     return jsonify({
-        "impact": trust["impact"],
         "rating": trust["rating"],
         "exchanges": trust["exchanges"],
         "level": trust["level"],
@@ -1948,7 +1732,6 @@ def list_items():
     campus = request.args.get("campus")
     condition = request.args.get("condition")
     exchange_type = request.args.get("type")
-    faculty = request.args.get("faculty")
     status = request.args.get("status", "disponible")
     sort = request.args.get("sort", "recent")
     limit, offset = pagination_args()
@@ -1970,9 +1753,6 @@ def list_items():
     if exchange_type and exchange_type in EXCHANGE_TYPES:
         where.append("exchange_type = ?")
         params.append(exchange_type)
-    if faculty and faculty in FACULTIES:
-        where.append("faculty = ?")
-        params.append(faculty)
     # Búsqueda por palabras: todas deben aparecer en el título o la descripción,
     # así «libro derecho» no devuelve cualquier libro ni cualquier derecho.
     terms = [term for term in fold_text(q).split() if term][:4]
@@ -2059,7 +1839,6 @@ def get_item(item_id):
         public_owner["rating"] = trust["rating"]
         public_owner["exchanges"] = trust["exchanges"]
         public_owner["level"] = trust["level"]
-        public_owner["impact"] = trust["impact"]
     item["owner"] = public_owner
     if is_owner:
         item["reports"] = db.execute(
@@ -2084,7 +1863,6 @@ def create_item(user):
     exchange_type = data.get("exchange_type")
     campus = data.get("campus") or user["campus"]
     handover_point = data.get("handover_point") or "acordado"
-    faculty = clean_text(data.get("faculty"), max_len=40)
     image_url = clean_text(data.get("image_url"), max_len=MAX_IMAGE_URL_LEN)
     private_seller = data.get("private_seller") is True
     try:
@@ -2113,8 +1891,6 @@ def create_item(user):
         return jsonify({"error": "invalid_campus"}), 400
     if handover_point not in HANDOVER_POINTS:
         return jsonify({"error": "invalid_handover_point"}), 400
-    if faculty and faculty not in FACULTIES:
-        return jsonify({"error": "invalid_faculty"}), 400
     if exchange_type != "vender":
         price = 0
     if price < 0 or price > 10000:
@@ -2134,10 +1910,10 @@ def create_item(user):
     try:
         cur = db.execute(
             "INSERT INTO items (owner_id, title, description, category, condition, exchange_type, "
-            "price, campus, handover_point, faculty, image_url, status, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?) RETURNING id",
+            "price, campus, handover_point, image_url, status, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?) RETURNING id",
             (user["id"], title, description, category, condition, exchange_type,
-             price, campus, handover_point, faculty, image_url, now_iso()),
+             price, campus, handover_point, image_url, now_iso()),
         )
         item_id = inserted_id(cur)
         db.commit()
@@ -2155,7 +1931,7 @@ def create_item(user):
 
 EDITABLE_ITEM_FIELDS = {
     "title", "description", "category", "condition", "exchange_type",
-    "price", "campus", "faculty", "handover_point",
+    "price", "campus", "handover_point",
 }
 
 
@@ -2223,12 +1999,6 @@ def update_item(user, item_id):
     campus = data.get("campus", row["campus"])
     if campus not in CAMPUSES:
         return jsonify({"error": "invalid_campus"}), 400
-    faculty = (
-        clean_text(data["faculty"], max_len=40) if "faculty" in data
-        else (row["faculty"] or "")
-    )
-    if faculty and faculty not in FACULTIES:
-        return jsonify({"error": "invalid_faculty"}), 400
     handover_point = data.get("handover_point", row["handover_point"])
     if handover_point not in HANDOVER_POINTS:
         return jsonify({"error": "invalid_handover_point"}), 400
@@ -2250,10 +2020,10 @@ def update_item(user, item_id):
     try:
         cur = db.execute(
             "UPDATE items SET title = ?, description = ?, category = ?, condition = ?, "
-            "exchange_type = ?, price = ?, campus = ?, faculty = ?, handover_point = ?, "
+            "exchange_type = ?, price = ?, campus = ?, handover_point = ?, "
             "status = ?, delivered_at = ? WHERE id = ?",
             (title, description, category, condition, exchange_type, price, campus,
-             faculty, handover_point, new_status, delivered_at, item_id),
+             handover_point, new_status, delivered_at, item_id),
         )
         if cur.rowcount == 0:
             db.rollback()
@@ -3436,7 +3206,6 @@ def public_user(user_id):
     u["rating"] = trust["rating"]
     u["exchanges"] = trust["exchanges"]
     u["level"] = trust["level"]
-    u["impact"] = trust["impact"]
     u["badges"] = badges_for(trust)
     return jsonify({"user": u})
 
