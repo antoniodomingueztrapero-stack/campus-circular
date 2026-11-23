@@ -110,6 +110,35 @@ class ProductionTests(unittest.TestCase):
         self.assertEqual([(item["id"], item["title"]) for item in items],
                          [(real_item["id"], "Anuncio de una persona")])
 
+    def test_cleanup_includes_historical_system_accounts_on_bootstrap(self):
+        real_item = self.publish(title="Anuncio real")
+        db = backend.connect_db()
+        try:
+            for email in backend.LEGACY_SEED_OWNER_EMAILS:
+                cur = db.execute(
+                    "INSERT INTO users (name, email, password_hash, campus, created_at) "
+                    "VALUES (?, ?, ?, ?, ?) RETURNING id",
+                    ("Equipo histórico", email, "hash", "vigo", backend.now_iso()),
+                )
+                db.execute(
+                    "INSERT INTO items (owner_id, title, description, category, condition, "
+                    "exchange_type, campus, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (backend.inserted_id(cur), "Muestra", "", "libros", "bueno",
+                     "regalar", "vigo", backend.now_iso()),
+                )
+            db.commit()
+        finally:
+            db.close()
+
+        backend.bootstrap(force=True)
+        backend.bootstrap(force=True)  # idempotente
+        db = backend.connect_db()
+        try:
+            items = db.execute("SELECT id FROM items").fetchall()
+        finally:
+            db.close()
+        self.assertEqual([item["id"] for item in items], [real_item["id"]])
+
     # -- almacenamiento --------------------------------------------------
     def test_upload_is_optimised_and_survives_a_redeploy(self):
         res = self.upload(png_bytes((2400, 1600)))
