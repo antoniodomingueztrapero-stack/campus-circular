@@ -136,13 +136,13 @@ pruebas:
 python3 -m unittest discover -s tests
 ```
 
-La base y los objetos de ejemplo se crean automáticamente en el primer arranque:
-3 objetos de muestra (lámpara de escritorio, escritorio pequeño y teclado
-inalámbrico), dos perfiles de demostración (`Lucía Ferreiro` y `Diego Camba`)
-con contraseña aleatoria y la cuenta propietaria del tablón, `Equipo Campus
-Circular`, también sin acceso. Los objetos de ejemplo son ficticios. Para
-reiniciar el demo, elimina el archivo de base de datos configurado y vuelve a
-arrancar.
+El primer arranque prepara el esquema y, solo con `SEED_DEMO=1`, crea cuentas
+auxiliares de demostración con contraseñas aleatorias. No se cargan anuncios de
+muestra: el catálogo se reserva para publicaciones hechas por las personas que
+usan la plataforma. Al arrancar, se eliminan los anuncios heredados de la cuenta
+`Equipo Campus Circular`, pero se conservan los de cuentas personales. Para
+reiniciar el entorno local, elimina el archivo de base de datos configurado y
+vuelve a arrancar.
 
 ## Configuración
 
@@ -156,7 +156,7 @@ el repositorio.
 | `DATABASE_URL` | vacío | URL secreta de PostgreSQL para despliegue; si está definida, usa PostgreSQL en lugar de SQLite |
 | `APP_ENV` | `development` | Con `production`, exige `DATABASE_URL` y evita arrancar con SQLite efímero |
 | `PORT` | `5000` | Puerto de escucha, `0.0.0.0` |
-| `SEED_DEMO` | `0` | `1` habilita los objetos de ejemplo y el acceso temporal de demostración |
+| `SEED_DEMO` | `0` | `1` habilita cuentas auxiliares y acceso temporal de demostración; nunca crea anuncios ficticios |
 | `CONTACT_EMAIL` | `campuscircular@hotmail.com` | Correo de contacto y privacidad que aparece en los textos legales |
 | `CONTROLLER_NAME` | `Equipo Campus Circular (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
 | `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
