@@ -156,7 +156,7 @@ el repositorio.
 | `DATABASE_URL` | vacío | URL secreta de PostgreSQL para despliegue; si está definida, usa PostgreSQL en lugar de SQLite |
 | `APP_ENV` | `development` | Con `production`, exige `DATABASE_URL` y evita arrancar con SQLite efímero |
 | `PORT` | `5000` | Puerto de escucha, `0.0.0.0` |
-| `SEED_DEMO` | `1` | `0` desactiva los objetos de ejemplo |
+| `SEED_DEMO` | `0` | `1` habilita los objetos de ejemplo y el acceso temporal de demostración |
 | `CONTACT_EMAIL` | `campuscircular@hotmail.com` | Correo de contacto y privacidad que aparece en los textos legales |
 | `CONTROLLER_NAME` | `Equipo Campus Circular (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
 | `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
