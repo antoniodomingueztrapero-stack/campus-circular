@@ -1196,16 +1196,20 @@ SEED_PEERS = [
 ]
 
 
-def remove_legacy_seed_listings(db):
-    """Retira anuncios pertenecientes a la cuenta de sistema del catálogo de muestra.
+# Identidades de la cuenta de muestra en las versiones anteriores al cambio de nombre.
+LEGACY_SEED_OWNER_EMAILS = (
+    SEED_OWNER["email"],
+    "equipo@circular-campus.local",
+    "equipo-ctc07@campus-circular.local",
+)
 
-    No toca publicaciones de cuentas personales (incluido el billete de Antonio).
-    """
-    # Toda publicación de la cuenta de sistema era material de demostración
-    # (incluidas versiones anteriores cuyos títulos ya no están en el código).
+
+def remove_legacy_seed_listings(db):
+    """Retira anuncios de las cuentas de sistema, no de cuentas personales."""
     cursor = db.execute(
-        "DELETE FROM items WHERE owner_id IN (SELECT id FROM users WHERE email=?)",
-        (SEED_OWNER["email"],),
+        "DELETE FROM items WHERE owner_id IN "
+        "(SELECT id FROM users WHERE email IN (?, ?, ?))",
+        LEGACY_SEED_OWNER_EMAILS,
     )
     db.commit()
     return cursor.rowcount
