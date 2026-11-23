@@ -94,17 +94,19 @@ class ProductionTests(unittest.TestCase):
                  "unused-test-hash", backend.SEED_OWNER["campus"], backend.now_iso()),
             )
             seed_owner_id = backend.inserted_id(cur)
-            db.execute(
-                "INSERT INTO items (owner_id, title, description, category, condition, "
-                "exchange_type, campus, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (seed_owner_id, "Anuncio de muestra", "Prueba", "libros", "bueno",
-                 "regalar", "vigo", backend.now_iso()),
-            )
-            backend.remove_legacy_seed_listings(db)
+            for title in ("Anuncio de muestra 1", "Anuncio de muestra 2"):
+                db.execute(
+                    "INSERT INTO items (owner_id, title, description, category, condition, "
+                    "exchange_type, campus, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (seed_owner_id, title, "Prueba", "libros", "bueno", "regalar",
+                     "vigo", backend.now_iso()),
+                )
+            removed = backend.remove_legacy_seed_listings(db)
             items = db.execute("SELECT id, title FROM items").fetchall()
         finally:
             db.close()
 
+        self.assertEqual(removed, 2)
         self.assertEqual([(item["id"], item["title"]) for item in items],
                          [(real_item["id"], "Anuncio de una persona")])
 
@@ -279,7 +281,7 @@ class ConcurrentBootTests(unittest.TestCase):
                 finally:
                     db.close()
                 self.assertEqual(users, 1 + len(backend.SEED_PEERS))
-                self.assertGreaterEqual(items, len(backend.SEED_ITEMS))
+                self.assertEqual(items, 0, "el modo demo no debe crear anuncios ficticios")
 
                 # Repetir el sembrado no duplica nada.
                 backend.seed_if_empty()

@@ -1190,22 +1190,6 @@ SEED_OWNER = {
     "campus": "vigo",
 }
 
-SEED_ITEMS = [
-    {"owner": 0, "title": "Escritorio pequeño para piso compartido",
-     "description": "Escritorio de 110 x 55 cm, estable y sin daños. Hay que desmontarlo; puedo ayudar con el desmontaje en el punto de entrega.",
-     "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "conserjeria", "image_url": "/static/img/items/escritorio.jpg"},
-    {"owner": 0, "title": "Lámpara de escritorio LED",
-     "description": "Lámpara con luz regulable, ideal para estudiar. En buen estado. Se entrega en un lugar público y acordado.",
-     "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
-     "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/lampara.jpg"},
-    {"owner": 0, "title": "Teclado inalámbrico silencioso",
-     "description": "Teclado perfecto para biblioteca y aulas, funciona con pilas AA. Precio simbólico orientativo; Campus Circular no gestiona el cobro.",
-     "category": "electronica", "condition": "bueno", "exchange_type": "vender", "price": 10,
-     "campus": "pontevedra", "handover_point": "conserjeria", "image_url": "/static/img/items/teclado.jpg"},
-]
-
-
 SEED_PEERS = [
     {"name": "Lucía Ferreiro", "email": "lucia.ferreiro@uvigo.gal", "campus": "vigo"},
     {"name": "Diego Camba", "email": "diego.camba@uvigo.gal", "campus": "vigo"},
@@ -1219,17 +1203,20 @@ def remove_legacy_seed_listings(db):
     """
     # Toda publicación de la cuenta de sistema era material de demostración
     # (incluidas versiones anteriores cuyos títulos ya no están en el código).
-    db.execute(
+    cursor = db.execute(
         "DELETE FROM items WHERE owner_id IN (SELECT id FROM users WHERE email=?)",
         (SEED_OWNER["email"],),
     )
     db.commit()
+    return cursor.rowcount
 
 
 def seed_if_empty():
 
-    """Datos de demostración, serializados entre workers.
+    """Cuentas auxiliares de demostración, serializadas entre workers.
 
+    No se insertan anuncios de muestra: el catálogo solo contiene
+    publicaciones hechas por quienes usan la plataforma.
     Gunicorn arranca varios procesos a la vez: sin este bloqueo, dos workers
     veían la base vacía e insertaban las mismas cuentas, y el segundo tumbaba
     el arranque con una violación de unicidad.
@@ -1267,16 +1254,6 @@ def _seed_locked(db):
             "consent_at, consent_version, created_at) VALUES (?, ?, ?, ?, '', ?, '', '', ?) ",
             (peer["name"], peer["email"], generate_password_hash(secrets.token_urlsafe(32)),
              peer["campus"], 1 if is_university_email(peer["email"]) else 0, ts),
-        )
-
-    for it in SEED_ITEMS:
-        db.execute(
-            "INSERT INTO items (owner_id, title, description, category, condition, "
-            "exchange_type, price, campus, handover_point, image_url, status, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?)",
-            (owner_id, it["title"], it["description"], it["category"], it["condition"],
-             it["exchange_type"], it["price"], it["campus"], it["handover_point"],
-             it["image_url"], ts),
         )
 
     db.commit()
@@ -1319,7 +1296,12 @@ def bootstrap(force: bool = False):
         # estricta, sin tocar anuncios de cuentas personales.
         cleanup_db = connect_db()
         try:
-            remove_legacy_seed_listings(cleanup_db)
+            removed_team_listings = remove_legacy_seed_listings(cleanup_db)
+            if removed_team_listings:
+                app.logger.info(
+                    "Retiradas %s publicaciones de la cuenta Equipo Campus Circular",
+                    removed_team_listings,
+                )
         finally:
             cleanup_db.close()
         # Las fotos subidas antes de guardarse en base de datos viven solo en el
@@ -1335,8 +1317,8 @@ def bootstrap(force: bool = False):
             try:
                 seed_if_empty()
             except DB_ERRORS:
-                # Los objetos de ejemplo nunca deben impedir que la web arranque.
-                app.logger.exception("No se pudo sembrar la demo")
+                # Las cuentas auxiliares nunca deben impedir que la web arranque.
+                app.logger.exception("No se pudieron preparar las cuentas demo")
         _BOOTSTRAPPED_FOR = key
         _BOOTSTRAPPED = True
 
