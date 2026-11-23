@@ -15,7 +15,7 @@ IMG_DIR = os.path.join(BASE_DIR, "static", "img")
 MANIFEST_PATH = os.path.join(IMG_DIR, "manifest.json")
 
 # Iconos que no necesitan variantes (ya están en su tamaño final).
-ICON_RE = re.compile(r"/(?:favicon|apple-touch-icon|circular-campus-(?:mark-\d+|og)|ctc-congress|circular-campus-mark-white)")
+ICON_RE = re.compile(r"/(?:favicon|apple-touch-icon|campus-circular-(?:mark-\d+|og)|ctc-congress|campus-circular-mark-white)")
 IMG_RE = re.compile(r"/static/img/[A-Za-z0-9_\-./]+\.(?:jpg|jpeg|png)")
 
 WEBP_MAX_BYTES = 90 * 1024
@@ -69,7 +69,7 @@ class AssetTests(unittest.TestCase):
         self.assertEqual(missing, [], f"sin variantes (ejecuta tools/optimize_images.py): {missing}")
 
     def test_inline_icons_stay_small(self):
-        logo = os.path.join(IMG_DIR, "circular-campus-mark-white.png")
+        logo = os.path.join(IMG_DIR, "campus-circular-mark-white.png")
         self.assertLessEqual(os.path.getsize(logo), 40 * 1024, "el logo del header debe ir reducido")
 
     def test_static_images_total_size(self):

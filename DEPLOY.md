@@ -1,12 +1,12 @@
-# Cómo compartir Circular Campus
+# Cómo compartir Campus Circular
 
-Circular Campus es un prototipo independiente presentado en CTC Congress.
+Campus Circular es un prototipo independiente presentado en CTC Congress.
 **No subas la base de datos ni su URL**: `campus_circular.db` está en `.gitignore`
 y `DATABASE_URL` es un secreto que solo se configura en el panel del proveedor.
 
 No hay credenciales compartidas. Cada persona se registra con su propio correo
 válido y publica sus objetos. Los objetos de ejemplo pertenecen a
-`Equipo Circular Campus`, una cuenta de sistema con contraseña aleatoria y no
+`Equipo Campus Circular`, una cuenta de sistema con contraseña aleatoria y no
 utilizable para iniciar sesión.
 
 Antes de compartir un enlace con datos reales, configura un correo de contacto
@@ -18,7 +18,7 @@ real y revisa el apartado legal de [README.md](README.md).
 
 No hay pasarela de pago, comisión, monedero, depósito en garantía ni reembolso
 gestionado por la plataforma. El precio de «Vender» es orientativo y cualquier
-pago se acuerda directamente entre particulares, fuera de Circular Campus.
+pago se acuerda directamente entre particulares, fuera de Campus Circular.
 La web lo indica en la portada, al publicar, en la ficha de objeto, en las
 normas y en las condiciones de uso.
 
@@ -26,9 +26,9 @@ normas y en las condiciones de uso.
 
 ## Vista previa en vivo
 
-La web puede abrirse desde el botón de vista previa del entorno de desarrollo.
-Copia ese enlace y compártelo para probarla. Está disponible mientras el
-servicio siga activo; para un enlace estable, usa Render.
+Si tu proveedor ofrece un entorno de pruebas con URL temporal, puedes copiar ese
+enlace y compartirlo para probar la web en grupo mientras siga activo; para un
+enlace estable, despliega en Render.
 
 ## Despliegue gratis: Render + PostgreSQL externo
 
@@ -57,7 +57,7 @@ externo; revisa allí sus condiciones actuales.
    `UNIVERSITY_DOMAINS` permite ajustar, separados por comas, los dominios de
    correo que muestran la insignia informativa de estudiante.
    Deja `ALLOW_EMBED=0` salvo que necesites mostrar la app dentro de un iframe
-   ajeno (el preview del entorno de desarrollo): con 0 la CSP envía
+   ajeno durante el desarrollo: con 0 la CSP envía
    `frame-ancestors 'self'` y `X-Frame-Options: SAMEORIGIN`.
    `CORS_ORIGINS` debe contener tu dominio real (`https://campus-circular.onrender.com`
    o el personalizado): es la única lista de orígenes con permiso para llamar a
@@ -122,7 +122,7 @@ propia copia con sus propios datos. Excluye siempre `campus_circular.db`,
 
 ## Mensaje listo para compartir
 
-> Hola! He montado **Circular Campus**, un prototipo independiente para dar una
+> Hola! He montado **Campus Circular**, un prototipo independiente para dar una
 > segunda vida a libros, ropa, muebles, calculadoras y otros materiales.
 >
 > Entrad aquí: **[PEGA AQUÍ EL ENLACE]**
@@ -220,4 +220,4 @@ Greypher Alisander Garcia Alvarado · Jacob Schaal · Antonio Domínguez Trapero
 
 ---
 
-Circular Campus · CTC Congress
+Campus Circular · CTC Congress

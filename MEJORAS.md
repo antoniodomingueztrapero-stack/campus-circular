@@ -1,16 +1,14 @@
 # Mejora integral — diagnóstico y plan
 
-Fecha: 2026-11-20 · Rama `arena/4ae4ed42-campus-circular` · Base `8fcdba3`
+Fecha: 2026-11-20
 
-## 0. Nota de método (importante)
+## 0. Cómo se hizo este diagnóstico
 
-Desde este entorno **no se puede abrir `https://campus-circular.onrender.com`**: el
-sandbox solo tiene salida a GitHub, npm y PyPI. Por eso el diagnóstico no se basa
-en suposiciones sobre producción, sino en ejecutar **este mismo repositorio con la
-configuración de Render** (`APP_ENV=production`, `gunicorn --workers 1 --threads 8`)
-y medir con `curl`, el DOM y los bytes reales de cada asset. Todo lo que sigue está
-respaldado por una medición reproducible en local; lo que solo se puede confirmar
-en producción queda listado en la sección 6.
+El diagnóstico no se basa en suposiciones sobre producción, sino en ejecutar el
+repositorio con la misma configuración de Render (`APP_ENV=production`,
+`gunicorn --workers 1 --threads 8`) y medir con `curl`, el DOM y los bytes reales
+de cada asset. Todo lo que sigue está respaldado por una medición reproducible en
+local; lo que solo se puede confirmar en producción queda listado en la sección 6.
 
 ## 1. Diagnóstico
 
@@ -29,11 +27,11 @@ El servidor no es el problema. El problema es **lo que descarga el navegador**:
 - `static/img/` pesa **3,8 MB**. La portada pide **12 imágenes de 1200×900 px**
   (~100 KB cada una) para mostrarlas a ~300 px de ancho: **≈1,2 MB de fotos** que
   el móvil no necesita.
-- El logo del header/footer (`circular-campus-mark-white.png`) pesa **224 KB**
+- El logo del header/footer (`campus-circular-mark-white.png`) pesa **224 KB**
   para renderizarse a 44×56 px.
 - Solo hay JPEG, sin WebP ni `srcset`: en 375 px se descarga la misma foto de
   1200 px que en un monitor 4K.
-- `static/img/circular-campus-mark.png` (260 KB) **no se referencia en ningún
+- `static/img/campus-circular-mark.png` (260 KB) **no se referencia en ningún
   sitio**: peso muerto en el despliegue.
 
 Esto es lo que hace que la app se sienta lenta en Render (plan gratuito: poco CPU,
@@ -45,8 +43,8 @@ Base sólida (CSP, HSTS, `nosniff`, COOP, CORS con lista blanca, rate limiting p
 IP y por cuenta, autorización por recurso, MIME real, re-codificación de imágenes,
 `no-store` en rutas de cuenta). Huecos concretos:
 
-1. **`frame-ancestors *`**: cualquier web puede embeber la app. Se dejó así por el
-   preview del sandbox, pero **en producción debe ser `'self'`**.
+1. **`frame-ancestors *`**: cualquier web puede embeber la app. Se dejó así para
+   permitir la vista previa en desarrollo, pero **en producción debe ser `'self'`**.
 2. **Contraseñas débiles aceptadas**: solo se exige longitud ≥ 8. `12345678` entra.
 3. **No existe cambio de contraseña**: si alguien sospecha que su clave se ha
    filtrado, la única salida es borrar la cuenta.
@@ -137,9 +135,9 @@ Ver commit asociado. Resumen de archivos:
 
 ### Límite conocido
 
-Sin navegador headless en este entorno (la descarga de Chromium está bloqueada),
-375/1280 px se valida con DOM renderizado + auditoría estática del CSS, como en
-la QA anterior. Queda pendiente la comprobación visual en un dispositivo real.
+No se dispuso de navegador headless para medir `scrollWidth` en 375/1280 px: la
+validación se hizo con DOM renderizado (jsdom) y auditoría estática del CSS.
+Queda pendiente la comprobación visual en un dispositivo real.
 
 ## 5. Variables de entorno nuevas
 

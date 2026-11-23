@@ -1,4 +1,4 @@
-# Circular Campus
+# Campus Circular
 
 **Prototipo independiente de reutilización e intercambio de materiales de segunda vida.**
 
@@ -8,7 +8,7 @@
 > gestionado por ninguna universidad. Las etiquetas Vigo, Pontevedra y Ourense
 > son únicamente referencias geográficas para organizar entregas.
 
-Circular Campus permite publicar, buscar, guardar y solicitar objetos usados:
+Campus Circular permite publicar, buscar, guardar y solicitar objetos usados:
 libros, ropa, muebles, material de estudio, electrónica, cocina, pequeños
 electrodomésticos, deporte y otros. La interfaz está en **español, inglés y
 gallego**. No hay cuentas de demostración compartidas: cada persona se registra
@@ -18,7 +18,7 @@ con su propio correo.
 
 ## Pagos
 
-Circular Campus no procesa pagos, no cobra comisiones, no custodia fondos, no
+Campus Circular no procesa pagos, no cobra comisiones, no custodia fondos, no
 ofrece depósito en garantía, no emite reembolsos, no garantiza objetos ni media
 en disputas.
 
@@ -139,7 +139,7 @@ python3 -m unittest discover -s tests
 La base y los objetos de ejemplo se crean automáticamente en el primer arranque:
 12 objetos disponibles, 8 entregas con fecha, valoraciones de ejemplo y dos
 perfiles de demostración (`Lucía Ferreiro` y `Diego Camba`) con contraseña
-aleatoria. La cuenta propietaria del tablón es `Equipo Circular Campus`, también
+aleatoria. La cuenta propietaria del tablón es `Equipo Campus Circular`, también
 sin acceso. Para reiniciar el demo, elimina el archivo de base de datos
 configurado y vuelve a arrancar.
 
@@ -157,7 +157,7 @@ el repositorio.
 | `PORT` | `5000` | Puerto de escucha, `0.0.0.0` |
 | `SEED_DEMO` | `1` | `0` desactiva los objetos de ejemplo |
 | `CONTACT_EMAIL` | `campuscircular@hotmail.com` | Correo de contacto y privacidad que aparece en los textos legales |
-| `CONTROLLER_NAME` | `Equipo Circular Campus (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
+| `CONTROLLER_NAME` | `Equipo Campus Circular (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
 | `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
 | `LEGAL_UPDATED` | `2026-11-20` | Fecha visible en los documentos |
 | `UNIVERSITY_DOMAINS` | lista interna (uvigo.gal, udc.es, usc.es, …) | Dominios de correo institucional que muestran la insignia informativa, separados por comas |
@@ -209,7 +209,7 @@ credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
 - **Modo demo para la exposición**: con `SEED_DEMO=1` el modal de acceso ofrece
   *Probar al instante*, que abre una cuenta temporal (sin registro, sin correo
   real) y lleva directo a publicar. El catálogo es común: **todo lo que publica
-  un asistente lo ve el resto al instante**, y al caducar la cuenta (24 h por
+  un visitante lo ve el resto al instante**, y al caducar la cuenta (24 h por
   defecto) sus objetos no se borran, pasan a la cuenta de muestra para que la
   pared de objetos del congreso siga ahí. Solo Mi área es privada; editar y
   borrar sigue reservado a quien publicó.
@@ -517,7 +517,7 @@ el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
   `POST /api/items/:id/restore`, que deja constancia marcando los reportes como
   `resuelto`. No hay panel de administración completo.
 
-## Limitaciones honestas
+## Limitaciones conocidas
 
 - No hay verificación real de matrícula, identidad ni titularidad de objetos.
 - En Render gratuito configura `DATABASE_URL` con PostgreSQL gestionado; si no,
@@ -548,9 +548,9 @@ el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
   elimina cargas activas habituales, pero no sustituye un escaneo dedicado.
 - No se verifica identidad ni matrícula, y un reporte malintencionado puede
   retirar temporalmente una publicación legítima hasta su revisión.
-- La CSP mantiene `frame-ancestors *` para que la web pueda incrustarse en la
-  vista previa del entorno de desarrollo. Para producción conviene cambiarla a
-  `frame-ancestors 'self'` y añadir `X-Frame-Options: SAMEORIGIN`.
+- La CSP mantiene `frame-ancestors *` para permitir incrustar la web durante el
+  desarrollo. Para producción conviene cambiarla a `frame-ancestors 'self'` y
+  añadir `X-Frame-Options: SAMEORIGIN`.
 
 ## Despliegue
 
@@ -569,4 +569,4 @@ Greypher Alisander Garcia Alvarado · Jacob Schaal · Antonio Domínguez Trapero
 
 ---
 
-Circular Campus · CTC Congress
+Campus Circular · CTC Congress
