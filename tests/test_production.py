@@ -70,6 +70,44 @@ class ProductionTests(unittest.TestCase):
         self.assertEqual(res.status_code, 201, res.get_json())
         return res.get_json()["item"]
 
+    # -- catálogo ----------------------------------------------------------
+    def test_catalog_shows_real_listings_without_ticket_only_restriction(self):
+        expected = {
+            self.publish(title="Billete para concierto")["id"],
+            self.publish(title="Libro de cálculo")["id"],
+            self.publish(title="Mesa auxiliar")["id"],
+        }
+
+        catalog = self.client.get("/api/items?limit=60").get_json()
+
+        self.assertEqual(catalog["total"], 3)
+        self.assertEqual({item["id"] for item in catalog["items"]}, expected)
+
+    def test_demo_cleanup_removes_only_system_seed_ads(self):
+        real_item = self.publish(title="Anuncio de una persona")
+        db = backend.connect_db()
+        try:
+            cur = db.execute(
+                "INSERT INTO users (name, email, password_hash, campus, created_at) "
+                "VALUES (?, ?, ?, ?, ?) RETURNING id",
+                (backend.SEED_OWNER["name"], backend.SEED_OWNER["email"],
+                 "unused-test-hash", backend.SEED_OWNER["campus"], backend.now_iso()),
+            )
+            seed_owner_id = backend.inserted_id(cur)
+            db.execute(
+                "INSERT INTO items (owner_id, title, description, category, condition, "
+                "exchange_type, campus, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (seed_owner_id, "Anuncio de muestra", "Prueba", "libros", "bueno",
+                 "regalar", "vigo", backend.now_iso()),
+            )
+            backend.remove_legacy_seed_listings(db)
+            items = db.execute("SELECT id, title FROM items").fetchall()
+        finally:
+            db.close()
+
+        self.assertEqual([(item["id"], item["title"]) for item in items],
+                         [(real_item["id"], "Anuncio de una persona")])
+
     # -- almacenamiento --------------------------------------------------
     def test_upload_is_optimised_and_survives_a_redeploy(self):
         res = self.upload(png_bytes((2400, 1600)))
