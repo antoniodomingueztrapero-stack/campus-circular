@@ -84,6 +84,7 @@ const I18N = {
     payment_notice_body: "La plataforma no intermedia ni procesa el pago. Acordadlo directamente en la entrega, en efectivo o por un medio directo entre particulares. No hay comisión, reembolso ni garantía de Campus Circular.",
     detail_request: "Solicitar", detail_fav: "Guardar", detail_faved: "Guardado", request_title: "Solicitar este objeto",
     request_msg: "Mensaje para la otra persona (opcional)", request_msg_ph: "Hola, me interesa… ¿podemos quedar en un lugar público?",
+    chat: "Abrir chat", chat_title: "Conversación sobre {item}", chat_send: "Enviar", chat_empty: "Aún no hay mensajes. Escribe para coordinar el intercambio.", chat_placeholder: "Escribe un mensaje…", notify_new_request: "Tienes una nueva solicitud de un objeto.", notify_new_message: "Tienes un mensaje nuevo en una solicitud.",
     request_btn: "Enviar solicitud", request_sent: "Solicitud enviada. La otra persona la verá en su área.",
     request_privacy: "Usa este mensaje solo para coordinar el intercambio. No compartas datos sensibles.",
     owner: "Publicado por", academic_email: "Dominio académico", personal_email: "Correo personal",
@@ -347,6 +348,7 @@ const I18N = {
     payment_notice_body: "The platform does not intermediate or process payment. Arrange it directly at handover, in cash or by a direct person-to-person method. Campus Circular charges no fee, offers no refund and gives no guarantee.",
     detail_request: "Request", detail_fav: "Save", detail_faved: "Saved", request_title: "Request this item",
     request_msg: "Message for the other person (optional)", request_msg_ph: "Hi, I'm interested… can we meet somewhere public?",
+    chat: "Open chat", chat_title: "Conversation about {item}", chat_send: "Send", chat_empty: "No messages yet. Start coordinating the exchange.", chat_placeholder: "Write a message…", notify_new_request: "You have a new item request.", notify_new_message: "You have a new message in a request.",
     request_btn: "Send request", request_sent: "Request sent. The other person will see it in their area.",
     request_privacy: "Use this message only to coordinate the exchange. Do not share sensitive data.",
     owner: "Listed by", academic_email: "Academic domain", personal_email: "Personal email",
@@ -610,6 +612,7 @@ const I18N = {
     payment_notice_body: "A plataforma non intermedia nin procesa o pago. Acordádeo directamente na entrega, en efectivo ou cun medio directo entre particulares. Non hai comisión, reembolso nin garantía de Campus Circular.",
     detail_request: "Solicitar", detail_fav: "Gardar", detail_faved: "Gardado", request_title: "Solicitar este obxecto",
     request_msg: "Mensaxe para a outra persoa (opcional)", request_msg_ph: "Ola, interésame… podemos quedar nun lugar público?",
+    chat: "Abrir conversa", chat_title: "Conversa sobre {item}", chat_send: "Enviar", chat_empty: "Aínda non hai mensaxes. Empeza a coordinar o intercambio.", chat_placeholder: "Escribe unha mensaxe…", notify_new_request: "Tes unha nova solicitude dun obxecto.", notify_new_message: "Tes unha mensaxe nova nunha solicitude",
     request_btn: "Enviar solicitude", request_sent: "Solicitude enviada. A outra persoa veraa na súa área.",
     request_privacy: "Usa esta mensaxe só para coordinar o intercambio. Non compartas datos sensibles.",
     owner: "Publicado por", academic_email: "Dominio académico", personal_email: "Correo persoal",
@@ -3107,6 +3110,7 @@ function requestCard(r, mode) {
       ${r.my_rating ? `<p class="list-card-rating">${starsHtml(r.my_rating, 0, { withCount: false })}<span>${esc(t("req_rated").replace("{n}", String(r.my_rating)))}</span></p>` : ""}
       <div class="list-card-actions">
         <button type="button" class="btn btn-ghost btn-sm" data-view="${r.item_id}">${icon("eye")}${esc(t("view_item"))}</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-chat="${r.id}" data-chat-item="${esc(r.item_title)}">${icon("inbox")}${esc(t("chat"))}</button>
         ${!isReceived && r.status === "pendiente" ? `<button type="button" class="btn btn-danger btn-sm" data-cancelreq="${r.id}">${esc(t("cancel_req"))}</button>` : ""}
         ${isReceived && r.status === "pendiente" ? `
           <button type="button" class="btn btn-primary btn-sm" data-accept="${r.id}">${icon("check")}${esc(t("accept"))}</button>
@@ -3116,6 +3120,34 @@ function requestCard(r, mode) {
       </div>
     </div>
   </article>`;
+}
+
+async function openRequestChat(requestId, itemTitle) {
+  const title = t("chat_title").replace("{item}", itemTitle || "");
+  const modal = openModal(`${closeBtn()}<div class="modal-head"><span class="eyebrow">${icon("inbox")}${esc(t("chat"))}</span><h2>${esc(title)}</h2></div>
+    <div id="request-chat-messages" class="chat-messages" aria-live="polite"></div>
+    <form id="request-chat-form" class="chat-form"><label class="sr-only" for="request-chat-input">${esc(t("chat_placeholder"))}</label><textarea id="request-chat-input" maxlength="2000" required placeholder="${esc(t("chat_placeholder"))}"></textarea><button class="btn btn-primary" type="submit">${esc(t("chat_send"))}</button></form>`, { sheet: true });
+  const history = $("#request-chat-messages", modal);
+  const refresh = async () => {
+    const data = await api(`/api/requests/${requestId}/messages`);
+    history.innerHTML = (data.messages || []).map(m => `<article class="chat-message${Number(m.sender_id) === Number(state.user?.id) ? " is-mine" : ""}"><strong>${esc(m.sender_name)}</strong><p>${esc(m.body)}</p><time>${esc(new Date(m.created_at).toLocaleString())}</time></article>`).join("") || `<p class="muted">${esc(t("chat_empty"))}</p>`;
+    history.scrollTop = history.scrollHeight;
+  };
+  try { await refresh(); } catch (err) { history.textContent = errorMessage(err); }
+  $("#request-chat-form", modal).onsubmit = async (event) => {
+    event.preventDefault();
+    const field = $("#request-chat-input", modal);
+    const body = field.value.trim();
+    if (!body) return;
+    const submit = $("button[type=submit]", event.currentTarget);
+    submit.disabled = true;
+    try {
+      await api(`/api/requests/${requestId}/messages`, { method: "POST", body: JSON.stringify({ body }) });
+      field.value = "";
+      await refresh();
+    } catch (err) { toast(errorMessage(err), "error"); }
+    finally { submit.disabled = false; field.focus(); }
+  };
 }
 
 async function loadMyTab(tab, focusSelector) {
@@ -3227,6 +3259,7 @@ function bindMyActions(panel) {
       toast(errorMessage(err), "error");
     }
   };
+  $$("[data-chat]", panel).forEach(b => { b.onclick = () => openRequestChat(Number(b.dataset.chat), b.dataset.chatItem); });
   $$("[data-cancelreq]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.cancelreq, "cancelada", t("toast_req_status")); });
   $$("[data-accept]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.accept, "aceptada", t("toast_req_status")); });
   $$("[data-reject]", panel).forEach(b => { b.onclick = patchRequest(b.dataset.reject, "rechazada", t("toast_req_status")); });
@@ -3483,14 +3516,31 @@ function openRequest(itemId) {
     const submit = $("[data-submit]", e.target);
     setBusy(submit, true, t("sending"));
     try {
-      await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message, handover_point }) });
+      const created = await api(`/api/items/${itemId}/request`, { method: "POST", body: JSON.stringify({ message, handover_point }) });
       closeModal();
       toast(t("toast_request"));
+      const itemTitle = item?.title || t("detail_request");
+      window.setTimeout(() => openRequestChat(created.request.id, itemTitle), 150);
     } catch (err) {
       setBusy(submit, false);
       toast(errorMessage(err), "error");
     }
   };
+}
+
+/* ---------------- Notifications ---------------- */
+let notificationBaseline = null;
+async function pollNotifications() {
+  if (!state.token || document.hidden) return;
+  try {
+    const data = await api("/api/notifications");
+    const total = Number(data.unread_messages || 0) + Number(data.pending_requests || 0);
+    if (notificationBaseline !== null && total > notificationBaseline) {
+      toast(data.unread_messages ? t("notify_new_message") : t("notify_new_request"));
+      if (state.view === "my" && ["received", "requests"].includes(state.myTab)) loadMyTab(state.myTab);
+    }
+    notificationBaseline = total;
+  } catch (_) { /* best-effort: request lists still work if polling fails */ }
 }
 
 /* ---------------- Init ---------------- */
@@ -3548,5 +3598,6 @@ async function init() {
   }
 }
 document.addEventListener("DOMContentLoaded", init);
+window.setInterval(pollNotifications, 20000);
 
 $("#quick-guide").addEventListener("click", openQuickGuide);

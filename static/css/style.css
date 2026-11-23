@@ -1827,7 +1827,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline-offset
 @media (max-width: 720px) {
   :root { --header-h: 60px; }
   .topbar-inner { gap: var(--s2); }
-  .brand { min-width: 0; }
+  .brand { min-width: 0; flex: 0 1 auto; margin-right: auto; }
+  .topbar-actions { flex: 0 0 auto; }
+  .brand-text { min-width: 0; }
+  .brand-text strong { overflow-wrap: normal; }
   .brand-text small { display: none; }
   .brand-mark { width: 36px; height: 36px; }
   .brand-text strong { font-size: 1rem; }

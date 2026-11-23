@@ -81,7 +81,7 @@ CONTROLLER_NAME = os.environ.get(
     "CONTROLLER_NAME", "Equipo Campus Circular (proyecto académico independiente)"
 )
 SESSION_DAYS = 30
-SEED_DEMO = os.environ.get("SEED_DEMO", "1") != "0"
+SEED_DEMO = os.environ.get("SEED_DEMO", "0") != "0"
 DB_INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.errors.IntegrityError)
 DB_ERRORS = (sqlite3.Error, psycopg.Error)
 
@@ -503,6 +503,16 @@ def init_db():
             status TEXT NOT NULL DEFAULT 'pendiente',
             created_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            request_id INTEGER NOT NULL REFERENCES requests(id) ON DELETE CASCADE,
+            sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            body TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            read_at TEXT NOT NULL DEFAULT ''
+        );
+        CREATE INDEX IF NOT EXISTS idx_messages_request ON messages(request_id, id);
+        CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(sender_id, read_at);
         CREATE TABLE IF NOT EXISTS favorites (
             user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
             item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
@@ -1201,7 +1211,23 @@ SEED_PEERS = [
     {"name": "Diego Camba", "email": "diego.camba@uvigo.gal", "campus": "vigo"},
 ]
 
+
+def remove_legacy_seed_listings(db):
+    """Retira anuncios pertenecientes a la cuenta de sistema del catálogo de muestra.
+
+    No toca publicaciones de cuentas personales (incluido el billete de Antonio).
+    """
+    # Toda publicación de la cuenta de sistema era material de demostración
+    # (incluidas versiones anteriores cuyos títulos ya no están en el código).
+    db.execute(
+        "DELETE FROM items WHERE owner_id IN (SELECT id FROM users WHERE email=?)",
+        (SEED_OWNER["email"],),
+    )
+    db.commit()
+
+
 def seed_if_empty():
+
     """Datos de demostración, serializados entre workers.
 
     Gunicorn arranca varios procesos a la vez: sin este bloqueo, dos workers
@@ -1289,6 +1315,13 @@ def bootstrap(force: bool = False):
             return
         init_db()
         migrate_db()
+        # Borra las publicaciones de muestra antiguas identificadas de forma
+        # estricta, sin tocar anuncios de cuentas personales.
+        cleanup_db = connect_db()
+        try:
+            remove_legacy_seed_listings(cleanup_db)
+        finally:
+            cleanup_db.close()
         # Las fotos subidas antes de guardarse en base de datos viven solo en el
         # disco efímero: se importan para que sobrevivan al siguiente despliegue.
         try:
@@ -2864,6 +2897,11 @@ def create_request(user, item_id):
             "created_at) VALUES (?, ?, ?, ?, 'pendiente', ?) RETURNING id",
             (item_id, user["id"], message, handover_point, now_iso()))
         request_id = inserted_id(cur)
+        if message:
+            db.execute(
+                "INSERT INTO messages (request_id, sender_id, body, created_at) VALUES (?, ?, ?, ?)",
+                (request_id, user["id"], message, now_iso()),
+            )
         db.commit()
     except DB_INTEGRITY_ERRORS:
         # El índice único (objeto, solicitante, pendiente) es la última línea
@@ -2935,6 +2973,79 @@ def received_requests(user):
         d["can_rate"] = r["status"] == "completada" and r["id"] not in rated
         out.append(d)
     return jsonify({"requests": out})
+
+
+@app.get("/api/requests/<int:request_id>/messages")
+@require_auth
+def get_request_messages(user, request_id):
+    db = get_db()
+    participant = db.execute(
+        "SELECT r.requester_id, i.owner_id FROM requests r JOIN items i ON i.id=r.item_id WHERE r.id=?",
+        (request_id,),
+    ).fetchone()
+    if not participant:
+        return jsonify({"error": "not_found"}), 404
+    if user["id"] not in (participant["requester_id"], participant["owner_id"]):
+        return jsonify({"error": "forbidden"}), 403
+    db.execute(
+        "UPDATE messages SET read_at=? WHERE request_id=? AND sender_id<>? AND read_at=''",
+        (now_iso(), request_id, user["id"]),
+    )
+    db.commit()
+    rows = db.execute(
+        "SELECT m.id, m.sender_id, u.name AS sender_name, m.body, m.created_at "
+        "FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.request_id=? ORDER BY m.id",
+        (request_id,),
+    ).fetchall()
+    return jsonify({"messages": [dict(r) for r in rows]})
+
+
+@app.post("/api/requests/<int:request_id>/messages")
+@require_auth
+def send_request_message(user, request_id):
+    limited = rate_limited("message", str(user["id"]))
+    if limited:
+        return limited
+    data = request.get_json(silent=True) or {}
+    body = clean_text(data.get("body", ""), multiline=True, max_len=2000)
+    if not body or len(body) > 2000:
+        return jsonify({"error": "invalid_message", "message": "Escribe un mensaje de hasta 2000 caracteres."}), 400
+    db = get_db()
+    participant = db.execute(
+        "SELECT r.requester_id, i.owner_id FROM requests r JOIN items i ON i.id=r.item_id WHERE r.id=?",
+        (request_id,),
+    ).fetchone()
+    if not participant:
+        return jsonify({"error": "not_found"}), 404
+    if user["id"] not in (participant["requester_id"], participant["owner_id"]):
+        return jsonify({"error": "forbidden"}), 403
+    cur = db.execute(
+        "INSERT INTO messages (request_id, sender_id, body, created_at) VALUES (?, ?, ?, ?) RETURNING id",
+        (request_id, user["id"], body, now_iso()),
+    )
+    db.commit()
+    row = db.execute(
+        "SELECT m.id, m.sender_id, u.name AS sender_name, m.body, m.created_at "
+        "FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.id=?", (inserted_id(cur),)
+    ).fetchone()
+    return jsonify({"message": dict(row)}), 201
+
+
+@app.get("/api/notifications")
+@require_auth
+def notifications(user):
+    db = get_db()
+    unread = db.execute(
+        "SELECT COUNT(*) AS n FROM messages m JOIN requests r ON r.id=m.request_id "
+        "JOIN items i ON i.id=r.item_id WHERE (r.requester_id=? OR i.owner_id=?) "
+        "AND m.sender_id<>? AND m.read_at=''",
+        (user["id"], user["id"], user["id"]),
+    ).fetchone()["n"]
+    pending = db.execute(
+        "SELECT COUNT(*) AS n FROM requests r JOIN items i ON i.id=r.item_id "
+        "WHERE i.owner_id=? AND r.status='pendiente'", (user["id"],)
+    ).fetchone()["n"]
+    return jsonify({"unread_messages": unread, "pending_requests": pending})
 
 
 @app.patch("/api/requests/<int:request_id>")
