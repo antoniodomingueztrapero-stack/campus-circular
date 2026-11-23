@@ -1,4 +1,4 @@
-"""Tests for the trust layer: lifecycle, ratings, impact and discovery."""
+"""Tests for the trust layer: lifecycle, ratings and discovery."""
 
 import os
 import tempfile
@@ -75,19 +75,18 @@ class FeatureTests(unittest.TestCase):
         self.assertEqual(item["description"], "")
         self.assertEqual(item["condition"], "bueno")
         self.assertEqual(item["handover_point"], "acordado")
-        self.assertEqual(item["faculty"], "")
+        self.assertNotIn("faculty", item)
+        self.assertNotIn("impact", item)
         self.assertEqual(item["status"], "disponible")
 
-    def test_faculty_filter_and_accent_insensitive_search(self):
+    def test_accent_insensitive_search_and_ignored_faculty(self):
         self.publish(self.owner, title="Lámpara de escritorio", faculty="artes")
         self.publish(self.owner, title="Teclado mecánico", faculty="ingenieria")
 
-        arts = self.client.get("/api/items?faculty=artes").get_json()["items"]
-        self.assertEqual([i["title"] for i in arts], ["Lámpara de escritorio"])
         found = self.client.get("/api/items?q=lampara+escritorio").get_json()["items"]
         self.assertEqual([i["title"] for i in found], ["Lámpara de escritorio"])
         self.assertEqual(self.client.get("/api/items?q=inexistente").get_json()["items"], [])
-        # Un valor desconocido no rompe: se ignora como el resto de filtros.
+        # El concepto de facultad desapareció del producto: el parámetro se ignora.
         self.assertEqual(len(self.client.get("/api/items?faculty=desconocida").get_json()["items"]), 2)
 
     # -- ciclo de vida ---------------------------------------------------
@@ -159,8 +158,8 @@ class FeatureTests(unittest.TestCase):
         self.assertEqual(self.client.get(f"/api/items/{item['id']}").get_json()["item"]["status"],
                          "disponible")
 
-    def test_impact_metrics_use_delivered_items(self):
-        item = self.publish(self.owner).get_json()["item"]  # muebles: 11 kg / 45 €
+    def test_stats_expose_accounts_and_objects_only(self):
+        item = self.publish(self.owner).get_json()["item"]
         request_id = self.request_item(self.other, item["id"]).get_json()["request"]["id"]
         self.client.patch(f"/api/requests/{request_id}", json={"status": "aceptada"},
                           headers=self.headers(self.owner))
@@ -168,27 +167,16 @@ class FeatureTests(unittest.TestCase):
                           headers=self.headers(self.owner))
 
         stats = self.client.get("/api/stats").get_json()
-        self.assertEqual(stats["impact"]["reused"], 1)
-        self.assertEqual(stats["impact"]["kg"], 11.0)
-        self.assertEqual(stats["impact"]["savings"], 45.0)
+        self.assertEqual(stats["total_items"], 1)
+        self.assertEqual(stats["users"], 2)
+        self.assertNotIn("impact", stats)
 
-        mine = self.client.get("/api/impact/me", headers=self.headers(self.owner)).get_json()
-        self.assertEqual(mine["impact"]["reused"], 1)
-        self.assertEqual(mine["impact"]["kg"], 11.0)
+        mine = self.client.get("/api/trust/me", headers=self.headers(self.owner)).get_json()
         self.assertEqual(mine["exchanges"]["given"], 1)
+        self.assertNotIn("impact", mine)
+        self.assertNotIn("ten_kg", [b["key"] for b in mine["badges"]])
         self.assertIn("first_delivery", [b["key"] for b in mine["badges"] if b["earned"]])
-        self.assertEqual(self.client.get("/api/impact/me").status_code, 401)
-
-    def test_sale_savings_are_the_difference_with_the_retail_estimate(self):
-        item = self.publish(self.owner, category="electronica", exchange_type="vender",
-                            price=25).get_json()["item"]  # 38 € de reposición
-        request_id = self.request_item(self.other, item["id"]).get_json()["request"]["id"]
-        self.client.patch(f"/api/requests/{request_id}", json={"status": "aceptada"},
-                          headers=self.headers(self.owner))
-        self.client.patch(f"/api/requests/{request_id}", json={"status": "completada"},
-                          headers=self.headers(self.owner))
-        stats = self.client.get("/api/stats").get_json()
-        self.assertEqual(stats["impact"]["savings"], 13.0)
+        self.assertEqual(self.client.get("/api/trust/me").status_code, 401)
 
 
 if __name__ == "__main__":

@@ -17,30 +17,6 @@
 "width": 800,
 "height": 533
 },
-"/static/img/items/apuntes.jpg": {
-"webp": "/static/img/items/apuntes-320.webp 320w, /static/img/items/apuntes-480.webp 480w, /static/img/items/apuntes-720.webp 720w",
-"src": "/static/img/items/apuntes-800.jpg",
-"width": 800,
-"height": 600
-},
-"/static/img/items/auriculares.jpg": {
-"webp": "/static/img/items/auriculares-320.webp 320w, /static/img/items/auriculares-480.webp 480w, /static/img/items/auriculares-720.webp 720w",
-"src": "/static/img/items/auriculares-800.jpg",
-"width": 800,
-"height": 600
-},
-"/static/img/items/calculadora.jpg": {
-"webp": "/static/img/items/calculadora-320.webp 320w, /static/img/items/calculadora-480.webp 480w, /static/img/items/calculadora-720.webp 720w",
-"src": "/static/img/items/calculadora-800.jpg",
-"width": 800,
-"height": 600
-},
-"/static/img/items/chaqueta.jpg": {
-"webp": "/static/img/items/chaqueta-320.webp 320w, /static/img/items/chaqueta-480.webp 480w, /static/img/items/chaqueta-720.webp 720w",
-"src": "/static/img/items/chaqueta-800.jpg",
-"width": 800,
-"height": 600
-},
 "/static/img/items/cocina.jpg": {
 "webp": "/static/img/items/cocina-320.webp 320w, /static/img/items/cocina-480.webp 480w, /static/img/items/cocina-720.webp 720w",
 "src": "/static/img/items/cocina-800.jpg",
@@ -69,13 +45,7 @@
 "webp": "/static/img/items/escritorio-320.webp 320w, /static/img/items/escritorio-480.webp 480w, /static/img/items/escritorio-720.webp 720w",
 "src": "/static/img/items/escritorio-800.jpg",
 "width": 800,
-"height": 600
-},
-"/static/img/items/estanteria.jpg": {
-"webp": "/static/img/items/estanteria-320.webp 320w, /static/img/items/estanteria-480.webp 480w, /static/img/items/estanteria-720.webp 720w",
-"src": "/static/img/items/estanteria-800.jpg",
-"width": 800,
-"height": 600
+"height": 436
 },
 "/static/img/items/estudio.jpg": {
 "webp": "/static/img/items/estudio-320.webp 320w, /static/img/items/estudio-480.webp 480w, /static/img/items/estudio-720.webp 720w",
@@ -83,23 +53,11 @@
 "width": 800,
 "height": 600
 },
-"/static/img/items/freidora.jpg": {
-"webp": "/static/img/items/freidora-320.webp 320w, /static/img/items/freidora-480.webp 480w, /static/img/items/freidora-720.webp 720w",
-"src": "/static/img/items/freidora-800.jpg",
-"width": 800,
-"height": 600
-},
 "/static/img/items/lampara.jpg": {
 "webp": "/static/img/items/lampara-320.webp 320w, /static/img/items/lampara-480.webp 480w, /static/img/items/lampara-720.webp 720w",
 "src": "/static/img/items/lampara-800.jpg",
 "width": 800,
-"height": 600
-},
-"/static/img/items/libro-derecho.jpg": {
-"webp": "/static/img/items/libro-derecho-320.webp 320w, /static/img/items/libro-derecho-480.webp 480w, /static/img/items/libro-derecho-720.webp 720w",
-"src": "/static/img/items/libro-derecho-800.jpg",
-"width": 800,
-"height": 600
+"height": 436
 },
 "/static/img/items/libros.jpg": {
 "webp": "/static/img/items/libros-320.webp 320w, /static/img/items/libros-480.webp 480w, /static/img/items/libros-720.webp 720w",
@@ -107,21 +65,9 @@
 "width": 800,
 "height": 600
 },
-"/static/img/items/mochila.jpg": {
-"webp": "/static/img/items/mochila-320.webp 320w, /static/img/items/mochila-480.webp 480w, /static/img/items/mochila-720.webp 720w",
-"src": "/static/img/items/mochila-800.jpg",
-"width": 800,
-"height": 600
-},
 "/static/img/items/muebles.jpg": {
 "webp": "/static/img/items/muebles-320.webp 320w, /static/img/items/muebles-480.webp 480w, /static/img/items/muebles-720.webp 720w",
 "src": "/static/img/items/muebles-800.jpg",
-"width": 800,
-"height": 600
-},
-"/static/img/items/ollas.jpg": {
-"webp": "/static/img/items/ollas-320.webp 320w, /static/img/items/ollas-480.webp 480w, /static/img/items/ollas-720.webp 720w",
-"src": "/static/img/items/ollas-800.jpg",
 "width": 800,
 "height": 600
 },
@@ -147,6 +93,6 @@
 "webp": "/static/img/items/teclado-320.webp 320w, /static/img/items/teclado-480.webp 480w, /static/img/items/teclado-720.webp 720w",
 "src": "/static/img/items/teclado-800.jpg",
 "width": 800,
-"height": 600
+"height": 436
 }
 }

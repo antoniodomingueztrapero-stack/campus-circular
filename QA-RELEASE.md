@@ -26,7 +26,7 @@ Ejecutado contra el servidor real (`gunicorn --workers 1 --threads 8`) con
 - Publicar con imagen: subida de 546 KB → WebP de 64 KB servido con `Content-Type`
   correcto; publicación 201 y aparición inmediata en el catálogo; sin foto → 400.
 - Reservas: solicitud 201 → «aceptada» → objeto `reservado` → «completada» →
-  `entregado`; impacto actualizado (`0,6 kg`).
+  `entregado`.
 - Valoraciones: 201, 201 y 409 al repetir.
 - **Editar perfil (nuevo)**: `PATCH /api/account/profile` → 200 con usuario
   actualizado; nombre normalizado a `Smoke Editado`; campus persistido;

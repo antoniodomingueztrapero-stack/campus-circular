@@ -65,7 +65,8 @@ class ItemEditTests(unittest.TestCase):
         self.assertEqual(item["exchange_type"], "vender")
         self.assertEqual(item["price"], 25.0)
         self.assertEqual(item["campus"], "pontevedra")
-        self.assertEqual(item["faculty"], "ingenieria")
+        # El campo facultad ya no forma parte del producto: se ignora.
+        self.assertNotIn("faculty", item)
         self.assertEqual(item["handover_point"], "conserjeria")
 
         detail = self.client.get(f"/api/items/{self.item_id}").get_json()["item"]
@@ -103,7 +104,6 @@ class ItemEditTests(unittest.TestCase):
             ({"condition": "roto"}, "invalid_condition"),
             ({"exchange_type": "alquilar"}, "invalid_exchange_type"),
             ({"campus": "madrid"}, "invalid_campus"),
-            ({"faculty": "derecho"}, "invalid_faculty"),
             ({"handover_point": "parking"}, "invalid_handover_point"),
             ({"price": -5}, "invalid_price"),
             ({"price": 99999}, "invalid_price"),

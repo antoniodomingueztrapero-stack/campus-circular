@@ -137,11 +137,12 @@ python3 -m unittest discover -s tests
 ```
 
 La base y los objetos de ejemplo se crean automáticamente en el primer arranque:
-12 objetos disponibles, 8 entregas con fecha, valoraciones de ejemplo y dos
-perfiles de demostración (`Lucía Ferreiro` y `Diego Camba`) con contraseña
-aleatoria. La cuenta propietaria del tablón es `Equipo Campus Circular`, también
-sin acceso. Para reiniciar el demo, elimina el archivo de base de datos
-configurado y vuelve a arrancar.
+3 objetos de muestra (lámpara de escritorio, escritorio pequeño y teclado
+inalámbrico), dos perfiles de demostración (`Lucía Ferreiro` y `Diego Camba`)
+con contraseña aleatoria y la cuenta propietaria del tablón, `Equipo Campus
+Circular`, también sin acceso. Los objetos de ejemplo son ficticios. Para
+reiniciar el demo, elimina el archivo de base de datos configurado y vuelve a
+arrancar.
 
 ## Configuración
 
@@ -178,9 +179,9 @@ credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
 
 - **Explorar**: búsqueda instantánea con debounce (sin distinguir acentos:
   «lampara» encuentra «Lámpara»), filtros combinables por categoría, campus,
-  tipo de operación, estado físico y facultad, y orden por precio o novedad.
+  tipo de operación y estado físico, y orden por precio o novedad.
 - **Publicar en menos de un minuto**: solo son obligatorios foto, título,
-  categoría y tipo de entrega; descripción, estado, campus, facultad y punto de
+  categoría y tipo de entrega; descripción, estado, campus y punto de
   encuentro se pueden dejar sin rellenar y el formulario aplica valores
   razonables (estado «bueno», punto «lugar acordado»).
 - **Precio orientativo**: visible solo en «Vender», con un aviso claro de que
@@ -197,13 +198,11 @@ credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
   intercambios completados, nivel por actividad y badges de trayectoria.
 - **Valoración rápida**: tras cerrar una entrega, ambas partes pueden puntuar
   y comentar una sola vez; el comentario es público y no editable.
-- **Impacto estimado**: objetos reutilizados, kilos de residuos evitados y
-  ahorro económico estimados por categoría, en la portada y en Mi área.
 - **Mi área**: objetos, solicitudes enviadas/recibidas, favoritos, panel de
   confianza y datos de la cuenta, con edición de perfil (nombre y campus),
   cambio de contraseña, exportación y supresión.
 - **Editor de publicaciones**: desde Mi área o desde el detalle se cambian
-  título, categoría, tipo, precio, estado físico, campus, facultad, punto de
+  título, categoría, tipo, precio, estado físico, campus, punto de
   encuentro y descripción. El estado (`disponible` / `reservado` / `entregado`)
   se cambia con un toque en el segmentado de cada tarjeta, sin recargar.
 - **Modo demo para la exposición**: con `SEED_DEMO=1` el modal de acceso ofrece
@@ -217,15 +216,6 @@ credenciales de almacenamiento de objetos: las fotos viven en la base de datos.
 - **Legal**: aviso legal, privacidad y condiciones en tres idiomas, con
   impresión/guardado en PDF desde el navegador.
 - **Trilingüe**: ES / EN / GL con selector y rutas directas.
-
-### Cómo se calcula el impacto
-
-Las cifras son **estimaciones transparentes**, no mediciones ni una auditoría
-ambiental. `CATEGORY_IMPACT` en `app.py` asigna a cada categoría un peso medio
-y un valor de reposición; por cada objeto con estado `entregado` se suman esos
-valores. En las ventas simbólicas el ahorro es la diferencia entre el valor de
-reposición y el precio orientativo. La interfaz lo etiqueta siempre como
-estimación y las condiciones de uso lo dejan por escrito.
 
 
 ## Interfaz y sistema de diseño
@@ -259,16 +249,15 @@ clases; no se usan estilos inline para diseño.
 - Áreas táctiles mínimas de 44 × 44 px: `@media (pointer: coarse)` refuerza
   botones pequeños, chips y enlaces del pie.
 - Chips de categoría en una fila con scroll horizontal, pegajosa en escritorio.
-- Filtros de campus, estado, tipo, facultad y orden en una hoja inferior con
+- Filtros de campus, estado, tipo y orden en una hoja inferior con
   «Ver resultados» y contador de filtros activos; la búsqueda del hero filtra
   en vivo con 320 ms de debounce y sin recargar la página.
 - Ficha del objeto como hoja inferior, con acciones pegadas al borde
   (solicitar/guardar) y avisos secundarios plegados en `<details>`.
 - Tarjetas con foto, título, categoría, estado, campus y acción principal; en
   móvil se oculta la descripción para priorizar el catálogo.
-- Banda de impacto bajo las cifras de la portada y panel de confianza en Mi
-  área (nivel, insignias, valoraciones e impacto propio) que se carga aparte
-  para no bloquear el resto de la vista.
+- Panel de confianza en Mi área (nivel, insignias y valoraciones) que se carga
+  aparte para no bloquear el resto de la vista.
 - Valoración con radios nativos de 44 px y comentario opcional; el estado
   «Valorado con n/5» sustituye al botón cuando ya se ha puntuado.
 
@@ -324,7 +313,7 @@ reportes, limitada a las cuentas de `ADMIN_EMAILS`.
   elimina caracteres invisibles/bidi y de control, colapsa espacios y recorta
   longitudes. El HTML se escapa al renderizar (`esc`), así que no se guarda
   HTML ejecutable.
-- Enumeraciones cerradas para categoría, estado, campus, facultad, punto de
+- Enumeraciones cerradas para categoría, estado, campus, punto de
   entrega, motivo de reporte y tipo de intercambio.
 - Precio numérico finito y acotado (`NaN`/`Infinity` se rechazan).
 - Subidas: extensión **y** contenido real (JPEG, PNG o WebP vía Pillow, no solo
@@ -415,13 +404,13 @@ Para retirarlo sin reportes, el dueño puede eliminarlo desde **Mi área**.
 |---|---|---|---|
 | GET | `/healthz` | — | Sonda ligera para Render y monitores, sin consultas a BD |
 | GET | `/api/health` | — | Estado, producto y versión legal |
-| GET | `/api/stats` | — | Contadores reales, categorías e impacto estimado (caché de 15 s) |
-| GET | `/api/impact/me` | ✓ | Impacto, valoraciones, nivel y badges propios |
-| GET | `/api/items` | — | Listar objetos con filtros (`q`, `category`, `campus`, `condition`, `type`, `faculty`, `status`, `sort`) y paginación (`limit` ≤ 60, `offset`); devuelve `total` y `has_more` |
+| GET | `/api/stats` | — | Contadores públicos de objetos y cuentas, y categorías (caché de 15 s) |
+| GET | `/api/trust/me` | ✓ | Valoraciones, nivel y badges propios |
+| GET | `/api/items` | — | Listar objetos con filtros (`q`, `category`, `campus`, `condition`, `type`, `status`, `sort`) y paginación (`limit` ≤ 60, `offset`); devuelve `total` y `has_more` |
 | GET | `/api/items/mine` | ✓ | Objetos propios, paginados |
-| GET | `/api/items/:id` | — | Detalle con impacto y confianza del propietario, sin email |
+| GET | `/api/items/:id` | — | Detalle con la confianza del propietario, sin email |
 | POST | `/api/items` | ✓ | Crear objeto; exige `private_seller`, foto y tipo |
-| PATCH | `/api/items/:id` | ✓ dueño | Editar contenido (`title`, `description`, `category`, `condition`, `exchange_type`, `price`, `campus`, `faculty`, `handover_point`) y/o cambiar `status`; mismas validaciones que al publicar |
+| PATCH | `/api/items/:id` | ✓ dueño | Editar contenido (`title`, `description`, `category`, `condition`, `exchange_type`, `price`, `campus`, `handover_point`) y/o cambiar `status`; mismas validaciones que al publicar |
 | DELETE | `/api/items/:id` | ✓ dueño | Eliminar objeto e imagen subida |
 | POST | `/api/upload` | ✓ | Subir JPG/PNG/WebP: valida magic bytes, recorta a 1200 px, convierte a WebP ≤400 KB y borra EXIF/GPS; guarda en `media` y devuelve la URL |
 | POST | `/api/auth/register` | — | Registro con `consent: true` |
@@ -474,14 +463,13 @@ el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
   para desarrollo y con PostgreSQL mediante `DATABASE_URL` para desplegar sin
   depender de almacenamiento local persistente.
 - **Migración tolerante e idempotente**: `migrate_db()` añade
-  `consent_at`, `consent_version`, `faculty`, `delivered_at` y el punto
+  `consent_at`, `consent_version`, `delivered_at` y el punto
   propuesto de cada solicitud a bases creadas por versiones anteriores, en
-  SQLite y PostgreSQL, y rellena `delivered_at` de las entregas antiguas.
+  SQLite y PostgreSQL, retira la columna obsoleta `faculty` y rellena
+  `delivered_at` de las entregas antiguas.
 - **Valoración ligada a la entrega**: la tabla `ratings` es única por
   `(request_id, rater_id)`, solo admite solicitudes `completada` y participantes,
   y nunca permite autovalorarse.
-- **Impacto calculado en servidor**: el cliente no envía cifras; se derivan de
-  los objetos entregados y se muestran como estimación.
 - **Arranque WSGI-compatible**: `bootstrap()` se ejecuta al importar el módulo,
   no solo con `python3 app.py`; en Render arranca con Gunicorn (`Procfile` y
   `render.yaml`).
@@ -530,8 +518,6 @@ el ancho real de pintado y cae a `<img>` cuando la imagen no tiene variantes
   moverlas a almacenamiento de objetos (S3, Cloudinary o Supabase Storage) con
   credenciales por variables de entorno; el código está preparado para cambiar
   `store_media`/`read_media` sin tocar las rutas.
-- Las cifras de impacto son estimaciones por categoría, no mediciones: sirven
-  para dar orden de magnitud y se etiquetan como tales.
 - Las valoraciones no tienen moderación automática: son texto de las personas
   usuarias y pueden requerir revisión manual.
 - Antes de uso real con datos personales o actividad económica, completa la
