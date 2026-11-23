@@ -1267,6 +1267,7 @@ function bindImageFallbacks(root = document) {
       if (note) {
         img.classList.add("hidden");
         note.classList.remove("hidden");
+        img.closest(".card-media")?.classList.add("is-photo-missing");
         return;
       }
       if (img.dataset.fallbackApplied) return;
@@ -2096,7 +2097,7 @@ function itemCard(it) {
   const openLabel = `${t("view_item")}: ${it.title}`;
   return `
   <article class="card">
-    <div class="card-media">
+    <div class="card-media${it.image_url ? "" : " is-photo-missing"}">
       ${itemPhoto(it, { alt: it.title, sizes: "(max-width: 519px) calc(100vw - 2.5rem), (max-width: 803px) 46vw, (max-width: 1067px) 31vw, 280px" })}
       <button type="button" class="fav-btn${saved ? " active" : ""}" data-fav="${it.id}" data-item-title="${esc(it.title)}" aria-pressed="${saved}" aria-label="${esc(favoriteLabel(saved, it.title))}">${icon("heart")}</button>
     </div>
