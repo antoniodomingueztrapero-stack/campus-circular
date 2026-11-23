@@ -41,12 +41,12 @@ JPEG_QUALITY = 72
 SKIP_PREFIXES = (
     "favicon",
     "apple-touch-icon",
-    "circular-campus-mark-",
-    "circular-campus-og",
+    "campus-circular-mark-",
+    "campus-circular-og",
     "ctc-congress",
 )
 # El logo del header se pinta a 44-56 px pero se sirve a 1034 px.
-INPLACE_LIMIT = {"circular-campus-mark-white.png": 128}
+INPLACE_LIMIT = {"campus-circular-mark-white.png": 128}
 MIN_SOURCE_WIDTH = 400
 # Las variantes ya generadas no se vuelven a procesar como si fueran originales.
 GENERATED_RE = re.compile(r"-\d{3,4}\.(?:jpg|jpeg|png|webp)$", re.IGNORECASE)

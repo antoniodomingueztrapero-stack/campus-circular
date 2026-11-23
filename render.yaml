@@ -1,4 +1,4 @@
-# Render — despliegue gratuito de Circular Campus
+# Render — despliegue gratuito de Campus Circular
 # Docs: https://render.com/docs/yaml-spec
 services:
   - type: web
@@ -26,7 +26,7 @@ services:
         value: campuscircular@hotmail.com
       # Sustituir por la identificación real del responsable antes de producción.
       - key: CONTROLLER_NAME
-        value: Equipo Circular Campus (proyecto académico independiente)
+        value: Equipo Campus Circular (proyecto académico independiente)
       - key: LEGAL_VERSION
         value: 2026-11-20
       - key: LEGAL_UPDATED

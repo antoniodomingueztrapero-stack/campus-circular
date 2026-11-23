@@ -1,6 +1,6 @@
-# QA de release — Circular Campus
+# QA de release — Campus Circular
 
-Fecha: 2026-11-21 · Rama: `arena/d8a2e1e4-campus-circular` · Base: `9bb57ce`
+Fecha: 2026-11-21
 
 Este documento resume la verificación previa al despliegue: build/lint/tests,
 smoke test de flujos críticos, auditoría de interfaz y consola, y los pasos que
@@ -12,7 +12,7 @@ quedan en manos de una persona.
 | --- | --- | --- |
 | Sintaxis backend | `python3 -c "import ast; ast.parse(open('app.py').read())"` | OK |
 | Sintaxis frontend | `node --check static/js/app.js` | OK |
-| CSS | parseo con `css-tree` (vía jsdom toolchain) | 679 reglas, 0 errores |
+| CSS | parseo con `css-tree` | 679 reglas, 0 errores |
 | Tests | `python3 -m pytest tests/ -q` (equivalente: `python3 -m unittest discover -s tests`) | **87 tests OK** (≈30 s) |
 
 ## 2. Smoke test de flujos críticos
@@ -39,7 +39,7 @@ Ejecutado contra el servidor real (`gunicorn --workers 1 --threads 8`) con
 | Comprobación | Resultado |
 | --- | --- |
 | Rutas públicas (`/`, `/publicar`, `/puntos`, `/normas`, `/proyecto`, `/mi-area`, `/aviso-legal`, `/privacidad`, `/condiciones`) | 200 |
-| `/healthz` | `{"ok": true, "service": "circular-campus"}` |
+| `/healthz` | `{"ok": true, "service": "campus-circular"}` |
 | Assets (`/static/css/style.css`, `/static/js/app.js`, manifest, iconos, favicon) | 200, sin referencias rotas |
 | Imágenes de catálogo y marca (`static/img/**`) | 200 con bytes reales (JPEG/PNG válidos, p. ej. `libro-derecho.jpg` 81 455 B, 1200×900) |
 | URLs externas en HTML/CSS/JS | 0 |
@@ -52,11 +52,11 @@ Las respuestas `200 0` que aparecían en el log de gunicorn son solo el tamaño
 omitido de las respuestas servidas con `sendfile`, no ficheros vacíos: se
 verificó el contenido binario de las imágenes una a una.
 
-### Limitación honesta sobre 375 px / 1280 px
+### Limitación de la medición en 375 px / 1280 px
 
-En este entorno no hay navegador headless y la descarga de Chromium para
-Playwright está bloqueada, así que **no se pudo medir `scrollWidth` real**. La
-validación se hizo con el DOM renderizado en jsdom más auditoría estática del CSS:
+No se dispuso de navegador headless (Chromium/Playwright) para **medir
+`scrollWidth` real**. La validación se hizo con el DOM renderizado en jsdom y
+auditoría estática del CSS:
 
 - Rejillas fluidas: `repeat(auto-fill, minmax(min(100%, 220-250px), 1fr))`.
 - Imágenes: `img, svg, video { max-width: 100% }` global.

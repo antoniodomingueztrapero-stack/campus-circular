@@ -1,5 +1,5 @@
 """
-Circular Campus — prototipo independiente de reutilización e intercambio.
+Campus Circular — prototipo independiente de reutilización e intercambio.
 
 Backend: Flask + SQLite local o PostgreSQL gestionado en despliegue.
 Frontend: SPA estática servida desde templates/ + static/, en ES / EN / GL.
@@ -10,7 +10,7 @@ Criterios de funcionamiento:
 - Pagos fuera de la plataforma: no se procesan pagos, no se cobran comisiones,
   no se custodian fondos, no se garantizan objetos ni se media en disputas.
   «Vender» publica únicamente un precio orientativo; cualquier contraprestación
-  se acuerda directamente entre particulares, fuera de Circular Campus.
+  se acuerda directamente entre particulares, fuera de Campus Circular.
 - Privacidad desde el diseño: consentimiento explícito en el registro, aviso
   legal / privacidad / condiciones en tres idiomas, mínimos datos de perfil,
   sin analítica ni recursos de terceros, exportación y supresión de cuenta.
@@ -19,7 +19,7 @@ Criterios de funcionamiento:
 
 Arranque:
     python3 app.py
-    # http://127.0.0.1:5000, o la URL de vista previa / Render
+    # http://127.0.0.1:5000, o la URL pública del despliegue
 
 Variables de entorno opcionales:
     DATABASE (SQLite local), DATABASE_URL (PostgreSQL gestionado), APP_ENV,
@@ -73,12 +73,12 @@ if not USE_POSTGRES:
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-SERVICE_NAME = "Circular Campus"
+SERVICE_NAME = "Campus Circular"
 LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-20")
 LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-20")
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "campuscircular@hotmail.com")
 CONTROLLER_NAME = os.environ.get(
-    "CONTROLLER_NAME", "Equipo Circular Campus (proyecto académico independiente)"
+    "CONTROLLER_NAME", "Equipo Campus Circular (proyecto académico independiente)"
 )
 SESSION_DAYS = 30
 SEED_DEMO = os.environ.get("SEED_DEMO", "1") != "0"
@@ -98,12 +98,12 @@ ITEM_STATUSES = ["disponible", "reservado", "entregado"]
 # Cuentas de demostración: efímeras, sin datos personales y solo con SEED_DEMO=1.
 # Lo que publican NO se borra: al caducar la cuenta, sus objetos se transfieren a
 # la cuenta de muestra para que el catálogo siga siendo compartido y visible.
-DEMO_EMAIL_DOMAIN = "demo.circular-campus.local"
+DEMO_EMAIL_DOMAIN = "demo.campus-circular.local"
 try:
     DEMO_TTL_HOURS = max(1, int(os.environ.get("DEMO_TTL_HOURS", "24")))
 except ValueError:
     DEMO_TTL_HOURS = 24
-DEMO_NAME = "Asistente CTC"
+DEMO_NAME = "Invitado CTC"
 REQUEST_STATUSES = ["pendiente", "aceptada", "rechazada", "cancelada", "completada"]
 RATING_MIN = 1
 RATING_MAX = 5
@@ -1243,8 +1243,8 @@ def is_admin_user(user) -> bool:
 # Seed data — contenido de demostración, sin credenciales compartidas
 # ---------------------------------------------------------------------------
 SEED_OWNER = {
-    "name": "Equipo Circular Campus",
-    "email": "equipo@circular-campus.local",
+    "name": "Equipo Campus Circular",
+    "email": "equipo@campus-circular.local",
     "campus": "vigo",
 }
 
@@ -1294,7 +1294,7 @@ SEED_ITEMS = [
      "category": "muebles", "condition": "bueno", "exchange_type": "regalar", "price": 0,
      "faculty": "artes", "campus": "vigo", "handover_point": "acordado", "image_url": "/static/img/items/lampara.jpg"},
     {"owner": 0, "title": "Teclado inalámbrico silencioso",
-     "description": "Teclado perfecto para biblioteca y aulas, funciona con pilas AA. Precio simbólico orientativo; Circular Campus no gestiona el cobro.",
+     "description": "Teclado perfecto para biblioteca y aulas, funciona con pilas AA. Precio simbólico orientativo; Campus Circular no gestiona el cobro.",
      "category": "electronica", "condition": "bueno", "exchange_type": "vender", "price": 10,
      "faculty": "ciencias", "campus": "pontevedra", "handover_point": "conserjeria", "image_url": "/static/img/items/teclado.jpg"},
 ]
@@ -1857,7 +1857,7 @@ def static_asset():
 @app.get("/healthz")
 def healthz():
     """Sonda barata para Render y monitores: no toca la base de datos."""
-    resp = jsonify({"ok": True, "service": "circular-campus"})
+    resp = jsonify({"ok": True, "service": "campus-circular"})
     resp.headers["Cache-Control"] = "no-store"
     return resp
 
@@ -1866,7 +1866,7 @@ def healthz():
 def health():
     resp = jsonify({
         "ok": True,
-        "service": "circular-campus",
+        "service": "campus-circular",
         "product": SERVICE_NAME,
         "legal_version": LEGAL_VERSION,
         "time": now_iso(),
@@ -2127,7 +2127,7 @@ def create_item(user):
     if not valid_local_image_url(image_url):
         return jsonify({
             "error": "invalid_image_url",
-            "message": "Usa una imagen subida a Circular Campus; no se permiten URL externas.",
+            "message": "Usa una imagen subida a Campus Circular; no se permiten URL externas.",
         }), 400
 
     db = get_db()
@@ -2615,7 +2615,7 @@ def showcase_owner_id(db):
         return None
 
 
-DELETED_USER_EMAIL = "cuenta-eliminada@circular-campus.invalid"
+DELETED_USER_EMAIL = "cuenta-eliminada@campus-circular.invalid"
 DELETED_USER_NAME = "Cuenta eliminada"
 
 
@@ -2954,7 +2954,7 @@ def export_account(user):
         ],
     }
     resp = jsonify(payload)
-    resp.headers["Content-Disposition"] = f'attachment; filename="circular-campus-export-{user["id"]}.json"'
+    resp.headers["Content-Disposition"] = f'attachment; filename="campus-circular-export-{user["id"]}.json"'
     resp.headers["Cache-Control"] = "no-store"
     return resp
 
