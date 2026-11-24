@@ -4,6 +4,7 @@ import io
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from PIL import Image
 
@@ -260,6 +261,113 @@ class ProductionTests(unittest.TestCase):
         plain = self.client.get("/static/css/style.css")
         self.assertNotIn("Content-Encoding", plain.headers)
         self.assertNotEqual(plain.headers["ETag"], etag)
+
+    def test_every_client_asset_is_fingerprinted_and_immutable(self):
+        """Guarda contra el olvido: `?v=` e inmutabilidad van siempre juntos."""
+        self.assertEqual(set(backend.ASSET_TYPES), set(backend.CLIENT_ASSETS))
+        html = self.client.get("/").get_data(as_text=True)
+        for rel in backend.CLIENT_ASSETS:
+            self.assertIn(f"/static/{rel}?v=", html, rel)
+            res = self.client.get(f"/static/{rel}", headers={"Accept-Encoding": "gzip"})
+            self.assertEqual(res.status_code, 200, rel)
+            self.assertIn("immutable", res.headers["Cache-Control"], rel)
+            self.assertTrue(res.headers.get("ETag"), rel)
+            conditional = self.client.get(
+                f"/static/{rel}",
+                headers={"Accept-Encoding": "gzip", "If-None-Match": res.headers["ETag"]},
+            )
+            self.assertEqual(conditional.status_code, 304, rel)
+            # Mismo mecanismo de invalidación para todos: si un día se sirve sin
+            # `?v=` la caché inmutable quedaría apuntando al fichero viejo.
+            self.assertEqual(
+                res.headers["Cache-Control"],
+                "public, max-age=31536000, immutable",
+                rel,
+            )
+
+    def test_boot_theme_script_is_versioned_and_immutable(self):
+        """El arranque del tema se carga como fichero externo (CSP).
+
+        Un `<script>` inline no se ejecutaría con `script-src 'self'`, así que
+        la plantilla debe referenciar `/static/js/theme.js?v=<huella>` y ese
+        fichero debe servirse comprimido, con ETag y caché inmutable.
+        """
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn("/static/js/theme.js?v=", html)
+        self.assertNotIn("<script>(function", html)
+
+        asset = self.client.get("/static/js/theme.js", headers={"Accept-Encoding": "gzip"})
+        self.assertEqual(asset.status_code, 200)
+        self.assertEqual(asset.headers.get("Content-Encoding"), "gzip")
+        self.assertIn("immutable", asset.headers["Cache-Control"])
+        again = self.client.get("/static/js/theme.js", headers={
+            "Accept-Encoding": "gzip", "If-None-Match": asset.headers["ETag"],
+        })
+        self.assertEqual(again.status_code, 304)
+
+    def test_unknown_spa_path_is_a_real_404(self):
+        """La SPA se pinta, pero el código de estado no miente."""
+        ghost = self.client.get("/esta-ruta-no-existe")
+        self.assertEqual(ghost.status_code, 404)
+        self.assertIn(b"<!doctype html>", ghost.get_data().lower()[:400])
+
+        api_ghost = self.client.get("/api/esta-ruta-no-existe")
+        self.assertEqual(api_ghost.status_code, 404)
+        self.assertEqual(api_ghost.get_json()["error"], "not_found")
+
+    def test_personalized_api_responses_are_never_shared_or_stale(self):
+        """Sin `Cache-Control`, una caché intermedia podría guardar la versión
+        de otro: las llamadas autenticadas se revalidan siempre y no son
+        cacheables en compartido; las anónimas tampoco caducan solas."""
+        anon = self.client.get("/api/items")
+        self.assertEqual(anon.headers["Cache-Control"], "public, no-cache")
+
+        token = self.register("Caché", "cache@example.com")
+        mine = self.client.get("/api/items", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(mine.headers["Cache-Control"], "private, no-cache")
+        self.assertIn("Authorization", ", ".join(mine.headers.getlist("Vary")))
+
+        # Una escritura nunca deja rastro cacheable.
+        created = self.client.post("/api/items", json={
+            "title": "Objeto transitorio", "category": "ropa",
+            "exchange_type": "regalar",
+            "image_url": "/static/img/items/ropa.jpg", "private_seller": True,
+        }, headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(created.status_code, 201)
+        self.assertEqual(created.headers["Cache-Control"], "no-store")
+
+        # `/api/stats` sigue anunciando su propia ventana corta: la política por
+        # defecto no debe pisar la que decide la ruta.
+        stats = self.client.get("/api/stats")
+        self.assertIn("max-age", stats.headers["Cache-Control"])
+
+        # Los errores tampoco quedan cacheables: un 404 de un objeto retirado no
+        # puede sobrevivir a su restauración.
+        missing = self.client.get("/api/items/424242")
+        self.assertEqual(missing.status_code, 404)
+        self.assertEqual(missing.headers["Cache-Control"], "no-store")
+        private_list = self.client.get("/api/favorites", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(private_list.status_code, 200)
+        self.assertEqual(private_list.headers["Cache-Control"], "private, no-cache")
+
+    def test_indexable_files_ignore_a_hostile_host(self):
+        """`robots.txt` y `sitemap.xml` no copian un `Host` inventado."""
+        honest = self.client.get("/robots.txt", environ_overrides={"HTTP_HOST": "campus-circular.example"})
+        self.assertIn("http://campus-circular.example/sitemap.xml", honest.text)
+
+        hostile_host = "evil.example/@injected"
+        robots = self.client.get("/robots.txt", environ_overrides={"HTTP_HOST": hostile_host})
+        self.assertEqual(robots.status_code, 200)
+        self.assertIn(backend.DEFAULT_SITE_ROOT, robots.text)
+        self.assertNotIn("evil.example", robots.text)
+
+        xml = self.client.get("/sitemap.xml", environ_overrides={"HTTP_HOST": hostile_host})
+        self.assertNotIn("evil.example", xml.text)
+        self.assertIn("<urlset", xml.text)
+
+        with mock.patch.dict(os.environ, {"PUBLIC_URL": "https://aviso.example.org/"}):
+            pinned = self.client.get("/sitemap.xml", environ_overrides={"HTTP_HOST": hostile_host})
+        self.assertIn("<loc>https://aviso.example.org/</loc>", pinned.text)
 
     def test_stats_cache_can_be_invalidated(self):
         backend.app.config["TESTING"] = False

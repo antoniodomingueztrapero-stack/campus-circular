@@ -67,6 +67,8 @@ const I18N = {
     results: "objetos", no_results: "No hay objetos con esos filtros. Prueba con otra búsqueda o publica el tuyo.",
     free: "Gratis", price_orientative: "Precio orientativo", view_item: "Ver", items_word: "objetos",
     how_title: "Cómo funciona", how_1_t: "1. Publica", how_1_b: "Foto real, estado honesto y punto de entrega. Sin datos personales en la descripción.",
+    theme_to_dark: "Activar modo noche",
+    theme_to_light: "Activar modo claro",
     how_2_t: "2. Busca y solicita", how_2_b: "Filtra por categoría, campus y estado. Envía una solicitud con un mensaje breve.",
     how_3_t: "3. Queda en público", how_3_b: "Acordad un lugar seguro y marcado como entregado cuando terminéis.",
     trust_title: "Diseñado con criterios claros", trust_1: "Consentimiento explícito, aviso legal, privacidad y condiciones en tres idiomas.",
@@ -75,6 +77,23 @@ const I18N = {
     login: "Iniciar sesión", register: "Crear cuenta", logout: "Cerrar sesión", my_area: "Mi área",
     my_items: "Mis objetos", my_requests: "Mis solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un objeto", publish_intro: "Publica como particular. El precio, si lo hay, es orientativo; Campus Circular no gestiona cobros.",
+    publish_progress: "de 3 pasos listos",
+    publish_check_photo: "Foto", publish_check_title: "Título", publish_check_consent: "Declaración",
+    publish_step_media: "La foto", publish_step_media_hint: "Una foto real vende más que mil palabras. Ten el objeto delante.",
+    publish_step_basics: "Qué publicas", publish_step_basics_hint: "Título, categoría y modalidad. Lo demás se entiende en la foto.",
+    publish_step_final: "Confirmar y publicar", publish_step_final_hint: "Solo la declaración de particular y ya está.",
+    photo_take: "Hacer una foto", photo_pick: "Elegir de la galería",
+    photo_added: "Foto añadida · toca para cambiarla",
+    publish_title_hint: "Nombre, marca y modelo si los tiene.",
+    publish_type_hint: "Puedes cambiarlo después desde tus publicaciones.",
+    publish_bar_title: "Todo listo para publicar",
+    publish_bar_hint: "Añade foto, título y confirmación",
+    publish_bar_pending: "Complétalo para publicar",
+    publish_bar_ready: "Ya puedes publicarlo",
+    publish_preview_t: "Vista previa",
+    publish_preview_empty: "Añade una foto para ver tu anuncio",
+    publish_preview_untitled: "Título de tu anuncio",
+    publish_tip: "Fondo liso, luz natural y una foto del objeto completo: es lo que más solicitudes genera.",
     f_title: "Título", f_desc: "Descripción", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Precio orientativo (€)", f_price_hint: "No se cobra aquí. El importe se acuerda directamente y fuera de la plataforma.",
     f_image: "Foto del objeto", f_image_hint: "Sube una imagen real. Se reescala a 1200 px, se convierte a WebP y se eliminan los metadatos EXIF (incluida la ubicación).",
@@ -211,6 +230,24 @@ const I18N = {
     rating_none_short: "sin valoraciones",
     ratings_received: "Valoraciones recibidas",
     ratings_none: "Todavía no hay valoraciones de este perfil.",
+    comments_title: "Valoraciones y comentarios",
+    comments_empty: "Todavía no hay comentarios. Sé la primera persona en opinar.",
+    comments_add: "Deja tu valoración",
+    comments_body: "Comentario",
+    comments_body_ph: "¿Qué te pareció esta publicación? Describe el estado, la entrega o cualquier detalle útil.",
+    comments_score: "Puntuación (opcional)",
+    comments_score_none: "Sin puntuación",
+    comments_submit: "Publicar comentario",
+    comments_login: "Inicia sesión para dejar un comentario.",
+    comments_already: "Ya has dejado tu valoración en esta publicación.",
+    comments_posted: "Comentario publicado.",
+    comments_count: "{n} comentarios",
+    comments_count_one: "1 comentario",
+    comments_avg: "{a} de 5",
+    comments_score_aria: "Puntuar con {n} estrellas",
+    comments_more: "Ver más comentarios",
+    comments_own: "Tus propias publicaciones no pueden valorarse por ti mismo: quien opina es quien recibe el objeto.",
+    comments_need_something: "Escribe un comentario o deja una valoración.",
     exchanges_completed: "Intercambios completados",
     given_label: "Entregados",
     received_label: "Recibidos",
@@ -331,6 +368,8 @@ const I18N = {
     results: "items", no_results: "No items match those filters. Try another search or list yours.",
     free: "Free", price_orientative: "Indicative price", view_item: "View", items_word: "items",
     how_title: "How it works", how_1_t: "1. List", how_1_b: "A real photo, an honest condition and a handover point. No personal data in the description.",
+    theme_to_dark: "Switch to dark mode",
+    theme_to_light: "Switch to light mode",
     how_2_t: "2. Search & request", how_2_b: "Filter by category, campus and condition. Send a short request message.",
     how_3_t: "3. Meet in public", how_3_b: "Choose a safe public place and mark the item as handed over when you are done.",
     trust_title: "Built with clear choices", trust_1: "Explicit consent, legal notice, privacy policy and terms in three languages.",
@@ -339,6 +378,23 @@ const I18N = {
     login: "Log in", register: "Create account", logout: "Log out", my_area: "My area",
     my_items: "My items", my_requests: "My requests", received: "Received requests", favorites: "Favorites",
     publish_title: "List an item", publish_intro: "List as a private individual. Any price is indicative; Campus Circular does not handle payments.",
+    publish_progress: "of 3 steps ready",
+    publish_check_photo: "Photo", publish_check_title: "Title", publish_check_consent: "Declaration",
+    publish_step_media: "The photo", publish_step_media_hint: "One real photo works better than a thousand words. Have the item with you.",
+    publish_step_basics: "What you are listing", publish_step_basics_hint: "Title, category and type. The rest shows in the photo.",
+    publish_step_final: "Confirm and publish", publish_step_final_hint: "Just the private-individual declaration and you are done.",
+    photo_take: "Take a photo", photo_pick: "Choose from gallery",
+    photo_added: "Photo added · tap to change it",
+    publish_title_hint: "Name, brand and model if it has them.",
+    publish_type_hint: "You can change this later from your listings.",
+    publish_bar_title: "Ready to publish",
+    publish_bar_hint: "Add a photo, a title and the confirmation",
+    publish_bar_pending: "Finish it to publish",
+    publish_bar_ready: "You are good to publish",
+    publish_preview_t: "Preview",
+    publish_preview_empty: "Add a photo to see your listing",
+    publish_preview_untitled: "Your listing title",
+    publish_tip: "Plain background, daylight and the whole item in frame: that is what brings the most requests.",
     f_title: "Title", f_desc: "Description", f_category: "Category", f_condition: "Condition", f_type: "Exchange type",
     f_campus: "Campus", f_handover: "Handover point", f_price: "Indicative price (€)", f_price_hint: "No payment happens here. Settle any amount directly, outside the platform.",
     f_image: "Item photo", f_image_hint: "Upload a real image. It is resized to 1200 px, converted to WebP and stripped of EXIF metadata (including location).",
@@ -475,6 +531,24 @@ const I18N = {
     rating_none_short: "no ratings",
     ratings_received: "Reviews received",
     ratings_none: "This profile has no reviews yet.",
+    comments_title: "Ratings and comments",
+    comments_empty: "No comments yet. Be the first to share your thoughts.",
+    comments_add: "Leave your review",
+    comments_body: "Comment",
+    comments_body_ph: "What did you think of this listing? Describe condition, handover, or any useful detail.",
+    comments_score: "Rating (optional)",
+    comments_score_none: "No rating",
+    comments_submit: "Post comment",
+    comments_login: "Log in to leave a comment.",
+    comments_already: "You have already reviewed this listing.",
+    comments_posted: "Comment posted.",
+    comments_count: "{n} comments",
+    comments_count_one: "1 comment",
+    comments_avg: "{a} out of 5",
+    comments_score_aria: "Rate {n} stars",
+    comments_more: "Show more comments",
+    comments_own: "You cannot rate your own listing: opinions come from the people who receive the item.",
+    comments_need_something: "Write a comment or leave a rating.",
     exchanges_completed: "Completed exchanges",
     given_label: "Given",
     received_label: "Received",
@@ -595,6 +669,8 @@ const I18N = {
     results: "obxectos", no_results: "Non hai obxectos con eses filtros. Proba con outra busca ou publica o teu.",
     free: "De balde", price_orientative: "Prezo orientativo", view_item: "Ver", items_word: "obxectos",
     how_title: "Como funciona", how_1_t: "1. Publica", how_1_b: "Foto real, estado honesto e punto de entrega. Sen datos persoais na descrición.",
+    theme_to_dark: "Activar modo noite",
+    theme_to_light: "Activar modo claro",
     how_2_t: "2. Busca e solicita", how_2_b: "Filtra por categoría, campus e estado. Envía unha solicitude cunha mensaxe breve.",
     how_3_t: "3. Queda en público", how_3_b: "Escollede un lugar seguro e marcade como entregado ao rematar.",
     trust_title: "Deseñado con criterios claros", trust_1: "Consentimento explícito, aviso legal, privacidade e condicións en tres idiomas.",
@@ -603,6 +679,23 @@ const I18N = {
     login: "Iniciar sesión", register: "Crear conta", logout: "Pechar sesión", my_area: "A miña área",
     my_items: "Os meus obxectos", my_requests: "As miñas solicitudes", received: "Solicitudes recibidas", favorites: "Favoritos",
     publish_title: "Publicar un obxecto", publish_intro: "Publica como particular. O prezo, se o hai, é orientativo; Campus Circular non xestiona cobros.",
+    publish_progress: "de 3 pasos listos",
+    publish_check_photo: "Foto", publish_check_title: "Título", publish_check_consent: "Declaración",
+    publish_step_media: "A foto", publish_step_media_hint: "Unha foto real vale máis que mil palabras. Ten o obxecto diante.",
+    publish_step_basics: "Que publicas", publish_step_basics_hint: "Título, categoría e modalidade. O demais véxose na foto.",
+    publish_step_final: "Confirmar e publicar", publish_step_final_hint: "Só a declaración de particular e xa está.",
+    photo_take: "Facer unha foto", photo_pick: "Escoller da galería",
+    photo_added: "Foto engadida · toca para cambiala",
+    publish_title_hint: "Nome, marca e modelo se os ten.",
+    publish_type_hint: "Podes modificalo despois desde as túas publicacións.",
+    publish_bar_title: "Todo listo para publicar",
+    publish_bar_hint: "Engade foto, título e confirmación",
+    publish_bar_pending: "Coméntao para publicar",
+    publish_bar_ready: "Xa podes publicalo",
+    publish_preview_t: "Vista previa",
+    publish_preview_empty: "Engade unha foto para ver o teu anuncio",
+    publish_preview_untitled: "Título do teu anuncio",
+    publish_tip: "Fondo liso, luz natural e unha foto do obxecto completo: é o que xera máis solicitudes.",
     f_title: "Título", f_desc: "Descrición", f_category: "Categoría", f_condition: "Estado", f_type: "Tipo de intercambio",
     f_campus: "Campus", f_handover: "Punto de entrega", f_price: "Prezo orientativo (€)", f_price_hint: "Aquí non se cobra. O importe acórdase directamente e fóra da plataforma.",
     f_image: "Foto do obxecto", f_image_hint: "Sube unha imaxe real. Redimensiónase a 1200 px, convértese a WebP e elimínanse os metadatos EXIF (incluída a localización).",
@@ -739,6 +832,24 @@ const I18N = {
     rating_none_short: "sen valoracións",
     ratings_received: "Valoracións recibidas",
     ratings_none: "Aínda non hai valoracións deste perfil.",
+    comments_title: "Valoracións e comentarios",
+    comments_empty: "Aínda non hai comentarios. Sé a primeira persoa en opinar.",
+    comments_add: "Deixa a túa valoración",
+    comments_body: "Comentario",
+    comments_body_ph: "Que che pareceu esta publicación? Describe o estado, a entrega ou calquera detalle útil.",
+    comments_score: "Puntuación (opcional)",
+    comments_score_none: "Sen puntuación",
+    comments_submit: "Publicar comentario",
+    comments_login: "Inicia sesión para deixar un comentario.",
+    comments_already: "Xa deixaches a túa valoración nesta publicación.",
+    comments_posted: "Comentario publicado.",
+    comments_count: "{n} comentarios",
+    comments_count_one: "1 comentario",
+    comments_avg: "{a} de 5",
+    comments_score_aria: "Puntuar con {n} estrelas",
+    comments_more: "Ver máis comentarios",
+    comments_own: "Non podes valorar as túas propias publicacións: opinan quen recibe o obxecto.",
+    comments_need_something: "Escribe un comentario ou deixa unha valoración.",
     exchanges_completed: "Intercambios completados",
     given_label: "Entregados",
     received_label: "Recibidos",
@@ -847,7 +958,7 @@ const LEGAL_DOCS = {
     ],
     privacy: [
       { h: "1. Responsable y contacto", p: ["Responsable: {controller}. Contacto de privacidad: {contact}. Versión del documento: {version}, actualizada el {updated}."] },
-      { h: "2. Datos que tratamos", p: ["Registro: nombre visible, email, contraseña almacenada como hash, campus elegido, fecha de alta, consentimiento y su versión.", "Contenido: título, descripción, categoría, estado, tipo, precio orientativo, imagen subida, favoritos y mensajes de solicitud. Las solicitudes recibidas por una persona pueden contener el nombre visible y el mensaje de quien solicita.", "Sesión: un token aleatorio guardado en el navegador y una fecha de caducidad. No se guarda la dirección IP con la cuenta ni se crean perfiles publicitarios."] },
+      { h: "2. Datos que tratamos", p: ["Registro: nombre visible, email, contraseña almacenada como hash, campus elegido, fecha de alta, consentimiento y su versión.", "Contenido: título, descripción, categoría, estado, tipo, precio orientativo, imagen subida, favoritos y mensajes de solicitud. Las solicitudes recibidas por una persona pueden contener el nombre visible y el mensaje de quien solicita.", "Opiniones de objetos: puntuación de 1 a 5 y texto de hasta 500 caracteres, publicados junto al objeto con tu nombre visible y la fecha; son visibles para quien consulte el catálogo.", "Sesión: un token aleatorio guardado en el navegador y una fecha de caducidad. No se guarda la dirección IP con la cuenta ni se crean perfiles publicitarios."] },
       { h: "3. Finalidades y base jurídica", p: ["Gestionar la cuenta, mostrar publicaciones, tramitar solicitudes y permitir favoritos: ejecución de la relación de uso del servicio y consentimiento expreso prestado al registrarse.", "Conservar el registro del consentimiento: obligación de poder acreditar que la información se aceptó de forma libre, específica, informada e inequívoca.", "No se tratan datos para publicidad, analítica, perfilado, cesiones comerciales ni decisiones automatizadas."] },
       { h: "4. Consentimiento explícito", p: ["La casilla de registro está sin marcar y enlaza con esta política y con las condiciones. Si cambiamos sustancialmente la finalidad o la versión legal, las cuentas existentes deberán aceptar de nuevo la versión vigente antes de seguir publicando.", "Puedes retirar el consentimiento eliminando la cuenta desde Mi área o escribiendo a {contact}; la retirada no afecta a la licitud del tratamiento previo."] },
       { h: "5. Conservación", p: ["Los datos de la cuenta se conservan mientras exista y, después, solo durante el plazo necesario para atender incidencias o cumplir obligaciones legales. Las sesiones caducan a los {days} días y se eliminan las caducadas al iniciar sesión.", "En el despliegue gratuito de demostración la base SQLite puede estar en almacenamiento efímero: un reinicio puede hacer desaparecer los datos. Esta circunstancia no sustituye una copia de seguridad ni una solicitud formal de supresión."] },
@@ -857,7 +968,7 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["El servicio está pensado para personas adultas. No se recoge fecha de nacimiento y no se admite el registro de menores de 14 años. Si eres menor de edad, no publiques datos personales ni quedes sin acompañamiento."] },
       { h: "10. Cookies, analítica y recursos de terceros", p: ["No se usan cookies de sesión, cookies publicitarias, analítica, píxeles ni rastreadores. El idioma y el token se guardan en el almacenamiento local del navegador; puedes borrarlos desde su configuración.", "Las imágenes de ejemplo y de categoría se sirven desde este mismo dominio. Para privacidad, no se aceptan URL de imágenes externas en las publicaciones."] },
       { h: "11. Fotografías", p: ["Las fotos de objetos que subas pueden contener datos personales si muestras cartas, pantallas, etiquetas o documentos: revísalas antes de publicar.", "La fotografía de grupo de la página del proyecto forma parte de los materiales del proyecto. Las imágenes de personas son datos personales; si apareces en ella y deseas que se retire, escribe a {contact}."] },
-      { h: "12. Valoraciones", p: ["Tras una entrega completada, ambas partes pueden puntuar de 1 a 5 y dejar un comentario opcional. Se guardan la puntuación, el comentario, la fecha y el vínculo con el intercambio; la media aparece en el perfil público junto al nombre visible de quien valora."] },
+      { h: "12. Valoraciones", p: ["Tras una entrega completada, ambas partes pueden puntuar de 1 a 5 y dejar un comentario opcional. Se guardan la puntuación, el comentario, la fecha y el vínculo con el intercambio; la media aparece en el perfil público junto al nombre visible de quien valora.", "Junto a cada objeto publicado, cualquier cuenta puede dejar una opinión con su puntuación: se muestra en el catálogo y en la ficha del objeto con tu nombre visible y la fecha. Se escribe una sola vez por objeto, no se edita desde la web y desaparece si el objeto se retira o se elimina la cuenta.", "Que alguien opine no significa que haya recibido el objeto: son valoraciones subjetivas entre particulares y no se moderan de forma automática. Si una opinión incluye datos personales o contenido lesivo, escríbenos a {contact} para retirarla."] },
       { h: "13. Cambios", p: ["Los cambios relevantes se reflejarán en el número de versión {version} y en la fecha {updated}. La versión vigente se muestra también en el registro y en Mi área."] },
     ],
     terms: [
@@ -869,8 +980,8 @@ const LEGAL_DOCS = {
       { h: "6. Entregas y solicitudes", p: ["La solicitud sirve para coordinar el intercambio. Elegid un lugar público y concurrido, comprobad el objeto antes de aceptarlo y acordad por escrito la devolución si es un préstamo.", "No hay envíos por correo gestionados por Campus Circular. Marca el objeto como entregado solo cuando la entrega real haya terminado."] },
       { h: "7. Usos prohibidos", p: ["Prohibido publicar datos de contacto en abierto, suplantar identidades, acosar, estafar, vender como profesional, eludir la validación de imágenes, introducir URL externas o intentar usar la plataforma como monedero, escrow o sistema de comisiones.", "Prohibido subir contenido ilegal, peligroso, discriminatorio o que vulnere derechos de terceros."] },
       { h: "8. Responsabilidad", p: ["Campus Circular ofrece una herramienta técnica de publicación y solicitud, pero no verifica objetos, no participa en los acuerdos y no responde por su cumplimiento, estado, precio, pago, devolución o daños.", "El prototipo puede tener errores, reiniciarse o perder datos en un alojamiento gratuito efímero. No lo uses como único repositorio de información importante."] },
-      { h: "9. Datos y supresión", p: ["El tratamiento de datos se describe en {privacyLink}. Puedes descargar una copia y eliminar la cuenta desde Mi área, o escribir a {contact}.", "La supresión elimina perfil, sesiones, publicaciones, favoritos y solicitudes propias; no crea una copia de respaldo. Las solicitudes recibidas, las valoraciones y los reportes escritos por otras personas se conservan de forma anonimizada para no destruir su historial."] },
-      { h: "11. Valoraciones", p: ["Solo se puede valorar un intercambio cuando la entrega figura como completada. Las valoraciones son públicas, no se editan y deben describir la entrega sin insultos, datos personales ni acusaciones no contrastadas."] },
+      { h: "9. Datos y supresión", p: ["El tratamiento de datos se describe en {privacyLink}. Puedes descargar una copia y eliminar la cuenta desde Mi área, o escribir a {contact}.", "La supresión elimina perfil, sesiones, publicaciones con sus opiniones, favoritos y solicitudes propias; no crea una copia de respaldo. Las solicitudes recibidas, las valoraciones, las opiniones de objetos y los reportes escritos por otras personas se conservan de forma anonimizada para no destruir su historial."] },
+      { h: "10. Valoraciones y opiniones de objetos", p: ["Solo se puede valorar un intercambio cuando la entrega figura como completada. Las valoraciones son públicas, no se editan y deben describir la entrega sin insultos, datos personales ni acusaciones no contrastadas.", "Las opiniones publicadas bajo un objeto las escribe cualquier cuenta, sin necesidad de haber cerrado un intercambio, y tampoco se editan ni se borran desde la web. Es opinión privada: no difames, no publiques datos de terceros ni uses el hueco para publicidad. Para retirar una opinión, escribe a {contact}."] },
       { h: "11. Cambios y ley aplicable", p: ["Podemos actualizar estas condiciones para reflejar cambios técnicos o legales; la versión vigente es {version}, de {updated}.", "Estas condiciones se interpretan conforme a la normativa española y europea aplicable, en particular RGPD, LOPDGDD y LSSI cuando corresponda. No constituyen asesoramiento jurídico, fiscal o de consumo."] },
     ],
   },
@@ -884,7 +995,7 @@ const LEGAL_DOCS = {
     ],
     privacy: [
       { h: "1. Controller and contact", p: ["Controller: {controller}. Privacy contact: {contact}. Document version: {version}, updated {updated}."] },
-      { h: "2. Data we process", p: ["Account: display name, email, hashed password, chosen campus, signup date, consent record and its version.", "Content: title, description, category, condition, exchange type, indicative price, uploaded image, favorites and request messages. Requests received by a person may include the requester's display name and message.", "Session: a random token stored in the browser and an expiry date. No account IP address is stored and no advertising profiles are built."] },
+      { h: "2. Data we process", p: ["Account: display name, email, hashed password, chosen campus, signup date, consent record and its version.", "Content: title, description, category, condition, exchange type, indicative price, uploaded image, favorites and request messages. Requests received by a person may include the requester's display name and message.", "Item opinions: a 1-5 score and up to 500 characters of text, published next to the item with your display name and date and visible to anyone browsing the catalog.", "Session: a random token stored in the browser and an expiry date. No account IP address is stored and no advertising profiles are built."] },
       { h: "3. Purposes and legal basis", p: ["Managing the account, displaying listings, handling requests and favorites: performance of the service relationship and the explicit consent given at registration.", "Keeping a consent record: accountability for consent that must be free, specific, informed and unambiguous.", "No data is used for advertising, analytics, profiling, commercial transfers or automated decisions."] },
       { h: "4. Explicit consent", p: ["The registration checkbox is unchecked and links to this policy and the terms. If purposes or the legal version change materially, existing accounts must accept the current version again before publishing.", "Consent may be withdrawn by deleting the account from My area or writing to {contact}; withdrawal does not affect the lawfulness of prior processing."] },
       { h: "5. Retention", p: ["Account data is kept while the account exists and afterwards only as long as needed to handle incidents or legal duties. Sessions expire after {days} days and expired sessions are removed at login.", "On the free demo deployment the SQLite database may be on ephemeral storage: a restart can remove data. That is not a backup and does not replace a formal erasure request."] },
@@ -894,7 +1005,7 @@ const LEGAL_DOCS = {
       { h: "9. Minors", p: ["The service is intended for adults. No date of birth is collected and registration by children under 14 is not accepted. Minors should not post personal data or attend handovers unaccompanied."] },
       { h: "10. Cookies, analytics and third-party resources", p: ["No session cookies, advertising cookies, analytics, pixels or trackers are used. Language and token are stored in browser local storage and can be cleared in browser settings.", "Sample and category images are served from this same domain. For privacy, external image URLs are not accepted in listings."] },
       { h: "11. Photographs", p: ["Photos you upload may contain personal data if they show letters, screens, labels or documents: check them before publishing.", "The group photo on the project page is part of the project materials. Images of people are personal data; if you appear in it and want it removed, write to {contact}."] },
-      { h: "12. Ratings", p: ["After a completed handover, both parties may rate from 1 to 5 and leave an optional comment. The score, comment, date and link to the exchange are stored; the average appears on the public profile next to the rater's display name."] },
+      { h: "12. Ratings", p: ["After a completed handover, both parties may rate from 1 to 5 and leave an optional comment. The score, comment, date and link to the exchange are stored; the average appears on the public profile next to the rater's display name.", "Any account may also leave an opinion with a score under a published item: it shows in the catalog and on the item page with your display name and date. It can be written once per item, cannot be edited from the web and disappears when the item is withdrawn or the account deleted.", "An opinion does not prove that the author received the item: these are subjective views between private individuals and they are not automatically moderated. If an opinion contains personal data or harmful content, write to {contact} so it can be removed."] },
       { h: "13. Changes", p: ["Material changes will be reflected in version {version} and date {updated}. The current version is also shown at registration and in My area."] },
     ],
     terms: [
@@ -906,8 +1017,8 @@ const LEGAL_DOCS = {
       { h: "6. Handovers and requests", p: ["The request coordinates the exchange. Choose a busy public place, inspect the item before accepting it and agree a return date in writing for a loan.", "Campus Circular does not manage postal shipping. Mark an item as delivered only after the real handover is complete."] },
       { h: "7. Prohibited uses", p: ["Do not post open contact details, impersonate others, harass, defraud, sell professionally, bypass image validation, insert external URLs or try to use the platform as a wallet, escrow or commission system.", "Do not upload illegal, dangerous, discriminatory content or material that infringes third-party rights."] },
       { h: "8. Liability", p: ["Campus Circular provides a technical listing and request tool, but does not verify items, take part in agreements or answer for their performance, condition, price, payment, return or damages.", "The prototype may contain errors, restart or lose data on a free ephemeral host. Do not use it as the only repository for important information."] },
-      { h: "9. Data and erasure", p: ["Data processing is described in {privacyLink}. You can download a copy and delete your account from My area, or write to {contact}.", "Erasure removes the profile, sessions, listings, favorites and own requests; it does not create a backup copy. Requests received, ratings and reports written by other people are kept anonymised so their history is not destroyed."] },
-      { h: "11. Ratings", p: ["An exchange can only be rated once the handover is marked as completed. Ratings are public, cannot be edited and must describe the handover without insults, personal data or unverified accusations."] },
+      { h: "9. Data and erasure", p: ["Data processing is described in {privacyLink}. You can download a copy and delete your account from My area, or write to {contact}.", "Erasure removes the profile, sessions, listings with their opinions, favorites and own requests; it does not create a backup copy. Requests received, ratings, item opinions and reports written by other people are kept anonymised so their history is not destroyed."] },
+      { h: "10. Ratings and item opinions", p: ["An exchange can only be rated once the handover is marked as completed. Ratings are public, cannot be edited and must describe the handover without insults, personal data or unverified accusations.", "Item opinions are written by any account without a closed exchange and are equally immutable from the web. They count as private opinion: no defamation, no third-party personal data, no advertising. To have an opinion removed, write to {contact}."] },
       { h: "11. Changes and applicable law", p: ["These terms may be updated to reflect technical or legal changes; the current version is {version}, dated {updated}.", "They are interpreted under applicable Spanish and EU law, in particular GDPR, LOPDGDD and LSSI where relevant. They are not legal, tax or consumer advice."] },
     ],
   },
@@ -921,7 +1032,7 @@ const LEGAL_DOCS = {
     ],
     privacy: [
       { h: "1. Responsable e contacto", p: ["Responsable: {controller}. Contacto de privacidade: {contact}. Versión do documento: {version}, actualizada o {updated}."] },
-      { h: "2. Datos que tratamos", p: ["Rexistro: nome visible, email, contrasinal gardado como hash, campus elixido, data de alta, consentimento e a súa versión.", "Contido: título, descrición, categoría, estado, tipo, prezo orientativo, imaxe subida, favoritos e mensaxes de solicitude. As solicitudes recibidas poden conter o nome visible e a mensaxe de quen solicita.", "Sesión: un token aleatorio gardado no navegador e unha data de caducidade. Non se garda o enderezo IP coa conta nin se crean perfís publicitarios."] },
+      { h: "2. Datos que tratamos", p: ["Rexistro: nome visible, email, contrasinal gardado como hash, campus elixido, data de alta, consentimento e a súa versión.", "Contido: título, descrición, categoría, estado, tipo, prezo orientativo, imaxe subida, favoritos e mensaxes de solicitude. As solicitudes recibidas poden conter o nome visible e a mensaxe de quen solicita.", "Opinións de obxectos: puntuación de 1 a 5 e texto de ata 500 caracteres, publicados xunto ao obxecto co teu nome visible e a data; son visibles para quen consulte o catálogo.", "Sesión: un token aleatorio gardado no navegador e unha data de caducidade. Non se garda o enderezo IP coa conta nin se crean perfís publicitarios."] },
       { h: "3. Finalidades e base xurídica", p: ["Xestionar a conta, amosar publicacións, tramitar solicitudes e permitir favoritos: execución da relación de uso do servizo e consentimento expreso prestado ao rexistrarse.", "Conservar o rexistro do consentimento: obriga de poder acreditar que a información se aceptou de forma libre, específica, informada e inequívoca.", "Non se tratan datos para publicidade, analítica, perfilado, cesións comerciais nin decisións automatizadas."] },
       { h: "4. Consentimento explícito", p: ["A caixa de rexistro está sen marcar e enlaza con esta política e coas condicións. Se cambiamos substancialmente a finalidade ou a versión legal, as contas existentes deberán aceptar de novo a versión vixente antes de seguir publicando.", "Podes retirar o consentimento eliminando a conta na Miña área ou escribindo a {contact}; a retirada non afecta á licitude do tratamento previo."] },
       { h: "5. Conservación", p: ["Os datos da conta consérvanse mentres exista e, despois, só durante o prazo necesario para atender incidencias ou cumprir obrigas legais. As sesións caducan aos {days} días e elimínanse as caducadas ao iniciar sesión.", "No despregue gratuíto de demostración a base SQLite pode estar en almacenamento efémero: un reinicio pode facer desaparecer os datos. Isto non substitúe unha copia de seguridade nin unha solicitude formal de supresión."] },
@@ -931,7 +1042,7 @@ const LEGAL_DOCS = {
       { h: "9. Menores", p: ["O servizo está pensado para persoas adultas. Non se recolle data de nacemento e non se admite o rexistro de menores de 14 anos. Se es menor, non publiques datos persoais nin quedes sen acompañamento."] },
       { h: "10. Cookies, analítica e recursos de terceiros", p: ["Non se usan cookies de sesión, cookies publicitarias, analítica, píxeles nin rastrexadores. O idioma e o token gárdanse no almacenamento local do navegador; podes borralos desde a súa configuración.", "As imaxes de exemplo e de categoría sírvense desde este mesmo dominio. Para privacidade, non se aceptan URL de imaxes externas nas publicacións."] },
       { h: "11. Fotografías", p: ["As fotos de obxectos que subas poden conter datos persoais se amosan cartas, pantallas, etiquetas ou documentos: revísaas antes de publicar.", "A fotografía de grupo da páxina do proxecto forma parte dos materiais do proxecto. As imaxes de persoas son datos persoais; se apareces nela e desexas que se retire, escribe a {contact}."] },
-      { h: "12. Valoracións", p: ["Tras unha entrega completada, ambas as partes poden puntuar de 1 a 5 e deixar un comentario opcional. Gárdanse a puntuación, o comentario, a data e o vínculo co intercambio; a media aparece no perfil público xunto ao nome visible de quen valora."] },
+      { h: "12. Valoracións", p: ["Tras unha entrega completada, ambas as partes poden puntuar de 1 a 5 e deixar un comentario opcional. Gárdanse a puntuación, o comentario, a data e o vínculo co intercambio; a media aparece no perfil público xunto ao nome visible de quen valora.", "Xunto a cada obxecto publicado, calquera conta pode deixar unha opinión coa súa puntuación: móstrase no catálogo e na ficha do obxecto co teu nome visible e a data. Escríbese unha soa vez por obxecto, non se edita desde a web e desaparece se o obxecto se retira ou se elimina a conta.", "Que alguén opine non quere dicir que recibiu o obxecto: son valoracións subxectivas entre particulares e non se moderan de forma automática. Se unha opinión inclúe datos persoais ou contido lesivo, escríbenos a {contact} para que se retire."] },
       { h: "13. Cambios", p: ["Os cambios relevantes reflectiranse no número de versión {version} e na data {updated}. A versión vixente tamén se amosa no rexistro e na Miña área."] },
     ],
     terms: [
@@ -943,8 +1054,8 @@ const LEGAL_DOCS = {
       { h: "6. Entregas e solicitudes", p: ["A solicitude serve para coordinar o intercambio. Escollede un lugar público e concorrido, comprobade o obxecto antes de aceptalo e acordade por escrito a devolución se é un préstamo.", "Non hai envíos por correo xestionados por Campus Circular. Marca o obxecto como entregado só cando a entrega real rematase."] },
       { h: "7. Usos prohibidos", p: ["Prohíbese publicar datos de contacto en aberto, suplantar identidades, acosar, estafar, vender como profesional, eludir a validación de imaxes, introducir URL externas ou intentar usar a plataforma como moedeiro, escrow ou sistema de comisións.", "Prohíbese subir contido ilegal, perigoso, discriminatorio ou que vulnere dereitos de terceiros."] },
       { h: "8. Responsabilidade", p: ["Campus Circular ofrece unha ferramenta técnica de publicación e solicitude, pero non verifica obxectos, non participa nos acordos e non responde polo seu cumprimento, estado, prezo, pago, devolución ou danos.", "O prototipo pode ter erros, reiniciarse ou perder datos nun aloxamento gratuíto efémero. Non o uses como único repositorio de información importante."] },
-      { h: "9. Datos e supresión", p: ["O tratamento de datos descríbese en {privacyLink}. Podes descargar unha copia e eliminar a conta na Miña área, ou escribir a {contact}.", "A supresión elimina perfil, sesións, publicacións, favoritos e solicitudes propias; non crea unha copia de respaldo. As solicitudes recibidas, as valoracións e os reportes escritos por outras persoas consérvanse de forma anonimizada para non destruír o seu historial."] },
-      { h: "11. Valoracións", p: ["Só se pode valorar un intercambio cando a entrega figura como completada. As valoracións son públicas, non se editan e deben describir a entrega sen insultos, datos persoais nin acusacións non contrastadas."] },
+      { h: "9. Datos e supresión", p: ["O tratamento de datos descríbese en {privacyLink}. Podes descargar unha copia e eliminar a conta na Miña área, ou escribir a {contact}.", "A supresión elimina perfil, sesións, publicacións coas súas opinións, favoritos e solicitudes propias; non crea unha copia de respaldo. As solicitudes recibidas, as valoracións, as opinións de obxectos e os reportes escritos por outras persoas consérvanse de forma anonimizada para non destruír o seu historial."] },
+      { h: "10. Valoracións e opinións de obxectos", p: ["Só se pode valorar un intercambio cando a entrega figura como completada. As valoracións son públicas, non se editan e deben describir a entrega sen insultos, datos persoais nin acusacións non contrastadas.", "As opinións publicadas baixo un obxecto escríveas calquera conta, sen precisar un intercambio pechado, e tampouco se editan nin se borran desde a web. Son opinión privada: non difames, non publiques datos de terceiros nin uses o oco para publicidade. Para retirar unha opinión, escribe a {contact}."] },
       { h: "11. Cambios e lei aplicable", p: ["Podemos actualizar estas condicións para reflectir cambios técnicos ou legais; a versión vixente é {version}, de {updated}.", "Estas condicións interprétanse conforme á normativa española e europea aplicable, en particular RGPD, LOPDGDD e LSSI cando corresponda. Non constitúen asesoramento xurídico, fiscal ou de consumo."] },
     ],
   }
@@ -2090,6 +2201,17 @@ function favoriteLabel(saved, title) {
   return title ? `${action}: ${title}` : action;
 }
 
+/* Nota media de las valoraciones públicas: solo aparece si alguien ya opinó. */
+function cardRating(it) {
+  const c = it.comments || {};
+  if (!c.count) return "";
+  const label = c.count === 1 ? t("comments_count_one") : t("comments_count").replace("{n}", String(c.count));
+  const stars = c.average
+    ? `<span class="mini-stars" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<span class="star${n <= Math.round(c.average) ? " is-on" : ""}">★</span>`).join("")}</span><span class="mini-avg">${fmtNum(c.average, 1)}</span>`
+    : `<span class="mini-label">${esc(t("comments_title"))}</span>`;
+  return `<p class="card-rating">${stars}<span class="mini-count">${esc(label)}</span></p>`;
+}
+
 function itemCard(it) {
   const isSale = it.exchange_type === "vender";
   const price = isSale ? `€${Number(it.price || 0).toFixed(0)}` : esc(t("free"));
@@ -2109,6 +2231,7 @@ function itemCard(it) {
       <h3 class="card-title"><button type="button" class="card-open" data-view="${it.id}" aria-label="${esc(openLabel)}"><span>${esc(it.title)}</span>${icon("arrow")}</button></h3>
       <p class="card-location">${icon("pin")}<span>${esc(campusLabel(it.campus))}</span></p>
       <p class="card-location">${icon("tag")}<span>${esc(handLabel(it.handover_point))} · ${esc(condLabel(it.condition))}</span></p>
+      ${cardRating(it)}
       <div class="card-foot">
         <div>
           <span class="price${isSale ? "" : " is-free"}">${price}</span>
@@ -2380,58 +2503,106 @@ function renderPublish(app) {
     return;
   }
 
+  const chipGroup = (name, legend, values, selected, labelFn, extra = "") => `
+    <div class="field choice-field">
+      <span class="field-label" id="${name}-label">${esc(legend)}</span>
+      <div class="chips-scroll choice-row" role="radiogroup" aria-labelledby="${name}-label" data-choice="${name}">
+        ${values.map(v => {
+          const on = v === selected;
+          return `<button type="button" class="chip choice-chip${on ? " active" : ""}" role="radio" aria-checked="${on}" data-value="${esc(v)}">${esc(labelFn(v))}</button>`;
+        }).join("")}
+      </div>
+      ${extra}
+    </div>`;
+
   setApp(app, `
     <div class="page-head">
       <span class="eyebrow">${icon("plus")}${esc(t("nav_publish"))}</span>
       <h1>${esc(t("publish_title"))}</h1>
       <p class="lead">${esc(t("publish_intro"))}</p>
     </div>
-    <form class="form-shell" id="publish-form">
-      <div class="form-section">
-        <div class="section-head">
-          <h2>${esc(t("form_quick"))}</h2>
-          <span class="time-chip">${icon("clock")}${esc(t("form_quick_hint"))}</span>
+    <div class="publish-layout">
+    <form class="form-shell publish-composer" id="publish-form">
+      <div class="composer-progress" id="composer-progress">
+        <div class="progress-copy"><strong id="progress-count">0/3</strong><span>${esc(t("publish_progress"))}</span></div>
+        <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+        <ul class="progress-steps" aria-label="${esc(t("form_quick"))}">
+          <li data-step="photo"><button type="button" class="step-jump">${esc(t("publish_check_photo"))}</button></li>
+          <li data-step="title"><button type="button" class="step-jump">${esc(t("publish_check_title"))}</button></li>
+          <li data-step="consent"><button type="button" class="step-jump">${esc(t("publish_check_consent"))}</button></li>
+        </ul>
+        <span class="time-chip">${icon("clock")}${esc(t("form_quick_hint"))}</span>
+      </div>
+
+      <section class="form-section composer-step" id="step-media">
+        <div class="step-head">
+          <span class="step-badge" aria-hidden="true">1</span>
+          <div class="step-title">
+            <h2>${esc(t("publish_step_media"))}</h2>
+            <p>${esc(t("publish_step_media_hint"))}</p>
+          </div>
         </div>
         <div class="field">
           <span class="field-label" id="photo-label">${esc(t("f_image"))} <span class="req-mark" aria-hidden="true">*</span><span class="sr-only">${esc(t("required_word"))}</span></span>
-          <label class="upload-zone" id="upload-zone" for="img-file">
-            ${icon("camera")}
+          <div class="upload-zone upload-zone-rich" id="upload-zone" tabindex="-1" role="group" aria-labelledby="photo-label photo-action" aria-describedby="photo-help">
             <strong id="photo-action">${esc(t("photo_drop_t"))}</strong>
             <span id="photo-format">${esc(t("photo_drop_b"))}</span>
-            <input type="file" id="img-file" aria-labelledby="photo-label photo-action" aria-describedby="photo-help photo-format" accept="image/jpeg,image/png,image/webp">
-          </label>
+            <div class="upload-actions">
+              <button type="button" class="btn btn-primary" id="photo-take">${icon("camera")}${esc(t("photo_take"))}</button>
+              <button type="button" class="btn btn-ghost" id="photo-pick">${icon("image")}${esc(t("photo_pick"))}</button>
+            </div>
+            <input type="file" id="img-file" accept="image/jpeg,image/png,image/webp">
+            <input type="file" id="img-file-camera" accept="image/jpeg,image/png,image/webp" capture="environment">
+          </div>
           <input type="hidden" id="img-url" value="">
           <div class="upload-preview-wrap" id="preview-wrap">
             <img id="img-preview" class="upload-preview" alt="${esc(t("photo_preview"))}">
-            <button type="button" class="upload-remove" id="img-remove">${icon("trash")}${esc(t("photo_remove"))}</button>
+            <div class="upload-preview-tools">
+              <button type="button" class="upload-change" id="img-change">${icon("refresh")}${esc(t("photo_change"))}</button>
+              <button type="button" class="upload-remove" id="img-remove">${icon("trash")}${esc(t("photo_remove"))}</button>
+            </div>
           </div>
           <div class="upload-status hidden" id="upload-status" role="status" aria-live="polite"></div>
           <small id="photo-help">${esc(t("image_required_hint"))}</small>
         </div>
+      </section>
+
+      <section class="form-section composer-step" id="step-basics">
+        <div class="step-head">
+          <span class="step-badge" aria-hidden="true">2</span>
+          <div class="step-title">
+            <h2>${esc(t("publish_step_basics"))}</h2>
+            <p>${esc(t("publish_step_basics_hint"))}</p>
+          </div>
+        </div>
         <div class="field">
           <label for="p-title">${esc(t("f_title"))} <span class="req-mark" aria-hidden="true">*</span></label>
           <input id="p-title" name="title" required minlength="3" maxlength="80" placeholder="${esc(t("title_ph"))}" autocomplete="off">
+          <div class="field-hint"><span>${esc(t("publish_title_hint"))}</span><span class="counter" id="title-counter">0/80</span></div>
         </div>
-        <div class="form-grid">
-          <div class="field">
-            <label for="p-category">${esc(t("f_category"))} <span class="req-mark" aria-hidden="true">*</span></label>
-            <select id="p-category" name="category">${CATEGORIES.map(c => option(c, catLabel(c))).join("")}</select>
+        ${chipGroup("p-category", t("f_category"), CATEGORIES, CATEGORIES[0], catLabel, `
+          <select id="p-category" name="category" class="choice-native" tabindex="-1" aria-hidden="true">${CATEGORIES.map(c => option(c, catLabel(c))).join("")}</select>`)}
+        <div class="field choice-field">
+          <span class="field-label" id="p-type-label">${esc(t("f_type"))}</span>
+          <div class="segment choice-row" role="radiogroup" aria-labelledby="p-type-label" data-choice="p-type">
+            ${TYPES.map(v => `<button type="button" class="seg-opt${v === "regalar" ? " active" : ""}" role="radio" aria-checked="${v === "regalar"}" data-value="${esc(v)}">${esc(typeLabel(v))}</button>`).join("")}
           </div>
-          <div class="field">
-            <label for="p-type">${esc(t("f_type"))} <span class="req-mark" aria-hidden="true">*</span></label>
-            <select id="p-type" name="exchange_type">${TYPES.map(c => option(c, typeLabel(c))).join("")}</select>
+          <select id="p-type" name="exchange_type" class="choice-native" tabindex="-1" aria-hidden="true">${TYPES.map(c => option(c, typeLabel(c))).join("")}</select>
+          <small>${esc(t("publish_type_hint"))}</small>
+        </div>
+        <div class="field hidden" id="price-field">
+          <label for="p-price">${esc(t("f_price"))}</label>
+          <div class="price-input">
+            <input id="p-price" name="price" type="number" min="0" max="10000" step="1" value="0" inputmode="decimal">
+            <span class="price-adorn" aria-hidden="true">€</span>
           </div>
-          <div class="field hidden" id="price-field">
-            <label for="p-price">${esc(t("f_price"))}</label>
-            <input id="p-price" name="price" type="number" min="0" max="10000" step="1" value="0" inputmode="numeric">
-            <small>${esc(t("f_price_hint"))}</small>
-          </div>
+          <small>${esc(t("f_price_hint"))}</small>
         </div>
         <div class="notice hidden" id="payment-notice" role="note">
           <span class="notice-icon" aria-hidden="true">€</span>
           <div><strong>${esc(t("payment_notice_title"))}</strong><p>${esc(t("payment_notice_body"))}</p></div>
         </div>
-      </div>
+      </section>
 
       <details class="form-optional" id="optional-details">
         <summary>
@@ -2442,14 +2613,12 @@ function renderPublish(app) {
         <div class="form-section form-section-flush">
           <div class="field">
             <label for="p-desc">${esc(t("f_desc_optional"))}</label>
-            <textarea id="p-desc" name="description" maxlength="2000"></textarea>
+            <textarea id="p-desc" name="description" maxlength="2000" enterkeyhint="enter" placeholder="${esc(t("desc_hint"))}"></textarea>
             <div class="field-hint"><span>${esc(t("desc_hint"))}</span><span class="counter" id="desc-counter">0/2000</span></div>
           </div>
+          ${chipGroup("p-condition", t("f_condition"), CONDITIONS, "bueno", condLabel, `
+            <select id="p-condition" name="condition" class="choice-native" tabindex="-1" aria-hidden="true">${CONDITIONS.map(c => option(c, condLabel(c), c === "bueno")).join("")}</select>`)}
           <div class="form-grid">
-            <div class="field">
-              <label for="p-condition">${esc(t("f_condition"))}</label>
-              <select id="p-condition" name="condition">${CONDITIONS.map(c => option(c, condLabel(c), c === "bueno")).join("")}</select>
-            </div>
             <div class="field">
               <label for="p-campus">${esc(t("f_campus"))}</label>
               <select id="p-campus" name="campus">${CAMPUSES.map(c => option(c, campusLabel(c), state.user.campus === c)).join("")}</select>
@@ -2462,7 +2631,14 @@ function renderPublish(app) {
         </div>
       </details>
 
-      <div class="form-section">
+      <div class="form-section composer-step" id="step-confirm">
+        <div class="step-head">
+          <span class="step-badge" aria-hidden="true">3</span>
+          <div class="step-title">
+            <h2>${esc(t("publish_step_final"))}</h2>
+            <p>${esc(t("publish_step_final_hint"))}</p>
+          </div>
+        </div>
         <div class="consent-box">
           <label class="check-row"><input type="checkbox" name="private_seller" id="p-private" required><span>${esc(t("f_private"))}</span></label>
           <p>${esc(t("f_private_hint"))}</p>
@@ -2472,7 +2648,33 @@ function renderPublish(app) {
           <button class="btn btn-ghost btn-lg" type="button" id="pub-cancel">${esc(t("cancel"))}</button>
         </div>
       </div>
-    </form>`);
+
+      <div class="composer-bar" id="composer-bar">
+        <div class="composer-bar-info">
+          <strong>${esc(t("publish_bar_title"))}</strong>
+          <small id="composer-bar-hint">${esc(t("publish_bar_hint"))}</small>
+        </div>
+        <button class="btn btn-primary" type="submit" id="publish-submit-bar">${icon("plus")}${esc(t("publish_btn"))}</button>
+      </div>
+    </form>
+
+    <aside class="publish-aside" aria-label="${esc(t("publish_preview_t"))}">
+      <p class="aside-label">${esc(t("publish_preview_t"))}</p>
+      <article class="card preview-card" id="publish-preview">
+        <div class="card-media preview-media" id="preview-media">
+          <span class="preview-placeholder" id="preview-placeholder">${icon("image")}<small>${esc(t("publish_preview_empty"))}</small></span>
+          <img id="preview-img" class="hidden" alt="">
+        </div>
+        <div class="card-body">
+          <h3 class="card-title" id="preview-title">${esc(t("publish_title"))}</h3>
+          <p class="card-meta" id="preview-meta"></p>
+          <div class="pill-row"><span class="pill" id="preview-cat"></span><span class="pill grey" id="preview-cond"></span></div>
+          <p class="price" id="preview-price"></p>
+        </div>
+      </article>
+      <p class="aside-tip">${icon("info")}<span>${esc(t("publish_tip"))}</span></p>
+    </aside>
+    </div>`);
 
   const counter = $("#desc-counter");
   const desc = $("#p-desc");
@@ -2481,8 +2683,58 @@ function renderPublish(app) {
     counter.textContent = `${n}/2000`;
     counter.classList.toggle("is-near", n > 1700);
   };
-  desc.addEventListener("input", updateCounter);
+  desc.addEventListener("input", () => { updateCounter(); syncComposer(); });
   updateCounter();
+
+  const title = $("#p-title");
+  const titleCounter = $("#title-counter");
+  const updateTitleCounter = () => {
+    const n = title.value.length;
+    titleCounter.textContent = `${n}/80`;
+    titleCounter.classList.toggle("is-near", n > 70);
+  };
+
+  // Los chips sustituyen a los <select> nativos en móvil: misma información,
+  // objetivos táctiles grandes y selección visible. El select sigue en el DOM
+  // (y en el FormData) sincronizado con el chip activo.
+  const bindChoiceGroup = (name, onChange) => {
+    const row = $(`[data-choice="${name}"]`);
+    const select = $(`#${name}`);
+    if (!row || !select) return;
+    const paint = ({ scroll = false } = {}) => {
+      $$(".choice-chip, .seg-opt", row).forEach(btn => {
+        const on = btn.dataset.value === select.value;
+        btn.classList.toggle("active", on);
+        btn.setAttribute("aria-checked", on ? "true" : "false");
+      });
+      // Solo al elegir: si no, la primera pintura desplazaría la página.
+      const active = $(".active", row);
+      if (scroll && active && active.scrollIntoView) active.scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    row.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-value]");
+      if (!btn) return;
+      select.value = btn.dataset.value;
+      paint({ scroll: true });
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      if (onChange) onChange(select.value);
+    });
+    row.addEventListener("keydown", (e) => {
+      if (!["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+      const opts = $$("[data-value]", row);
+      const idx = opts.findIndex(o => o.dataset.value === select.value);
+      const next = opts[(idx + (e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : opts.length - 1)) % opts.length];
+      if (!next) return;
+      e.preventDefault();
+      next.click();
+      next.focus();
+    });
+    paint();
+  };
+
+  bindChoiceGroup("p-category");
+  bindChoiceGroup("p-condition");
+  bindChoiceGroup("p-type");
 
   const syncType = () => {
     const sale = $("#p-type").value === "vender";
@@ -2492,8 +2744,65 @@ function renderPublish(app) {
   $("#p-type").onchange = syncType;
   syncType();
 
+  /* Progreso del asistente + vista previa en vivo */
+  const previewImg = $("#preview-img");
+  const previewPlaceholder = $("#preview-placeholder");
+  const barHint = $("#composer-bar-hint");
+
+  const syncComposer = () => {
+    const photo = !!$("#img-url").value;
+    const titleOk = title.value.trim().length >= 3;
+    const consent = $("#p-private").checked;
+    const done = [photo, titleOk, consent].filter(Boolean).length;
+    $("#progress-count").textContent = `${done}/3`;
+    $("#progress-fill").style.width = `${Math.round((done / 3) * 100)}%`;
+    $$("#composer-progress .progress-steps li").forEach(li => {
+      li.classList.toggle("is-done", ({ photo, title: titleOk, consent })[li.dataset.step]);
+    });
+    $("#composer-bar").classList.toggle("is-ready", done === 3);
+    if (barHint) {
+      barHint.textContent = done === 3
+        ? t("publish_bar_ready")
+        : t(done === 0 ? "publish_bar_hint" : "publish_bar_pending");
+    }
+    updateTitleCounter();
+
+    const catSel = $("#p-category").value;
+    $("#preview-cat").textContent = catLabel(catSel);
+    $("#preview-cond").textContent = condLabel($("#p-condition").value);
+    $("#preview-title").textContent = title.value.trim() || t("publish_preview_untitled");
+    const sale = $("#p-type").value === "vender";
+    const price = Number($("#p-price").value || 0);
+    $("#preview-price").textContent = sale && price > 0 ? `${price} €` : typeLabel($("#p-type").value);
+    $("#preview-price").classList.toggle("is-free", !(sale && price > 0));
+    $("#preview-meta").innerHTML = [campusLabel($("#p-campus").value), handLabel($("#p-handover").value)]
+      .filter(Boolean).map(v => `<span>${esc(v)}</span>`).join("");
+    const url = $("#img-url").value;
+    if (url) {
+      previewImg.src = url;
+      previewImg.classList.remove("hidden");
+      previewPlaceholder.classList.add("hidden");
+      $("#preview-media").classList.add("has-photo");
+    } else {
+      previewImg.classList.add("hidden");
+      previewImg.removeAttribute("src");
+      previewPlaceholder.classList.remove("hidden");
+      $("#preview-media").classList.remove("has-photo");
+    }
+    $("#publish-preview").classList.toggle("is-ready", done === 3);
+    const zoneEl = $("#upload-zone");
+    zoneEl.classList.toggle("has-photo", photo);
+    $("#photo-action").textContent = photo ? t("photo_added") : t("photo_drop_t");
+  };
+
+  title.addEventListener("input", syncComposer);
+  $("#p-price").addEventListener("input", syncComposer);
+  $("#publish-form").addEventListener("change", syncComposer);
+  syncComposer();
+
   const zone = $("#upload-zone");
   const fileInput = $("#img-file");
+  const cameraInput = $("#img-file-camera");
   const previewWrap = $("#preview-wrap");
   const preview = $("#img-preview");
   const status = $("#upload-status");
@@ -2531,15 +2840,25 @@ function renderPublish(app) {
       preview.src = data.url;
       status.innerHTML = `${icon("check-circle")}${esc(t("photo_ready"))}`;
       toast(t("toast_upload"));
+      syncComposer();
     } catch (err) {
       status.classList.add("hidden");
       previewWrap.classList.remove("is-visible");
       $("#img-url").value = "";
       toast(errorMessage(err), "error");
+      syncComposer();
     }
   };
 
-  fileInput.onchange = () => uploadFile(fileInput.files[0]);
+  fileInput.onchange = () => { uploadFile(fileInput.files[0]); fileInput.value = ""; };
+  cameraInput.onchange = () => { uploadFile(cameraInput.files[0]); cameraInput.value = ""; };
+  $("#photo-take").onclick = () => cameraInput.click();
+  $("#photo-pick").onclick = () => fileInput.click();
+  $("#img-change").onclick = () => fileInput.click();
+  zone.addEventListener("click", (e) => {
+    if (e.target.closest("button")) return;
+    fileInput.click();
+  });
   ["dragenter", "dragover"].forEach(evt => zone.addEventListener(evt, (e) => {
     e.preventDefault();
     zone.classList.add("is-dragging");
@@ -2555,12 +2874,23 @@ function renderPublish(app) {
   $("#img-remove").onclick = () => {
     $("#img-url").value = "";
     fileInput.value = "";
+    cameraInput.value = "";
     previewWrap.classList.remove("is-visible");
     preview.removeAttribute("src");
-    fileInput.focus();
+    zone.focus({ preventScroll: true });
     status.classList.add("hidden");
+    syncComposer();
   };
   $("#pub-cancel").onclick = () => navigate("home");
+  $$("#composer-progress .progress-steps li").forEach(li => {
+    li.addEventListener("click", () => {
+      const target = { photo: "#upload-zone", title: "#p-title", consent: "#p-private" }[li.dataset.step];
+      const el = $(target);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (el.focus) setTimeout(() => el.focus({ preventScroll: true }), 300);
+    });
+  });
 
   $("#publish-form").onsubmit = async (e) => {
     e.preventDefault();
@@ -2571,24 +2901,26 @@ function renderPublish(app) {
     payload.image_url = $("#img-url").value || "";
     payload.price = payload.exchange_type === "vender" ? Number(payload.price || 0) : 0;
     const submit = $("#publish-submit");
+    const submitBar = $("#publish-submit-bar");
     if (!payload.image_url) {
       toast(t("toast_image_required"), "error");
       const zone = $("#upload-zone");
       if (zone) {
         zone.classList.add("is-missing");
-        fileInput.focus({ preventScroll: true });
-        zone.scrollIntoView({ block: "center" });
+        zone.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => zone.classList.remove("is-missing"), 1400);
       }
       return;
     }
     setBusy(submit, true, t("publishing"));
+    setBusy(submitBar, true, t("publishing"));
     try {
       await api("/api/items", { method: "POST", body: JSON.stringify(payload) });
       toast(t("toast_published"));
       navigate("home");
     } catch (err) {
       setBusy(submit, false);
+      setBusy(submitBar, false);
       toast(errorMessage(err), "error");
     }
   };
@@ -3080,6 +3412,7 @@ function myItemCard(it) {
         ${it.hidden ? `<span class="status-pill status-review">${esc(t("status_review"))}</span>` : ""}
       </div>
       <p class="list-card-meta">${esc(catLabel(it.category))} · ${esc(campusLabel(it.campus))} · ${esc(typeLabel(it.exchange_type))}</p>
+      ${cardRating(it)}
       ${it.hidden ? `<p class="review-note">${icon("alert")}${esc(t("review_note").replace("{n}", String(it.reports || 0)))}</p>` : ""}
       <div class="list-card-actions">
         <button type="button" class="btn btn-ghost btn-sm" data-view="${it.id}">${icon("eye")}${esc(t("view_item"))}</button>
@@ -3300,6 +3633,83 @@ function confirmDeleteItem(id) {
 }
 
 /* ---------------- Detalle y solicitudes ---------------- */
+function commentStars(score) {
+  const n = Number(score || 0);
+  if (!n) return "";
+  let out = `<span class="comment-stars" aria-label="${esc(t("rating_aria").replace("{n}", n).replace("{c}", 1))}">`;
+  for (let i = 1; i <= 5; i++) out += `<span class="star${i <= n ? " is-on" : ""}" aria-hidden="true">★</span>`;
+  return out + "</span>";
+}
+
+function renderItemComment(c) {
+  const name = c.user_name || "—";
+  return `<article class="comment-card">
+    <span class="avatar avatar-sm" aria-hidden="true">${esc(name.trim().charAt(0).toUpperCase() || "?")}</span>
+    <div class="comment-main">
+      <div class="comment-head">
+        <span class="comment-author">${esc(name)}</span>
+        ${commentStars(c.score)}
+        <time class="comment-date">${esc(new Date(c.created_at).toLocaleDateString())}</time>
+      </div>
+      ${c.body ? `<p class="comment-body">${esc(c.body)}</p>` : ""}
+    </div>
+  </article>`;
+}
+
+function renderItemCommentsBlock(commentsPayload, item) {
+  const summary = commentsPayload.summary || { count: 0, average: 0, score_count: 0 };
+  const comments = commentsPayload.items || [];
+  const count = summary.count || 0;
+  const avg = summary.average || 0;
+  const countLabel = count === 1 ? t("comments_count_one") : t("comments_count").replace("{n}", String(count));
+  const avgHtml = summary.score_count
+    ? `<span class="comment-avg">${starsHtml(avg, summary.score_count)} <span class="muted">${esc(t("comments_avg").replace("{a}", avg.toFixed(1)))}</span></span>`
+    : "";
+  const listHtml = comments.length
+    ? `<div class="comment-list" id="comment-list">${comments.map(renderItemComment).join("")}</div>`
+    : `<p class="muted" id="comment-empty">${esc(t("comments_empty"))}</p>`;
+
+  const myComment = item.my_comment;
+  const isOwn = state.user && Number(state.user.id) === Number(item.owner_id);
+  const moreHtml = commentsPayload.has_more
+    ? `<button type="button" class="btn btn-ghost btn-sm btn-block" id="comments-more">${icon("arrow")}${esc(t("comments_more"))}</button>`
+    : "";
+  let formHtml = "";
+  if (isOwn) {
+    formHtml = `<p class="comment-note muted">${icon("info")}<span>${esc(t("comments_own"))}</span></p>`;
+  } else if (!state.user) {
+    formHtml = `<p class="comment-note muted">${esc(t("comments_login"))} <button type="button" class="link-btn" id="comment-login">${esc(t("login"))}</button></p>`;
+  } else if (myComment) {
+    formHtml = `<div class="comment-note is-done">${icon("check-circle")}<span>${esc(t("comments_already"))}</span></div>`;
+  } else {
+    formHtml = `<form id="item-comment-form" class="comment-form" novalidate>
+      <h4>${esc(t("comments_add"))}</h4>
+      <div class="field">
+        <span class="field-label">${esc(t("comments_score"))}</span>
+        <div class="star-input" role="radiogroup" aria-label="${esc(t("comments_score"))}">
+          ${[1,2,3,4,5].map(n => `<label class="star-input-opt"><input type="radio" name="score" value="${n}"><span aria-label="${esc(t("comments_score_aria").replace("{n}", String(n)))}">★</span></label>`).join("")}
+          <button type="button" class="star-clear" id="comment-score-clear">${esc(t("comments_score_none"))}</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="comment-body">${esc(t("comments_body"))}</label>
+        <textarea id="comment-body" name="body" maxlength="500" rows="3" placeholder="${esc(t("comments_body_ph"))}"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit" id="comment-submit">${esc(t("comments_submit"))}</button>
+    </form>`;
+  }
+
+  return `<section class="detail-section" id="item-comments">
+    <div class="comment-section-head">
+      <h3>${esc(t("comments_title"))}</h3>
+      <div class="comment-summary">${avgHtml}<span class="muted">${esc(countLabel)}</span></div>
+    </div>
+    ${listHtml}
+    ${moreHtml}
+    ${formHtml}
+  </section>`;
+}
+
 async function openItem(id) {
   const modal = openModal(`
     ${closeBtn()}
@@ -3311,9 +3721,14 @@ async function openItem(id) {
 
   const isOpen = () => modal.isConnected && !modal.closest(".modal-backdrop").inert;
   let it;
+  let commentsPayload = { items: [], summary: { count: 0, average: 0, score_count: 0 } };
   try {
-    const data = await api(`/api/items/${id}`);
+    const [data, cData] = await Promise.all([
+      api(`/api/items/${id}`),
+      api(`/api/items/${id}/comments`).catch(() => null),
+    ]);
     it = data.item;
+    if (cData) commentsPayload = cData;
   } catch (e) {
     if (!isOpen()) return;
     closeModal();
@@ -3386,6 +3801,7 @@ async function openItem(id) {
           <div class="disclosure-body">${ratingList(owner.rating)}</div>
         </details>
       </section>
+      ${renderItemCommentsBlock(commentsPayload, it)}
     </div>
     <details class="disclosure">
       <summary>${icon("shield")}<span>${esc(t("detail_handover_h"))}</span>${icon("chevron")}</summary>
@@ -3438,6 +3854,77 @@ async function openItem(id) {
   if (reportBtn) reportBtn.onclick = () => {
     if (!state.user) { toast(t("need_login"), "info"); openAuth("login"); return; }
     openReport(it);
+  };
+
+  bindItemComments(modal, it, id);
+}
+
+/* Comentarios y valoraciones públicas: se re-vinculan tras cada refresco del bloque. */
+function bindItemComments(modal, it, id) {
+  const login = $("#comment-login", modal);
+  if (login) login.onclick = () => openAuth("login");
+
+  const more = $("#comments-more", modal);
+  if (more) more.onclick = async () => {
+    const list = $("#comment-list", modal);
+    const loaded = list ? $$(".comment-card", list).length : 0;
+    more.disabled = true;
+    try {
+      const data = await api(`/api/items/${id}/comments?limit=${loaded + 20}&offset=0`);
+      const section = $("#item-comments", modal);
+      if (section && data) {
+        section.outerHTML = renderItemCommentsBlock(data, it);
+        bindItemComments(modal, it, id);
+      }
+    } catch (err) {
+      toast(errorMessage(err), "error");
+    } finally {
+      const again = $("#comments-more", modal);
+      if (again) again.disabled = false;
+    }
+  };
+
+  const clearScore = $("#comment-score-clear", modal);
+  if (clearScore) clearScore.onclick = () => {
+    $$("input[name='score']", modal).forEach(r => { r.checked = false; });
+  };
+
+  const refreshSection = async (fallback) => {
+    const section = $("#item-comments", modal);
+    if (!section) return;
+    const fresh = await api(`/api/items/${id}/comments`).catch(() => null);
+    const payload = fresh || { items: fallback ? [fallback] : [], summary: it.comments || {}, has_more: false };
+    section.outerHTML = renderItemCommentsBlock(payload, it);
+    bindItemComments(modal, it, id);
+  };
+
+  const commentForm = $("#item-comment-form", modal);
+  if (commentForm) commentForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(commentForm);
+    const rawScore = fd.get("score");
+    const body = (fd.get("body") || "").trim();
+    const score = rawScore ? Number(rawScore) : null;
+    if (!body && !score) {
+      toast(t("comments_need_something"), "error");
+      return;
+    }
+    const submit = $("#comment-submit", commentForm);
+    setBusy(submit, true, t("sending"));
+    try {
+      const res = await api(`/api/items/${id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ score, body }),
+      });
+      toast(t("comments_posted"));
+      it.my_comment = res.comment;
+      it.comments = res.summary;
+      state.lastItem = it;
+      await refreshSection(res.comment);
+    } catch (err) {
+      setBusy(submit, false);
+      toast(errorMessage(err), "error");
+    }
   };
 }
 
@@ -3544,6 +4031,47 @@ async function pollNotifications() {
   } catch (_) { /* best-effort: request lists still work if polling fails */ }
 }
 
+/* ---------------- Theme (modo noche) ----------------
+   Preferencia explícita en localStorage; si no hay ninguna, se sigue el
+   sistema. El interruptor del header guarda siempre un valor explícito, así
+   que el usuario manda por encima del sistema a partir de su primer clic. */
+const THEME_KEY = "cc-theme";
+const prefersDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+function storedTheme() {
+  try { return localStorage.getItem(THEME_KEY) || ""; } catch (_) { return ""; }
+}
+function currentTheme() {
+  const stored = storedTheme();
+  if (stored === "dark" || stored === "light") return stored;
+  return prefersDark && prefersDark.matches ? "dark" : "light";
+}
+function applyTheme(theme) {
+  const root = document.documentElement;
+  root.setAttribute("data-theme", theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = theme === "dark" ? "#0d1410" : "#12573A";
+  root.style.colorScheme = theme;
+  syncThemeToggle();
+}
+function setTheme(theme, { persist = true } = {}) {
+  if (persist) {
+    try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+  }
+  applyTheme(theme);
+}
+function syncThemeToggle() {
+  const btn = $("#theme-toggle");
+  if (!btn) return;
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  const label = t(dark ? "theme_to_light" : "theme_to_dark");
+  btn.setAttribute("aria-label", label);
+  btn.setAttribute("title", label);
+  btn.setAttribute("aria-pressed", dark ? "true" : "false");
+  const use = $("#theme-toggle-icon");
+  if (use) use.setAttribute("href", dark ? "#i-sun" : "#i-moon");
+}
+
 /* ---------------- Init ---------------- */
 async function init() {
   $$(".lang-switch button").forEach(b => {
@@ -3554,8 +4082,21 @@ async function init() {
       if (!state.pendingConsent) closeModal();
       renderAuthArea();
       render();
+      syncThemeToggle();
     };
   });
+
+  applyTheme(currentTheme());
+  if (prefersDark) {
+    const onSystemTheme = () => { if (!storedTheme()) applyTheme(currentTheme()); };
+    if (prefersDark.addEventListener) prefersDark.addEventListener("change", onSystemTheme);
+    else if (prefersDark.addListener) prefersDark.addListener(onSystemTheme);
+  }
+  const themeBtn = $("#theme-toggle");
+  if (themeBtn) themeBtn.onclick = () => {
+    setTheme(currentTheme() === "dark" ? "light" : "dark");
+  };
+  syncThemeToggle();
 
   window.addEventListener("popstate", (e) => {
     closeModal();
@@ -3573,7 +4114,17 @@ async function init() {
     if (!e.target.closest || !e.target.closest(".dropdown")) closeUserMenu();
   });
 
-  try { history.replaceState({ view: state.view }, "", location.pathname || "/"); } catch (e) {}
+  // URL canónica de la vista: si alguien llega por una ruta que la app no
+  // conoce (el servidor ya respondió 404 + SPA), normalizamos la barra de
+  // direcciones en lugar de dejar una URL muerta compartible.
+  try {
+    const initialPath = ROUTE_PATHS[state.view] || "/";
+    if (location.pathname !== initialPath) {
+      history.replaceState({ view: state.view }, "", initialPath);
+    } else {
+      history.replaceState({ view: state.view }, "", location.pathname || "/");
+    }
+  } catch (e) {}
 
   renderAuthArea();
   render();

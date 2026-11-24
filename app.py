@@ -24,7 +24,8 @@ Arranque:
 Variables de entorno opcionales:
     DATABASE (SQLite local), DATABASE_URL (PostgreSQL gestionado), APP_ENV,
     PORT, SEED_DEMO, CONTACT_EMAIL, CONTROLLER_NAME, LEGAL_VERSION, LEGAL_UPDATED,
-    UNIVERSITY_DOMAINS (dominios de correo institucional aceptados).
+    UNIVERSITY_DOMAINS (dominios de correo institucional aceptados),
+    PUBLIC_URL (origen absoluto para robots.txt y sitemap.xml).
 """
 
 import gzip
@@ -74,8 +75,8 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 SERVICE_NAME = "Campus Circular"
-LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-20")
-LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-20")
+LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-24")
+LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-24")
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "campuscircular@hotmail.com")
 CONTROLLER_NAME = os.environ.get(
     "CONTROLLER_NAME", "Equipo Campus Circular (proyecto académico independiente)"
@@ -107,6 +108,7 @@ REQUEST_STATUSES = ["pendiente", "aceptada", "rechazada", "cancelada", "completa
 RATING_MIN = 1
 RATING_MAX = 5
 RATING_COMMENT_MAX = 300
+ITEM_COMMENT_MAX = 500
 
 # Dominios de correo institucional que otorgan la insignia informativa. La
 # lista es configurable con UNIVERSITY_DOMAINS (separada por comas) y además se
@@ -169,6 +171,7 @@ RATE_LIMITS = {
     "upload": (25, 3600),      # fotos subidas por cuenta
     "request": (20, 3600),     # solicitudes enviadas por cuenta
     "report": (10, 3600),      # reportes enviados por cuenta
+    "item_comment": (20, 3600),  # comentarios/valoraciones en publicaciones
     "message": (30, 3600),     # mensajes dentro de una solicitud
     "profile": (10, 3600),     # cambios de perfil por cuenta
     "password": (5, 3600),     # cambios de contraseña por cuenta
@@ -178,6 +181,9 @@ RATE_LIMITS = {
 }
 MAX_JSON_BYTES = 64 * 1024
 DEFAULT_CORS_ORIGINS = "https://campus-circular.onrender.com"
+# Origen que se escribe en robots.txt y sitemap.xml cuando el `Host` de la
+# petición no es fiable. Es el mismo despliegue que el allowlist CORS.
+DEFAULT_SITE_ROOT = DEFAULT_CORS_ORIGINS
 CORS_ORIGINS = frozenset(
     origin.strip().rstrip("/")
     for origin in os.environ.get("CORS_ORIGINS", DEFAULT_CORS_ORIGINS).split(",")
@@ -227,10 +233,16 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 7 * 24 * 3600
 app.json.ensure_ascii = False
 
 
+# Lista única de ficheros propio-cuidados del cliente: entran en la huella de
+# la URL (`?v=`) y se sirven por `static_asset` con caché inmutable. Añadir un
+# asset aquí y olvidarlo en la plantilla es la regresión que este par evita.
+CLIENT_ASSETS = ("css/style.css", "css/chat.css", "js/app.js", "js/theme.js")
+
+
 def _asset_version() -> str:
     """Huella corta de CSS+JS para invalidar la caché al desplegar."""
     digest = hashlib.sha256()
-    for rel in ("css/style.css", "js/app.js"):
+    for rel in CLIENT_ASSETS:
         try:
             with open(os.path.join(BASE_DIR, "static", rel), "rb") as fh:
                 digest.update(fh.read())
@@ -539,6 +551,15 @@ def init_db():
             created_at TEXT NOT NULL,
             UNIQUE (item_id, reporter_id)
         );
+        CREATE TABLE IF NOT EXISTS item_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            score INTEGER,
+            body TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL,
+            UNIQUE (item_id, user_id)
+        );
         CREATE TABLE IF NOT EXISTS media (
             filename TEXT PRIMARY KEY,
             content_type TEXT NOT NULL,
@@ -557,6 +578,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
         CREATE INDEX IF NOT EXISTS idx_media_created ON media(created_at);
         CREATE INDEX IF NOT EXISTS idx_reports_item ON reports(item_id);
+        CREATE INDEX IF NOT EXISTS idx_item_comments_item ON item_comments(item_id, created_at DESC);
         -- Una sola solicitud pendiente por (objeto, solicitante): la
         -- unicidad se impone en la base para que dos peticiones
         -- concurrentes no creen duplicados (ver create_request).
@@ -604,6 +626,42 @@ def migrate_db():
             request_cols = {r["name"] for r in db.execute("PRAGMA table_info(requests)").fetchall()}
             if "handover_point" not in request_cols:
                 db.execute("ALTER TABLE requests ADD COLUMN handover_point TEXT NOT NULL DEFAULT ''")
+
+        # Comentarios públicos en publicaciones (valoraciones de artículo).
+        # Se crea con `execute` en lugar de `executescript`: este haría un COMMIT
+        # implícito y rompería la transacción `BEGIN IMMEDIATE` de SQLite.
+        if USE_POSTGRES:
+            db.execute(
+                """
+                CREATE TABLE IF NOT EXISTS item_comments (
+                    id BIGSERIAL PRIMARY KEY,
+                    item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+                    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    score INTEGER,
+                    body TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    UNIQUE (item_id, user_id)
+                )
+                """
+            )
+        else:
+            db.execute(
+                """
+                CREATE TABLE IF NOT EXISTS item_comments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    score INTEGER,
+                    body TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    UNIQUE (item_id, user_id)
+                )
+                """
+            )
+        db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_item_comments_item "
+            "ON item_comments(item_id, created_at DESC)"
+        )
 
         # Los objetos ya entregados antes de existir `delivered_at` se fechan con
         # su fecha de publicación para no perder el histórico de entregas.
@@ -688,10 +746,39 @@ def row_to_public_user(r):
     }
 
 
+def comment_agg_columns(alias: str = "items") -> str:
+    """Columnas de agregación para listar valoraciones sin N+1.
+
+    El índice `idx_item_comments_item` mantiene el coste acotado por página
+    (`MAX_PAGE_SIZE` = 60 tarjetas) y así el catálogo puede mostrar la nota
+    media de cada publicación sin una segunda consulta por tarjeta.
+    """
+    return (
+        f"(SELECT COUNT(*) FROM item_comments ic WHERE ic.item_id = {alias}.id) AS comment_count, "
+        f"(SELECT AVG(ic2.score) FROM item_comments ic2 "
+        f" WHERE ic2.item_id = {alias}.id AND ic2.score IS NOT NULL) AS comment_avg, "
+        f"(SELECT COUNT(ic3.score) FROM item_comments ic3 "
+        f" WHERE ic3.item_id = {alias}.id) AS score_count "
+    )
+
+
+def item_comment_fields(r):
+    """Resumen de valoraciones a partir de las columnas agregadas, o None."""
+    keys = r.keys()
+    if "comment_count" not in keys:
+        return None
+    avg = r["comment_avg"]
+    return {
+        "count": r["comment_count"] or 0,
+        "average": round(float(avg), 2) if avg is not None else 0.0,
+        "score_count": r["score_count"] or 0 if "score_count" in keys else 0,
+    }
+
+
 def row_to_item(r, fav=False):
     if r is None:
         return None
-    return {
+    item = {
         "id": r["id"],
         "owner_id": r["owner_id"],
         "title": r["title"],
@@ -709,6 +796,10 @@ def row_to_item(r, fav=False):
         "hidden": bool(r["hidden_at"]) if "hidden_at" in r.keys() else False,
         "is_favorite": bool(fav),
     }
+    summary = item_comment_fields(r)
+    if summary:
+        item["comments"] = summary
+    return item
 
 
 def row_to_request(r):
@@ -773,6 +864,31 @@ def rating_summary(db, user_id, limit=3) -> dict:
             for r in rows
         ]
     return {"count": count, "average": average, "recent": recent}
+
+
+def item_comment_summary(db, item_id) -> dict:
+    agg = db.execute(
+        "SELECT COUNT(*) c, AVG(CASE WHEN score IS NOT NULL THEN score END) a, "
+        "COUNT(score) sc "
+        "FROM item_comments WHERE item_id = ?",
+        (item_id,),
+    ).fetchone()
+    count = agg["c"] or 0
+    score_count = agg["sc"] or 0
+    average = round(float(agg["a"]), 2) if agg["a"] is not None else 0.0
+    return {"count": count, "average": average, "score_count": score_count}
+
+
+def row_to_item_comment(r) -> dict:
+    return {
+        "id": r["id"],
+        "item_id": r["item_id"],
+        "user_id": r["user_id"],
+        "user_name": r["user_name"],
+        "score": r["score"],
+        "body": r["body"] or "",
+        "created_at": r["created_at"],
+    }
 
 
 def exchange_summary(db, user_id) -> dict:
@@ -1509,6 +1625,21 @@ def security_headers(resp):
         "/auth/" in request.path or "/account/" in request.path
     ):
         resp.headers["Cache-Control"] = "no-store"
+    elif request.path.startswith("/api/") and not resp.headers.get("Cache-Control"):
+        # Política por defecto de la API. Sin ventana de frescura: una
+        # publicación cambia el catálogo en el acto y un `max-age`, por corto que
+        # sea, enseñaría datos rancios justo después de publicar. Lo que sí
+        # queda explícito es quién puede guardar la respuesta, para que ninguna
+        # caché intermedia sirva a un usuario la lista de otro.
+        if request.method != "GET" or not 200 <= resp.status_code < 300:
+            # Errores (404 de un objeto oculto, 401, 409…): no se guardan nunca,
+            # si no, seguirían respondiendo después de restaurar el objeto.
+            resp.headers["Cache-Control"] = "no-store"
+        elif request.headers.get("Authorization"):
+            resp.headers["Cache-Control"] = "private, no-cache"
+            resp.headers.add("Vary", "Authorization")
+        else:
+            resp.headers["Cache-Control"] = "public, no-cache"
     elif request.path.startswith("/static/img/") and resp.status_code == 200:
         # Fotos con nombre estable: una semana de caché evita volver a bajarlas
         # en cada visita sin complicar la invalidación.
@@ -1598,7 +1729,11 @@ def uploads(filename):
 
 ASSET_TYPES = {
     "css/style.css": "text/css; charset=utf-8",
+    "css/chat.css": "text/css; charset=utf-8",
     "js/app.js": "application/javascript; charset=utf-8",
+    # El arranque del tema se sirve igual que el resto: precargado, comprimido
+    # e inmutable, porque la plantilla lo versiona con `?v=<huella>`.
+    "js/theme.js": "application/javascript; charset=utf-8",
 }
 _ASSET_CACHE = {}
 
@@ -1627,7 +1762,9 @@ def _load_asset(rel: str):
 
 
 @app.get("/static/css/style.css")
+@app.get("/static/css/chat.css")
 @app.get("/static/js/app.js")
+@app.get("/static/js/theme.js")
 def static_asset():
     """Sirve CSS/JS con ETag, caché inmutable y compresión gzip.
 
@@ -1797,7 +1934,7 @@ def list_items():
         order = " ORDER BY created_at DESC"
 
     rows = db.execute(
-        "SELECT *" + clause + order + " LIMIT ? OFFSET ?",
+        f"SELECT *, {comment_agg_columns()}" + clause + order + " LIMIT ? OFFSET ?",
         [*params, limit, offset],
     ).fetchall()
     user = current_user()
@@ -1822,7 +1959,7 @@ def my_items(user):
     ).fetchone()["c"]
     rows = db.execute(
         "SELECT *, (SELECT COUNT(*) FROM reports WHERE reports.item_id = items.id) "
-        "AS reports_count FROM items WHERE owner_id = ? "
+        f"AS reports_count, {comment_agg_columns()} FROM items WHERE owner_id = ? "
         "ORDER BY created_at DESC LIMIT ? OFFSET ?",
         (user["id"], limit, offset),
     ).fetchall()
@@ -1863,7 +2000,98 @@ def get_item(item_id):
         item["reports"] = db.execute(
             "SELECT COUNT(*) c FROM reports WHERE item_id = ?", (item_id,)
         ).fetchone()["c"]
+    item["comments"] = item_comment_summary(db, item_id)
+    if user:
+        mine = db.execute(
+            "SELECT id, score, body, created_at FROM item_comments "
+            "WHERE item_id = ? AND user_id = ?",
+            (item_id, user["id"]),
+        ).fetchone()
+        item["my_comment"] = {
+            "id": mine["id"], "score": mine["score"],
+            "body": mine["body"] or "", "created_at": mine["created_at"],
+        } if mine else None
     return jsonify({"item": item})
+
+
+@app.get("/api/items/<int:item_id>/comments")
+def list_item_comments(item_id):
+    db = get_db()
+    row = db.execute("SELECT id, owner_id, hidden_at FROM items WHERE id = ?", (item_id,)).fetchone()
+    if not row:
+        return jsonify({"error": "not_found"}), 404
+    user = current_user()
+    is_owner = bool(user and user["id"] == row["owner_id"])
+    if row["hidden_at"] and not is_owner:
+        return jsonify({"error": "not_found"}), 404
+    limit, offset = pagination_args(default=20)
+    total = db.execute(
+        "SELECT COUNT(*) c FROM item_comments WHERE item_id = ?", (item_id,)
+    ).fetchone()["c"]
+    rows = db.execute(
+        "SELECT c.id, c.item_id, c.user_id, c.score, c.body, c.created_at, u.name AS user_name "
+        "FROM item_comments c JOIN users u ON u.id = c.user_id "
+        "WHERE c.item_id = ? ORDER BY c.created_at DESC LIMIT ? OFFSET ?",
+        (item_id, limit, offset),
+    ).fetchall()
+    summary = item_comment_summary(db, item_id)
+    payload = page_payload(rows, total, limit, offset, row_to_item_comment)
+    payload["summary"] = summary
+    return jsonify(payload)
+
+
+@app.post("/api/items/<int:item_id>/comments")
+@require_auth
+def create_item_comment(user, item_id):
+    limited = rate_limited("item_comment", str(user["id"]))
+    if limited:
+        return limited
+    db = get_db()
+    row = db.execute("SELECT id, owner_id, hidden_at FROM items WHERE id = ?", (item_id,)).fetchone()
+    if not row or row["hidden_at"]:
+        return jsonify({"error": "not_found"}), 404
+    if row["owner_id"] == user["id"]:
+        return jsonify({
+            "error": "self_comment",
+            "message": "No puedes valorar tu propia publicación.",
+        }), 403
+    data = request.get_json(silent=True) or {}
+    raw_score = data.get("score", None)
+    score = None
+    if raw_score is not None and raw_score != "":
+        if isinstance(raw_score, bool) or not isinstance(raw_score, int) or not RATING_MIN <= raw_score <= RATING_MAX:
+            return jsonify({"error": "invalid_score", "message": "La valoración debe ser de 1 a 5."}), 400
+        score = raw_score
+    body = clean_text(data.get("body") or data.get("comment") or "", multiline=True, max_len=ITEM_COMMENT_MAX)
+    if not body and score is None:
+        return jsonify({"error": "empty_comment", "message": "Escribe un comentario o deja una valoración."}), 400
+    existing = db.execute(
+        "SELECT 1 FROM item_comments WHERE item_id = ? AND user_id = ?",
+        (item_id, user["id"]),
+    ).fetchone()
+    if existing:
+        return jsonify({"error": "already_commented", "message": "Ya has dejado una valoración en esta publicación."}), 409
+    try:
+        cur = db.execute(
+            "INSERT INTO item_comments (item_id, user_id, score, body, created_at) "
+            "VALUES (?, ?, ?, ?, ?) RETURNING id",
+            (item_id, user["id"], score, body, now_iso()),
+        )
+        comment_id = inserted_id(cur)
+        db.commit()
+    except DB_INTEGRITY_ERRORS:
+        db.rollback()
+        return jsonify({"error": "already_commented", "message": "Ya has dejado una valoración en esta publicación."}), 409
+    except DB_ERRORS:
+        db.rollback()
+        app.logger.exception("No se pudo guardar el comentario")
+        return _storage_unavailable()
+    created = db.execute(
+        "SELECT c.id, c.item_id, c.user_id, c.score, c.body, c.created_at, u.name AS user_name "
+        "FROM item_comments c JOIN users u ON u.id = c.user_id WHERE c.id = ?",
+        (comment_id,),
+    ).fetchone()
+    return jsonify({"comment": row_to_item_comment(created), "summary": item_comment_summary(db, item_id)}), 201
 
 
 @app.post("/api/items")
@@ -2719,6 +2947,15 @@ def export_account(user):
         reports_filed = [dict(r) for r in db.execute(
             "SELECT item_id, reason, comment, status, created_at FROM reports "
             "WHERE reporter_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        # Comentarios y valoraciones públicas: también son datos personales y
+        # deben salir en la exportación antes de poder borrarse con conocimiento.
+        comments_written = [dict(r) for r in db.execute(
+            "SELECT item_id, score, body, created_at FROM item_comments "
+            "WHERE user_id = ? ORDER BY created_at DESC", (user["id"],)).fetchall()]
+        comments_received = [dict(r) for r in db.execute(
+            "SELECT c.item_id, c.user_id, c.score, c.body, c.created_at "
+            "FROM item_comments c JOIN items i ON i.id = c.item_id "
+            "WHERE i.owner_id = ? ORDER BY c.created_at DESC", (user["id"],)).fetchall()]
     except DB_ERRORS:
         app.logger.exception("No se pudo generar la exportación")
         return _storage_unavailable()
@@ -2734,12 +2971,14 @@ def export_account(user):
         "favorites": favorites,
         "ratings_written": my_ratings,
         "ratings_received": ratings_received,
+        "item_comments_written": comments_written,
+        "item_comments_received": comments_received,
         "reports_filed": reports_filed,
         "session_count": sessions,
         "notes": [
             "Exportación completa de los datos de la cuenta, incluidos los mensajes y valoraciones que otras personas escribieron y son visibles para ti.",
             "No se incluyen contraseñas ni tokens de sesión.",
-            "La eliminación de cuenta borra tu perfil, tus sesiones, tus publicaciones, tus favoritos y tus valoraciones propias; las solicitudes recibidas, las valoraciones y los reportes escritos por otras personas se conservan en una cuenta eliminada para no destruir su historial.",
+            "La eliminación de cuenta borra tu perfil, tus sesiones, tus publicaciones, tus favoritos, tus comentarios públicos y tus valoraciones propias; las solicitudes recibidas, las valoraciones y los reportes escritos por otras personas se conservan en una cuenta eliminada para no destruir su historial.",
         ],
     }
     resp = jsonify(payload)
@@ -2776,6 +3015,8 @@ def delete_account(user):
             "favorites": db.execute("SELECT COUNT(*) c FROM favorites WHERE user_id = ?", (user["id"],)).fetchone()["c"],
             "sessions": db.execute("SELECT COUNT(*) c FROM sessions WHERE user_id = ?", (user["id"],)).fetchone()["c"],
             "ratings_written": db.execute("SELECT COUNT(*) c FROM ratings WHERE rater_id = ?", (user["id"],)).fetchone()["c"],
+            "item_comments_written": db.execute(
+                "SELECT COUNT(*) c FROM item_comments WHERE user_id = ?", (user["id"],)).fetchone()["c"],
             "ratings_received": db.execute("SELECT COUNT(*) c FROM ratings WHERE rated_id = ?", (user["id"],)).fetchone()["c"],
             "reports_filed": db.execute("SELECT COUNT(*) c FROM reports WHERE reporter_id = ?", (user["id"],)).fetchone()["c"],
         }
@@ -2817,6 +3058,10 @@ def delete_account(user):
         db.execute("DELETE FROM sessions WHERE user_id = ?", (user["id"],))
         db.execute("DELETE FROM favorites WHERE user_id = ?", (user["id"],))
         db.execute("DELETE FROM ratings WHERE rater_id = ?", (user["id"],))
+        # Los comentarios públicos escritos por la cuenta se borran con ella
+        # (el texto es suyo); los que otras personas dejaron en sus objetos
+        # siguen la misma regla que las valoraciones recibidas: se conservan.
+        db.execute("DELETE FROM item_comments WHERE user_id = ?", (user["id"],))
         db.execute("DELETE FROM users WHERE id = ?", (user["id"],))
         db.commit()
     except DB_ERRORS:
@@ -3280,7 +3525,7 @@ def favorites(user):
     db = get_db()
     try:
         rows = db.execute(
-            "SELECT i.* FROM items i JOIN favorites f ON f.item_id = i.id "
+            f"SELECT i.*, {comment_agg_columns('i')} FROM items i JOIN favorites f ON f.item_id = i.id "
             "WHERE f.user_id = ? AND i.hidden_at = '' ORDER BY f.created_at DESC",
             (user["id"],)).fetchall()
     except DB_ERRORS:
@@ -3307,10 +3552,27 @@ def public_user(user_id):
     return jsonify({"user": u})
 
 
+def site_root() -> str:
+    """Origen público que usamos en robots.txt y sitemap.xml.
+
+    El `Host` (y `X-Forwarded-Host`, que ProxyFix acepta) lo escribe quien
+    llama: si se reenviase tal cual, una petición con un Host hostil pondría
+    URLs de terceros dentro de nuestros ficheros indexables. Solo se acepta un
+    nombre de máquina razonable; si no, se cae al origen del despliegue.
+    """
+    override = (os.environ.get("PUBLIC_URL") or "").strip().rstrip("/")
+    if override:
+        return override
+    host = (request.host or "").strip()
+    if re.fullmatch(r"[A-Za-z0-9.-]{1,253}(:\d{1,5})?", host):
+        return f"{request.scheme}://{host}"
+    return DEFAULT_SITE_ROOT
+
+
 @app.get("/robots.txt")
 def robots_txt():
     """La SPA necesita un robots.txt explícito: sin él, el fallback devolvía HTML."""
-    root = request.url_root.rstrip("/")
+    root = site_root()
     body = (
         "User-agent: *\n"
         "Allow: /\n"
@@ -3324,7 +3586,7 @@ def robots_txt():
 
 @app.get("/sitemap.xml")
 def sitemap_xml():
-    root = request.url_root.rstrip("/")
+    root = site_root()
     urls = "".join(
         f"<url><loc>{root}{path}</loc><changefreq>weekly</changefreq></url>"
         for path in SPA_VIEWS
@@ -3345,6 +3607,11 @@ def not_found(e):
     if request.path.startswith("/api/") or request.path.startswith("/static/"):
         return jsonify({"error": "not_found"}), 404
     resp = make_response(render_template("index.html", boot=boot_config("home")))
+    # Ruta de cliente que no existe: devolvemos la SPA para que la persona vea
+    # la app, pero con su 404 real. Un 200 aquí convertiría cualquier URL
+    # inventada en contenido duplicado indexable y ocultaría errores de
+    # enlace a los monitorizadores de disponibilidad.
+    resp.status_code = 404
     resp.headers["Cache-Control"] = "public, max-age=30, stale-while-revalidate=300"
     return resp
 
