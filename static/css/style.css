@@ -2701,6 +2701,11 @@ picture { display: contents; }
 
 /* 22. Modo noche: transición suave e interruptor compacto en móvil ---------- */
 html { background: var(--bg); }
+/* Sin JS no hay quien fije `data-theme`: al menos los controles nativos
+   (scrollbars, campos, calendarios) siguen la preferencia del sistema. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { color-scheme: dark; }
+}
 body, .card, .modal, .form-shell, .field :is(input, select, textarea), .topbar, .tabbar {
   transition: background-color var(--slow) var(--ease), color var(--slow) var(--ease),
     border-color var(--slow) var(--ease);

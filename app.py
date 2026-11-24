@@ -24,7 +24,8 @@ Arranque:
 Variables de entorno opcionales:
     DATABASE (SQLite local), DATABASE_URL (PostgreSQL gestionado), APP_ENV,
     PORT, SEED_DEMO, CONTACT_EMAIL, CONTROLLER_NAME, LEGAL_VERSION, LEGAL_UPDATED,
-    UNIVERSITY_DOMAINS (dominios de correo institucional aceptados).
+    UNIVERSITY_DOMAINS (dominios de correo institucional aceptados),
+    PUBLIC_URL (origen absoluto para robots.txt y sitemap.xml).
 """
 
 import gzip
@@ -74,8 +75,8 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 SERVICE_NAME = "Campus Circular"
-LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-20")
-LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-20")
+LEGAL_VERSION = os.environ.get("LEGAL_VERSION", "2026-11-24")
+LEGAL_UPDATED = os.environ.get("LEGAL_UPDATED", "2026-11-24")
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "campuscircular@hotmail.com")
 CONTROLLER_NAME = os.environ.get(
     "CONTROLLER_NAME", "Equipo Campus Circular (proyecto académico independiente)"
@@ -180,6 +181,9 @@ RATE_LIMITS = {
 }
 MAX_JSON_BYTES = 64 * 1024
 DEFAULT_CORS_ORIGINS = "https://campus-circular.onrender.com"
+# Origen que se escribe en robots.txt y sitemap.xml cuando el `Host` de la
+# petición no es fiable. Es el mismo despliegue que el allowlist CORS.
+DEFAULT_SITE_ROOT = DEFAULT_CORS_ORIGINS
 CORS_ORIGINS = frozenset(
     origin.strip().rstrip("/")
     for origin in os.environ.get("CORS_ORIGINS", DEFAULT_CORS_ORIGINS).split(",")
@@ -229,10 +233,16 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 7 * 24 * 3600
 app.json.ensure_ascii = False
 
 
+# Lista única de ficheros propio-cuidados del cliente: entran en la huella de
+# la URL (`?v=`) y se sirven por `static_asset` con caché inmutable. Añadir un
+# asset aquí y olvidarlo en la plantilla es la regresión que este par evita.
+CLIENT_ASSETS = ("css/style.css", "css/chat.css", "js/app.js", "js/theme.js")
+
+
 def _asset_version() -> str:
     """Huella corta de CSS+JS para invalidar la caché al desplegar."""
     digest = hashlib.sha256()
-    for rel in ("css/style.css", "js/app.js"):
+    for rel in CLIENT_ASSETS:
         try:
             with open(os.path.join(BASE_DIR, "static", rel), "rb") as fh:
                 digest.update(fh.read())
@@ -740,8 +750,8 @@ def comment_agg_columns(alias: str = "items") -> str:
     """Columnas de agregación para listar valoraciones sin N+1.
 
     El índice `idx_item_comments_item` mantiene el coste acotado por página
-    (máx. 100 filas) y así el catálogo puede mostrar la nota media de cada
-    publicación sin una segunda consulta por tarjeta.
+    (`MAX_PAGE_SIZE` = 60 tarjetas) y así el catálogo puede mostrar la nota
+    media de cada publicación sin una segunda consulta por tarjeta.
     """
     return (
         f"(SELECT COUNT(*) FROM item_comments ic WHERE ic.item_id = {alias}.id) AS comment_count, "
@@ -1615,6 +1625,21 @@ def security_headers(resp):
         "/auth/" in request.path or "/account/" in request.path
     ):
         resp.headers["Cache-Control"] = "no-store"
+    elif request.path.startswith("/api/") and not resp.headers.get("Cache-Control"):
+        # Política por defecto de la API. Sin ventana de frescura: una
+        # publicación cambia el catálogo en el acto y un `max-age`, por corto que
+        # sea, enseñaría datos rancios justo después de publicar. Lo que sí
+        # queda explícito es quién puede guardar la respuesta, para que ninguna
+        # caché intermedia sirva a un usuario la lista de otro.
+        if request.method != "GET" or not 200 <= resp.status_code < 300:
+            # Errores (404 de un objeto oculto, 401, 409…): no se guardan nunca,
+            # si no, seguirían respondiendo después de restaurar el objeto.
+            resp.headers["Cache-Control"] = "no-store"
+        elif request.headers.get("Authorization"):
+            resp.headers["Cache-Control"] = "private, no-cache"
+            resp.headers.add("Vary", "Authorization")
+        else:
+            resp.headers["Cache-Control"] = "public, no-cache"
     elif request.path.startswith("/static/img/") and resp.status_code == 200:
         # Fotos con nombre estable: una semana de caché evita volver a bajarlas
         # en cada visita sin complicar la invalidación.
@@ -1704,7 +1729,11 @@ def uploads(filename):
 
 ASSET_TYPES = {
     "css/style.css": "text/css; charset=utf-8",
+    "css/chat.css": "text/css; charset=utf-8",
     "js/app.js": "application/javascript; charset=utf-8",
+    # El arranque del tema se sirve igual que el resto: precargado, comprimido
+    # e inmutable, porque la plantilla lo versiona con `?v=<huella>`.
+    "js/theme.js": "application/javascript; charset=utf-8",
 }
 _ASSET_CACHE = {}
 
@@ -1733,7 +1762,9 @@ def _load_asset(rel: str):
 
 
 @app.get("/static/css/style.css")
+@app.get("/static/css/chat.css")
 @app.get("/static/js/app.js")
+@app.get("/static/js/theme.js")
 def static_asset():
     """Sirve CSS/JS con ETag, caché inmutable y compresión gzip.
 
@@ -3521,10 +3552,27 @@ def public_user(user_id):
     return jsonify({"user": u})
 
 
+def site_root() -> str:
+    """Origen público que usamos en robots.txt y sitemap.xml.
+
+    El `Host` (y `X-Forwarded-Host`, que ProxyFix acepta) lo escribe quien
+    llama: si se reenviase tal cual, una petición con un Host hostil pondría
+    URLs de terceros dentro de nuestros ficheros indexables. Solo se acepta un
+    nombre de máquina razonable; si no, se cae al origen del despliegue.
+    """
+    override = (os.environ.get("PUBLIC_URL") or "").strip().rstrip("/")
+    if override:
+        return override
+    host = (request.host or "").strip()
+    if re.fullmatch(r"[A-Za-z0-9.-]{1,253}(:\d{1,5})?", host):
+        return f"{request.scheme}://{host}"
+    return DEFAULT_SITE_ROOT
+
+
 @app.get("/robots.txt")
 def robots_txt():
     """La SPA necesita un robots.txt explícito: sin él, el fallback devolvía HTML."""
-    root = request.url_root.rstrip("/")
+    root = site_root()
     body = (
         "User-agent: *\n"
         "Allow: /\n"
@@ -3538,7 +3586,7 @@ def robots_txt():
 
 @app.get("/sitemap.xml")
 def sitemap_xml():
-    root = request.url_root.rstrip("/")
+    root = site_root()
     urls = "".join(
         f"<url><loc>{root}{path}</loc><changefreq>weekly</changefreq></url>"
         for path in SPA_VIEWS
@@ -3559,6 +3607,11 @@ def not_found(e):
     if request.path.startswith("/api/") or request.path.startswith("/static/"):
         return jsonify({"error": "not_found"}), 404
     resp = make_response(render_template("index.html", boot=boot_config("home")))
+    # Ruta de cliente que no existe: devolvemos la SPA para que la persona vea
+    # la app, pero con su 404 real. Un 200 aquí convertiría cualquier URL
+    # inventada en contenido duplicado indexable y ocultaría errores de
+    # enlace a los monitorizadores de disponibilidad.
+    resp.status_code = 404
     resp.headers["Cache-Control"] = "public, max-age=30, stale-while-revalidate=300"
     return resp
 

@@ -159,10 +159,11 @@ el repositorio.
 | `SEED_DEMO` | `0` | `1` habilita cuentas auxiliares y acceso temporal de demostración; nunca crea anuncios ficticios |
 | `CONTACT_EMAIL` | `campuscircular@hotmail.com` | Correo de contacto y privacidad que aparece en los textos legales |
 | `CONTROLLER_NAME` | `Equipo Campus Circular (proyecto académico independiente)` | Responsable editorial mostrado en los textos legales |
-| `LEGAL_VERSION` | `2026-11-20` | Versión del consentimiento; cambiarla fuerza renovación |
-| `LEGAL_UPDATED` | `2026-11-20` | Fecha visible en los documentos |
+| `LEGAL_VERSION` | `2026-11-24` | Versión del consentimiento; cambiarla fuerza renovación |
+| `LEGAL_UPDATED` | `2026-11-24` | Fecha visible en los documentos |
 | `UNIVERSITY_DOMAINS` | lista interna (uvigo.gal, udc.es, usc.es, …) | Dominios de correo institucional que muestran la insignia informativa, separados por comas |
 | `CORS_ORIGINS` | `https://campus-circular.onrender.com` (+ localhost en desarrollo) | Orígenes con permiso CORS para la API, separados por comas |
+| `PUBLIC_URL` | origen del despliegue | URL absoluta que se escribe en `robots.txt` y `sitemap.xml`; si no se fija y el `Host` de la petición es sospechoso, se usa `https://campus-circular.onrender.com` |
 | `RATE_LIMIT_ENABLED` | `1` | `0` desactiva los límites de peticiones (solo para depurar) |
 | `TRUST_PROXY` | `1` | Saltos de proxy de confianza para `X-Forwarded-For`/`-Proto`; `0` sin proxy delante |
 | `REPORT_HIDE_THRESHOLD` | `3` | Reportes de cuentas distintas que retiran una publicación |
@@ -349,6 +350,7 @@ Ventana deslizante en memoria (`429` + `Retry-After`), por IP y por cuenta:
 | Subir foto | 25 / hora por cuenta |
 | Enviar solicitud | 20 / hora por cuenta |
 | Reportar | 10 / hora por cuenta |
+| Valorar un objeto | 20 / hora por cuenta |
 | Cambiar contraseña | 5 / hora por cuenta |
 | Editar publicación | 60 / hora por cuenta |
 | Cuenta demo | 40 / hora por IP |
@@ -372,6 +374,13 @@ que tenerlo en cuenta.
   `Strict-Transport-Security` cuando la petición llega por HTTPS.
 - `ProxyFix` con `TRUST_PROXY=1` para leer IP y protocolo reales detrás del
   proxy de Render.
+- Política de caché de la API: las respuestas de catálogo sin cabecera de
+  autorización se marcan `public, no-cache`; las que dependen del token,
+  `private, no-cache` con `Vary: Authorization`; y escrituras y errores,
+  `no-store`. Ninguna ventana de frescura, así que publicar se ve al instante.
+- `robots.txt` y `sitemap.xml` solo publican URLs del origen configurado: si el
+  `Host` de la petición no tiene pinta de nombre de máquina, se usa
+  `PUBLIC_URL` (o el origen de despliegue) en lugar de copiar lo que llegó.
 
 ### Moderación comunitaria
 
@@ -428,6 +437,8 @@ Para retirarlo sin reportes, el dueño puede eliminarlo desde **Mi área**.
 | GET | `/api/requests/received` | ✓ | Solicitudes recibidas |
 | PATCH | `/api/requests/:id` | ✓ | Aceptar/rechazar/completar/cancelar y ajustar el punto |
 | POST | `/api/requests/:id/rate` | ✓ | Valorar (1–5) una entrega completada |
+| GET | `/api/items/:id/comments` | — | Valoraciones y opiniones públicas del objeto (media,-count y paginado) |
+| POST | `/api/items/:id/comments` | ✓ | Dejar opinión (1–5 + texto ≤500); una por cuenta y objeto |
 | POST | `/api/items/:id/report` | ✓ | Reportar (`reason` cerrado + comentario ≤300); 3 cuentas distintas retiran el objeto |
 | POST | `/api/items/:id/restore` | ✓ `ADMIN_EMAILS` | Revisar y restaurar un objeto oculto por reportes; marca los reportes como `resuelto` |
 | POST | `/api/items/:id/favorite` | ✓ | Alternar favorito |
