@@ -2637,7 +2637,8 @@ picture { display: contents; }
 
 .publish-aside { display: grid; gap: var(--s3); }
 .aside-label { margin: 0; font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--muted); }
-.preview-card { box-shadow: var(--shadow-md); }
+.preview-card { box-shadow: var(--shadow-md); transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease); }
+.preview-card.is-ready { border-color: var(--green-500); box-shadow: var(--shadow-md), 0 0 0 3px var(--green-50); }
 .preview-media { aspect-ratio: 16 / 10; display: grid; place-items: center; background: var(--surface-2); color: var(--muted); }
 .preview-media.has-photo { background: var(--sand-200); }
 .preview-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: var(--s4); font-size: var(--text-xs); }
@@ -2663,7 +2664,9 @@ picture { display: contents; }
     border-inline: 0; border-block: 1px solid var(--line);
     border-radius: 0;
   }
-  .composer-progress .step-jump { min-height: 28px; padding: 2px 8px; }
+  .composer-progress .step-jump { min-height: 30px; padding: 2px 9px; }
+  .composer-progress .progress-copy span { display: none; }
+  .composer-progress .time-chip { display: none; }
   .composer-step { padding: var(--s4) 0; }
   .step-badge { flex-basis: 26px; width: 26px; height: 26px; font-size: var(--text-xs); }
   .step-title h2 { font-size: var(--text-md); }

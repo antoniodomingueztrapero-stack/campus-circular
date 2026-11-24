@@ -2526,11 +2526,12 @@ function renderPublish(app) {
       <div class="composer-progress" id="composer-progress">
         <div class="progress-copy"><strong id="progress-count">0/3</strong><span>${esc(t("publish_progress"))}</span></div>
         <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
-        <ul class="progress-steps">
+        <ul class="progress-steps" aria-label="${esc(t("form_quick"))}">
           <li data-step="photo"><button type="button" class="step-jump">${esc(t("publish_check_photo"))}</button></li>
           <li data-step="title"><button type="button" class="step-jump">${esc(t("publish_check_title"))}</button></li>
           <li data-step="consent"><button type="button" class="step-jump">${esc(t("publish_check_consent"))}</button></li>
         </ul>
+        <span class="time-chip">${icon("clock")}${esc(t("form_quick_hint"))}</span>
       </div>
 
       <section class="form-section composer-step" id="step-media">
@@ -2788,6 +2789,7 @@ function renderPublish(app) {
       previewPlaceholder.classList.remove("hidden");
       $("#preview-media").classList.remove("has-photo");
     }
+    $("#publish-preview").classList.toggle("is-ready", done === 3);
     const zoneEl = $("#upload-zone");
     zoneEl.classList.toggle("has-photo", photo);
     $("#photo-action").textContent = photo ? t("photo_added") : t("photo_drop_t");
